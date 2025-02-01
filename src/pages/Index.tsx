@@ -4,25 +4,25 @@ import { FilterSection } from "../components/FilterSection";
 
 const SEAMSTRESSES = [
   {
-    name: "Emma Thompson",
+    name: "Amara Okafor",
     image: "https://images.unsplash.com/photo-1594633313593-bab3825d0caf",
-    specialty: "Wedding Dresses",
+    specialty: "Traditional African Attire & Wedding Dresses",
     rating: 4.9,
     price: "$120/hr",
     location: "New York, NY"
   },
   {
-    name: "Sarah Chen",
+    name: "Zainab Mensah",
     image: "https://images.unsplash.com/photo-1595515106969-1ce29566ff1c",
-    specialty: "Evening Gowns",
+    specialty: "Evening Gowns & Traditional Wear",
     rating: 4.8,
     price: "$95/hr",
     location: "Los Angeles, CA"
   },
   {
-    name: "Maria Garcia",
+    name: "Chioma Adebayo",
     image: "https://images.unsplash.com/photo-1595908129346-3c4923829c03",
-    specialty: "Casual Wear",
+    specialty: "Contemporary African Fashion",
     rating: 4.7,
     price: "$85/hr",
     location: "Chicago, IL"
@@ -39,7 +39,7 @@ const Index = () => {
             Find Your Perfect Seamstress
           </h1>
           <p className="text-lg md:text-xl mb-8 text-gray-600 animate-fade-up">
-            Connect with talented seamstresses to bring your dream dress to life
+            Connect with talented seamstresses specializing in African and contemporary fashion
           </p>
           <div className="flex justify-center animate-fade-up">
             <SearchBar />
