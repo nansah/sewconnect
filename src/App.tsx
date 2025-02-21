@@ -16,19 +16,21 @@ import PrivacyPolicy from "@/pages/PrivacyPolicy";
 const App = () => {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/landing" element={<Landing />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/seamstress-profile" element={<SeamstressProfile />} />
-        <Route path="/seamstress-dashboard" element={<SeamstressDashboard />} />
-        <Route path="/messaging" element={<MessagingPortal />} />
-        <Route path="/forum" element={<Forum />} />
-        <Route path="/inspiration" element={<DesignInspiration />} />
-        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-      </Routes>
+      <div className="min-h-screen bg-[#EBE2D3]">
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/landing" element={<Landing />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/seamstress-profile" element={<SeamstressProfile />} />
+          <Route path="/seamstress-dashboard" element={<SeamstressDashboard />} />
+          <Route path="/messaging" element={<MessagingPortal />} />
+          <Route path="/forum" element={<Forum />} />
+          <Route path="/inspiration" element={<DesignInspiration />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        </Routes>
+      </div>
       <Toaster />
     </Router>
   );
