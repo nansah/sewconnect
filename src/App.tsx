@@ -1,6 +1,7 @@
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
+import { Layout } from "@/components/Layout";
 import Index from "@/pages/Index";
 import Landing from "@/pages/Landing";
 import { AdminDashboard } from "@/pages/AdminDashboard";
@@ -16,7 +17,7 @@ import PrivacyPolicy from "@/pages/PrivacyPolicy";
 const App = () => {
   return (
     <Router>
-      <div className="min-h-screen bg-[#EBE2D3]">
+      <Layout>
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/landing" element={<Landing />} />
@@ -30,7 +31,7 @@ const App = () => {
           <Route path="/inspiration" element={<DesignInspiration />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         </Routes>
-      </div>
+      </Layout>
       <Toaster />
     </Router>
   );
