@@ -1,4 +1,3 @@
-
 import { Card } from "../components/ui/card";
 import { Progress } from "../components/ui/progress";
 import { 
@@ -51,10 +50,8 @@ const SeamstressDashboard = () => {
 
     if (profile?.user_type !== 'seamstress') {
       navigate('/');
-      toast({
-        title: "Access Denied",
-        description: "This area is only for seamstresses.",
-        variant: "destructive"
+      toast("Access Denied", {
+        description: "This area is only for seamstresses."
       });
     }
   };
@@ -72,10 +69,8 @@ const SeamstressDashboard = () => {
 
       if (error) {
         console.error('Error fetching profile:', error);
-        toast({
-          title: "Error",
-          description: "Failed to fetch profile: " + error.message,
-          variant: "destructive"
+        toast("Error", {
+          description: "Failed to fetch profile: " + error.message
         });
         return;
       }
@@ -91,10 +86,8 @@ const SeamstressDashboard = () => {
       }
     } catch (error: any) {
       console.error('Error in fetchProfile:', error);
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred while fetching your profile.",
-        variant: "destructive"
+      toast("Error", {
+        description: "An unexpected error occurred while fetching your profile."
       });
     }
   };
@@ -112,10 +105,8 @@ const SeamstressDashboard = () => {
 
       if (error) {
         console.error('Error fetching orders:', error);
-        toast({
-          title: "Error",
-          description: "Failed to fetch orders: " + error.message,
-          variant: "destructive"
+        toast("Error", {
+          description: "Failed to fetch orders: " + error.message
         });
         return;
       }
@@ -123,10 +114,8 @@ const SeamstressDashboard = () => {
       setOrders(data || []);
     } catch (error: any) {
       console.error('Error in fetchOrders:', error);
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred while fetching orders.",
-        variant: "destructive"
+      toast("Error", {
+        description: "An unexpected error occurred while fetching orders."
       });
     } finally {
       setLoading(false);
@@ -137,10 +126,8 @@ const SeamstressDashboard = () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        toast({
-          title: "Error",
-          description: "You must be logged in to update your profile.",
-          variant: "destructive"
+        toast("Error", {
+          description: "You must be logged in to update your profile."
         });
         return;
       }
@@ -152,27 +139,22 @@ const SeamstressDashboard = () => {
 
       if (error) {
         console.error('Error updating profile:', error);
-        toast({
-          title: "Error",
-          description: "Failed to update profile: " + error.message,
-          variant: "destructive"
+        toast("Error", {
+          description: "Failed to update profile: " + error.message
         });
         return;
       }
 
-      toast({
-        title: "Success",
-        description: "Profile updated successfully.",
+      toast("Success", {
+        description: "Profile updated successfully."
       });
       
       setIsEditing(false);
       await fetchProfile(); // Refresh profile data
     } catch (error: any) {
       console.error('Error in handleUpdateProfile:', error);
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred while updating your profile.",
-        variant: "destructive"
+      toast("Error", {
+        description: "An unexpected error occurred while updating your profile."
       });
     }
   };
