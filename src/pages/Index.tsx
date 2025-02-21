@@ -38,7 +38,7 @@ const Index = () => {
     {
       id: "demo-seamstress-126",
       name: "Grace Mbeki",
-      image: "https://images.unsplash.com/photo-1519938755566-f59da6f8343d?w=400&h=400&fit=crop",
+      image: "https://images.unsplash.com/photo-1548142813-c348350df52b?w=400&h=400&fit=crop",
       specialty: "Contemporary African Fashion",
       rating: 4.7,
       price: "$80/hr",
@@ -74,7 +74,7 @@ const Index = () => {
     {
       id: "demo-seamstress-130",
       name: "Esther Moyo",
-      image: "https://images.unsplash.com/photo-1539701938214-0d9736e1c16c?w=400&h=400&fit=crop",
+      image: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=400&h=400&fit=crop",
       specialty: "Southern African Fashion",
       rating: 4.8,
       price: "$83/hr",
@@ -83,7 +83,7 @@ const Index = () => {
     {
       id: "demo-seamstress-131",
       name: "Aminata Sow",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
+      image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop",
       specialty: "West African Formal Wear",
       rating: 4.9,
       price: "$94/hr",
@@ -110,7 +110,7 @@ const Index = () => {
     {
       id: "demo-seamstress-134",
       name: "Maya Johnson",
-      image: "https://images.unsplash.com/photo-1500840216050-6ffa99d75160?w=400&h=400&fit=crop",
+      image: "https://images.unsplash.com/photo-1589156191108-c762ff4b96ab?w=400&h=400&fit=crop",
       specialty: "Professional Attire & Tailoring",
       rating: 4.8,
       price: "$92/hr",
