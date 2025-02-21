@@ -6,7 +6,8 @@ import {
   ListChecks, 
   Clock,
   ChevronRight,
-  Edit
+  Edit,
+  Loader2
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { useState, useEffect } from "react";
@@ -15,9 +16,36 @@ import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
+interface SeamstressProfile {
+  id: string;
+  user_id: string;
+  name: string;
+  specialty: string;
+  location: string;
+  price: string;
+  rating: number;
+  years_of_experience: number;
+  portfolio_images: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+interface Order {
+  id: string;
+  customer_name: string;
+  status: 'queued' | 'in_progress' | 'completed';
+  conversation: {
+    progress?: number;
+    orderDetails?: {
+      price: string;
+    };
+  };
+  created_at: string;
+}
+
 const SeamstressDashboard = () => {
   const navigate = useNavigate();
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<SeamstressProfile | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
     name: '',
@@ -25,23 +53,29 @@ const SeamstressDashboard = () => {
     location: '',
     price: ''
   });
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
-    checkAuth();
-    fetchProfile();
-    fetchOrders();
+    const initializeDashboard = async () => {
+      const isAuthenticated = await checkAuth();
+      if (isAuthenticated) {
+        await Promise.all([fetchProfile(), fetchOrders()]);
+      }
+      setLoading(false);
+    };
+
+    initializeDashboard();
   }, []);
 
-  const checkAuth = async () => {
+  const checkAuth = async (): Promise<boolean> => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       navigate('/login');
-      return;
+      return false;
     }
 
-    // Check if user is a seamstress
     const { data: profile } = await supabase
       .from('profiles')
       .select('user_type')
@@ -53,7 +87,10 @@ const SeamstressDashboard = () => {
       toast("Access Denied", {
         description: "This area is only for seamstresses."
       });
+      return false;
     }
+
+    return true;
   };
 
   const fetchProfile = async () => {
@@ -67,13 +104,7 @@ const SeamstressDashboard = () => {
         .eq('user_id', session.user.id)
         .single();
 
-      if (error) {
-        console.error('Error fetching profile:', error);
-        toast("Error", {
-          description: "Failed to fetch profile: " + error.message
-        });
-        return;
-      }
+      if (error) throw error;
 
       if (data) {
         setProfile(data);
@@ -87,7 +118,7 @@ const SeamstressDashboard = () => {
     } catch (error: any) {
       console.error('Error in fetchProfile:', error);
       toast("Error", {
-        description: "An unexpected error occurred while fetching your profile."
+        description: error.message
       });
     }
   };
@@ -103,27 +134,19 @@ const SeamstressDashboard = () => {
         .eq('seamstress_id', session.user.id)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching orders:', error);
-        toast("Error", {
-          description: "Failed to fetch orders: " + error.message
-        });
-        return;
-      }
-
+      if (error) throw error;
       setOrders(data || []);
     } catch (error: any) {
       console.error('Error in fetchOrders:', error);
       toast("Error", {
-        description: "An unexpected error occurred while fetching orders."
+        description: error.message
       });
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleUpdateProfile = async () => {
     try {
+      setUpdating(true);
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         toast("Error", {
@@ -137,32 +160,30 @@ const SeamstressDashboard = () => {
         .update(editForm)
         .eq('user_id', session.user.id);
 
-      if (error) {
-        console.error('Error updating profile:', error);
-        toast("Error", {
-          description: "Failed to update profile: " + error.message
-        });
-        return;
-      }
+      if (error) throw error;
 
       toast("Success", {
         description: "Profile updated successfully."
       });
       
       setIsEditing(false);
-      await fetchProfile(); // Refresh profile data
+      await fetchProfile();
     } catch (error: any) {
       console.error('Error in handleUpdateProfile:', error);
       toast("Error", {
-        description: "An unexpected error occurred while updating your profile."
+        description: error.message
       });
+    } finally {
+      setUpdating(false);
     }
   };
 
   if (loading) {
-    return <div className="min-h-screen bg-[#EBE2D3] p-8 flex items-center justify-center">
-      Loading...
-    </div>;
+    return (
+      <div className="min-h-screen bg-[#EBE2D3] p-8 flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
   }
 
   const queueOrders = orders.filter(order => order.status === 'queued');
@@ -172,13 +193,16 @@ const SeamstressDashboard = () => {
   const queuePercentage = totalOrders ? (queueOrders.length / totalOrders) * 100 : 0;
   const progressPercentage = totalOrders ? (progressOrders.length / totalOrders) * 100 : 0;
 
-  // Calculate total progress for orders in progress
   const totalProgress = progressOrders.length > 0 
-    ? progressOrders.reduce((sum, order) => {
-        const conversation = order.conversation || {};
-        return sum + (conversation.progress || 0);
-      }, 0) / progressOrders.length 
+    ? progressOrders.reduce((sum, order) => sum + (order.conversation?.progress || 0), 0) / progressOrders.length 
     : 0;
+
+  const totalSales = orders.reduce((sum, order) => {
+    const price = order.conversation?.orderDetails?.price || "0";
+    return sum + parseInt(price.replace(/\D/g, ''));
+  }, 0);
+
+  const uniqueCustomers = new Set(orders.map(order => order.customer_name)).size;
 
   return (
     <div className="min-h-screen bg-[#EBE2D3] p-8">
@@ -188,9 +212,10 @@ const SeamstressDashboard = () => {
           <Button 
             onClick={() => setIsEditing(!isEditing)}
             className="bg-accent hover:bg-accent/90 text-white"
+            disabled={updating}
           >
-            <Edit className="w-4 h-4 mr-2" />
             {isEditing ? "Cancel Editing" : "Edit Profile"}
+            {updating && <Loader2 className="w-4 h-4 ml-2 animate-spin" />}
           </Button>
         </div>
 
@@ -227,7 +252,10 @@ const SeamstressDashboard = () => {
                   onChange={(e) => setEditForm(prev => ({ ...prev, price: e.target.value }))}
                 />
               </div>
-              <Button onClick={handleUpdateProfile}>Save Changes</Button>
+              <Button onClick={handleUpdateProfile} disabled={updating}>
+                Save Changes
+                {updating && <Loader2 className="w-4 h-4 ml-2 animate-spin" />}
+              </Button>
             </div>
           </Card>
         )}
@@ -241,12 +269,7 @@ const SeamstressDashboard = () => {
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">Total Sales</p>
-                <p className="text-3xl font-bold text-gray-800">
-                  ${orders.reduce((sum, order) => {
-                    const price = order.conversation?.orderDetails?.price || "0";
-                    return sum + parseInt(price.replace(/\D/g, ''));
-                  }, 0)}
-                </p>
+                <p className="text-3xl font-bold text-gray-800">${totalSales}</p>
               </div>
             </div>
           </Card>
@@ -258,9 +281,7 @@ const SeamstressDashboard = () => {
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">Customers</p>
-                <p className="text-3xl font-bold text-gray-800">
-                  {new Set(orders.map(order => order.customer_name)).size}
-                </p>
+                <p className="text-3xl font-bold text-gray-800">{uniqueCustomers}</p>
               </div>
             </div>
           </Card>
