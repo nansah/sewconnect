@@ -1,4 +1,3 @@
-
 import { SearchBar } from "../components/SearchBar";
 import { SeamstressCard } from "../components/SeamstressCard";
 import { FilterSection } from "../components/FilterSection";
@@ -172,6 +171,30 @@ const SEAMSTRESSES = [
     rating: 4.7,
     price: "$100/hr",
     location: "Sacramento, CA"
+  },
+  {
+    name: "Rachel Thompson",
+    image: "https://images.pexels.com/photos/1181642/pexels-photo-1181642.jpeg?auto=compress&cs=tinysrgb&w=800",
+    specialty: "Children's Clothing & Special Occasions",
+    rating: 4.9,
+    price: "$95/hr",
+    location: "Orlando, FL"
+  },
+  {
+    name: "Hannah Park",
+    image: "https://images.pexels.com/photos/1181648/pexels-photo-1181648.jpeg?auto=compress&cs=tinysrgb&w=800",
+    specialty: "Kids Fashion & School Uniforms",
+    rating: 4.8,
+    price: "$85/hr",
+    location: "Charlotte, NC"
+  },
+  {
+    name: "Jessica Wilson",
+    image: "https://images.pexels.com/photos/1181654/pexels-photo-1181654.jpeg?auto=compress&cs=tinysrgb&w=800",
+    specialty: "Children's Formal Wear & Costumes",
+    rating: 4.7,
+    price: "$90/hr",
+    location: "Raleigh, NC"
   }
 ];
 
