@@ -22,5 +22,4 @@ export interface Message {
   text: string;
   sender: "user" | "seamstress";
   type?: "measurements" | "image" | "system";
-  [key: string]: string | undefined; // This makes it compatible with Json type
 }
