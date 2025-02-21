@@ -9,14 +9,14 @@ interface GroupBannerProps {
 
 export const GroupBanner = ({ name, members, bannerImage }: GroupBannerProps) => {
   return (
-    <div className="relative h-64 w-full">
+    <div className="relative h-[400px] w-full">
       <img 
         src={bannerImage} 
         alt="Group Banner" 
         className="w-full h-full object-cover"
         onError={(e) => {
           console.error("Image failed to load:", bannerImage);
-          // Try a different African fashion image as fallback
+          // Fallback to a default African fashion image if the upload fails
           e.currentTarget.src = "https://images.pexels.com/photos/2968231/pexels-photo-2968231.jpeg";
         }}
         onLoad={() => {

@@ -108,7 +108,7 @@ const Forum = () => {
     name: "SewConnect Community",
     members: 856,
     description: "A welcoming space for customers to connect, share experiences, and discuss their African fashion journey. Find recommendations, share success stories, and get advice from fellow fashion enthusiasts.",
-    bannerImage: "https://images.pexels.com/photos/2968231/pexels-photo-2968231.jpeg"
+    bannerImage: "/lovable-uploads/6d4ccea6-1979-41f8-89f7-afdd7985ce83.png"
   };
 
   useEffect(() => {
