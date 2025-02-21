@@ -86,12 +86,13 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-[#EBE2D3]">
       <Header />
-      <div 
-        className="relative h-[600px] bg-cover bg-center before:absolute before:inset-0 before:bg-black/30"
-        style={{ 
-          backgroundImage: `url('https://images.unsplash.com/photo-1524069615294-e7f6267d12f3?auto=format&fit=crop&w=2000&q=80')`
-        }}
-      >
+      <div className="relative h-[600px] overflow-hidden">
+        <img 
+          src="https://images.pexels.com/photos/6192554/pexels-photo-6192554.jpeg"
+          alt="African Fashion"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-black/30" />
         <div className="absolute inset-0 flex flex-col items-center justify-center text-white z-10 px-4">
           <h1 className="text-5xl font-bold text-center mb-6 max-w-3xl animate-fade-up">
             Connect with Expert African Seamstresses
