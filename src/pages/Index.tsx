@@ -7,7 +7,6 @@ import { useState } from "react";
 import { DateRange } from "react-day-picker";
 
 const Index = () => {
-  // Demo seamstresses data with proper IDs for database operations
   const demoSeamstresses = [
     {
       id: "demo-seamstress-123",
@@ -44,6 +43,51 @@ const Index = () => {
       rating: 4.7,
       price: "$80/hr",
       location: "Nairobi, Kenya"
+    },
+    {
+      id: "demo-seamstress-127",
+      name: "Chioma Adebayo",
+      image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop",
+      specialty: "Ankara Print Design",
+      rating: 4.9,
+      price: "$88/hr",
+      location: "Abuja, Nigeria"
+    },
+    {
+      id: "demo-seamstress-128",
+      name: "Fatima Omar",
+      image: "https://images.unsplash.com/photo-1509967419530-da38b4704bc6?w=400&h=400&fit=crop",
+      specialty: "East African Traditional Wear",
+      rating: 4.8,
+      price: "$92/hr",
+      location: "Addis Ababa, Ethiopia"
+    },
+    {
+      id: "demo-seamstress-129",
+      name: "Nadia Mensah",
+      image: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=400&fit=crop",
+      specialty: "Kente Cloth Designs",
+      rating: 4.7,
+      price: "$87/hr",
+      location: "Kumasi, Ghana"
+    },
+    {
+      id: "demo-seamstress-130",
+      name: "Esther Moyo",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
+      specialty: "Southern African Fashion",
+      rating: 4.8,
+      price: "$83/hr",
+      location: "Harare, Zimbabwe"
+    },
+    {
+      id: "demo-seamstress-131",
+      name: "Aminata Sow",
+      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop",
+      specialty: "West African Formal Wear",
+      rating: 4.9,
+      price: "$94/hr",
+      location: "Bamako, Mali"
     }
   ];
 
