@@ -29,12 +29,12 @@ export const HeroSection = ({ onSearch }: HeroSectionProps) => {
       let timeout = shouldDelete ? 50 : 150; // Delete faster than type
 
       if (!shouldDelete && displayText === currentWord) {
-        timeout = 2000; // Pause at the end of word
+        timeout = 3500; // Increased pause at the end of word from 2000 to 3500ms
         setIsDeleting(true);
       } else if (shouldDelete && displayText === "") {
         setIsDeleting(false);
         setWordIndex((prev) => (prev + 1) % words.length);
-        timeout = 500; // Pause before starting new word
+        timeout = 1500; // Increased pause before starting new word from 500 to 1500ms
       }
 
       timeoutId = setTimeout(typeWriter, timeout);
