@@ -11,39 +11,39 @@ const Index = () => {
   const demoSeamstresses = [
     {
       id: "demo-seamstress-123",
-      name: "Sarah Johnson",
-      image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=400&fit=crop",
-      specialty: "Traditional African Attire",
-      rating: 4.8,
-      price: "$80/hr",
+      name: "Amara Okafor",
+      image: "https://images.unsplash.com/photo-1589156191108-c762ff4b96ab?w=400&h=400&fit=crop",
+      specialty: "Traditional Nigerian Attire",
+      rating: 4.9,
+      price: "$85/hr",
       location: "Lagos, Nigeria"
     },
     {
       id: "demo-seamstress-124",
-      name: "Maria Garcia",
-      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop",
-      specialty: "Wedding Dresses",
-      rating: 4.9,
-      price: "$95/hr",
-      location: "Madrid, Spain"
+      name: "Zainab Ahmed",
+      image: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=400&h=400&fit=crop",
+      specialty: "Modern African Fusion",
+      rating: 4.8,
+      price: "$90/hr",
+      location: "Accra, Ghana"
     },
     {
       id: "demo-seamstress-125",
-      name: "Yuki Tanaka",
-      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop",
-      specialty: "Modern Fashion",
-      rating: 4.7,
-      price: "$75/hr",
-      location: "Tokyo, Japan"
+      name: "Aisha Diallo",
+      image: "https://images.unsplash.com/photo-1523824921871-d6f1a15151f1?w=400&h=400&fit=crop",
+      specialty: "Traditional Wedding Attire",
+      rating: 4.9,
+      price: "$95/hr",
+      location: "Dakar, Senegal"
     },
     {
       id: "demo-seamstress-126",
-      name: "Emma Wilson",
-      image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop",
-      specialty: "Vintage Clothing",
-      rating: 4.6,
-      price: "$85/hr",
-      location: "London, UK"
+      name: "Grace Mbeki",
+      image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop",
+      specialty: "Contemporary African Fashion",
+      rating: 4.7,
+      price: "$80/hr",
+      location: "Nairobi, Kenya"
     }
   ];
 
