@@ -14,6 +14,10 @@ export interface Seamstress {
 
 export interface LocationState {
   seamstress: Seamstress;
+  designToShare?: {
+    imageUrl: string;
+    description: string;
+  };
 }
 
 export interface Measurements {

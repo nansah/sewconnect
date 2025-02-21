@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { LocationState, Message, Measurements } from "@/types/messaging";
@@ -23,7 +24,7 @@ const DEFAULT_MEASUREMENTS: Measurements = {
 const MessagingPortal = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { seamstress } = (location.state as LocationState) || { 
+  const { seamstress, designToShare } = (location.state as LocationState & { designToShare?: { imageUrl: string; description: string } }) || { 
     seamstress: {
       id: "demo-seamstress-123",
       name: "Sarah Johnson",
@@ -38,6 +39,24 @@ const MessagingPortal = () => {
   const [showDeliveryTimeframe, setShowDeliveryTimeframe] = useState(false);
   
   const { messages, conversationId, loading, updateConversation } = useConversation(seamstress);
+
+  // Handle shared design when component mounts
+  useState(() => {
+    if (designToShare && conversationId) {
+      const designMessage: Message = {
+        text: designToShare.imageUrl,
+        sender: "user",
+        type: "image",
+        created_at: new Date().toISOString()
+      };
+      const descriptionMessage: Message = {
+        text: `I'm interested in this design: ${designToShare.description}`,
+        sender: "user",
+        created_at: new Date().toISOString()
+      };
+      updateConversation([...messages, designMessage, descriptionMessage]);
+    }
+  }, [conversationId, designToShare]);
 
   const handleSend = async () => {
     if (!message.trim() || !conversationId) return;
@@ -173,7 +192,7 @@ const MessagingPortal = () => {
 
       const orderConfirmMessage: Message = {
         text: "✨ Order has been submitted successfully",
-        sender: "seamstress",
+        sender: "system",
         type: "system",
         created_at: new Date().toISOString()
       };
