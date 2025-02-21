@@ -78,10 +78,10 @@ const SeamstressProfile = () => {
           {/* Left Column - Details */}
           <div className="lg:col-span-2">
             <Tabs defaultValue="about" className="w-full">
-              <TabsList className="w-full bg-white/50 backdrop-blur-sm mb-6">
-                <TabsTrigger value="about" className="flex-1">About</TabsTrigger>
-                <TabsTrigger value="specialties" className="flex-1">Specialties</TabsTrigger>
-                <TabsTrigger value="gallery" className="flex-1">Gallery</TabsTrigger>
+              <TabsList className="w-full bg-white mb-6">
+                <TabsTrigger value="about" className="flex-1 bg-white">About</TabsTrigger>
+                <TabsTrigger value="specialties" className="flex-1 bg-white">Specialties</TabsTrigger>
+                <TabsTrigger value="gallery" className="flex-1 bg-white">Gallery</TabsTrigger>
               </TabsList>
               
               <TabsContent value="about" className="mt-6 bg-[#FDE1D3] rounded-xl p-8">
