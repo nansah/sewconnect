@@ -245,15 +245,9 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-secondary">
       <Header />
-      {/* Hero Section */}
-      <div 
-        className="relative bg-cover bg-center py-32 px-4 before:absolute before:inset-0 before:bg-black/40"
-        style={{ 
-          backgroundImage: 'url("https://images.pexels.com/photos/4620843/pexels-photo-4620843.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2")',
-          backgroundAttachment: 'fixed'
-        }}
-      >
-        <div className="relative z-10 max-w-6xl mx-auto text-center space-y-8">
+      {/* Hero Section with brand color background */}
+      <div className="bg-[#9b87f5] py-32 px-4">
+        <div className="max-w-6xl mx-auto text-center space-y-8">
           <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-up text-white">
             Find Your Perfect Seamstress
           </h1>
