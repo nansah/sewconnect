@@ -24,6 +24,39 @@ export type Database = {
         }
         Relationships: []
       }
+      orders: {
+        Row: {
+          conversation: Json
+          created_at: string | null
+          customer_name: string
+          id: string
+          measurements: string | null
+          seamstress_id: string
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          conversation: Json
+          created_at?: string | null
+          customer_name: string
+          id?: string
+          measurements?: string | null
+          seamstress_id: string
+          status: string
+          updated_at?: string | null
+        }
+        Update: {
+          conversation?: Json
+          created_at?: string | null
+          customer_name?: string
+          id?: string
+          measurements?: string | null
+          seamstress_id?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string

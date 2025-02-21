@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { LocationState, Message, Measurements } from "@/types/messaging";
@@ -6,7 +5,7 @@ import { MessageList } from "@/components/messaging/MessageList";
 import { MessageInput } from "@/components/messaging/MessageInput";
 import { MeasurementsForm } from "@/components/messaging/MeasurementsForm";
 import { Button } from "@/components/ui/button";
-import { Send, FileCheck } from "lucide-react";
+import { FileCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -81,17 +80,15 @@ const MessagingPortal = () => {
       const lastMeasurement = messages.find(msg => msg.type === 'measurements');
       
       // Create the order in the queue
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('orders')
-        .insert([
-          {
-            seamstress_id: seamstress.id || '',
-            customer_name: "Customer Name", // This should come from auth context in a real app
-            status: 'queued',
-            measurements: lastMeasurement?.text || '',
-            conversation: messages
-          }
-        ])
+        .insert({
+          seamstress_id: seamstress.id || '',
+          customer_name: "Customer Name", // This should come from auth context in a real app
+          status: 'queued',
+          measurements: lastMeasurement?.text || '',
+          conversation: messages
+        } as any) // Using 'any' temporarily until we define proper database types
         .select()
         .single();
 
