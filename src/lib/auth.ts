@@ -48,9 +48,8 @@ export async function signIn(email: string, password: string) {
 export async function demoSeamstressLogin() {
   console.log("Starting demo seamstress login...");
   try {
-    // Demo credentials - make sure these match a real user in your Supabase auth
     const { data, error } = await supabase.auth.signInWithPassword({
-      email: "demo.seamstress@example.com",
+      email: "demo.seamstress.1@example.com",
       password: "demo123456!",
     });
 
@@ -78,4 +77,3 @@ export async function signOut() {
     toast.error(error.message);
   }
 }
-
