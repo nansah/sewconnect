@@ -89,7 +89,7 @@ const Index = () => {
       <div 
         className="relative h-[600px] bg-cover bg-center before:absolute before:inset-0 before:bg-black/30"
         style={{ 
-          backgroundImage: `url('https://images.unsplash.com/photo-1577455142149-7a819f52eec3?auto=format&fit=crop&w=2000&q=80')`
+          backgroundImage: `url('/lovable-uploads/330e2014-d4c3-4281-9f22-27e07f0285c7.png')`
         }}
       >
         <div className="absolute inset-0 flex flex-col items-center justify-center text-white z-10 px-4">
