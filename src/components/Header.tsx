@@ -26,7 +26,7 @@ export const Header = () => {
   return (
     <header className="bg-white shadow-sm">
       <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-        <Link to="/" className="text-xl font-bold text-[#1A1F2C]">
+        <Link to="/" className="text-xl font-bold text-accent hover:text-accent/90 transition-colors">
           SewConnect
         </Link>
         <div className="flex gap-4">
