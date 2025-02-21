@@ -14,6 +14,10 @@ export const GroupBanner = ({ name, members, bannerImage }: GroupBannerProps) =>
         src={bannerImage} 
         alt="Group Banner" 
         className="w-full h-full object-cover"
+        onError={(e) => {
+          console.error("Image failed to load:", bannerImage);
+          e.currentTarget.src = "https://images.pexels.com/photos/6192554/pexels-photo-6192554.jpeg";
+        }}
       />
       <div className="absolute inset-0 bg-black/40" />
       <div className="absolute bottom-6 left-6 text-white">
