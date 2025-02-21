@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -7,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Send, Ruler, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Send, Ruler, Paperclip, CheckCircle, AlertTriangle } from 'lucide-react';
 import { useConversation } from "@/hooks/useConversation";
 
 interface LocationState {
@@ -122,6 +121,21 @@ const MessagingPortal = () => {
     });
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // For now, we'll just create a temporary URL for the image
+      const imageUrl = URL.createObjectURL(file);
+      const newMessage: Message = {
+        text: imageUrl,
+        sender: "user",
+        created_at: new Date().toISOString(),
+        type: "image"
+      };
+      updateConversation([...messages, newMessage]);
+    }
+  };
+
   if (loading) {
     return <div className="flex justify-center items-center h-screen">Loading messages...</div>;
   }
@@ -200,6 +214,21 @@ const MessagingPortal = () => {
               className="hover:bg-gray-200"
             >
               <Ruler className="w-5 h-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="hover:bg-gray-200"
+              onClick={() => document.getElementById('image-upload')?.click()}
+            >
+              <Paperclip className="w-5 h-5" />
+              <input
+                id="image-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
             </Button>
             <Input
               type="text"
