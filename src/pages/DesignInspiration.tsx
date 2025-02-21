@@ -1,10 +1,19 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { SearchBar } from "@/components/SearchBar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Bookmark, Share2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
+
+interface Design {
+  id: string;
+  imageUrl: string;
+  description: string;
+  bookmarked: boolean;
+}
 
 // Temporary mock data until Pinterest API integration
 const mockDesigns = [
@@ -36,8 +45,39 @@ const mockDesigns = [
 
 const DesignInspiration = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
-  const [designs, setDesigns] = useState(mockDesigns);
+  const [designs, setDesigns] = useState<Design[]>(mockDesigns);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadBookmarkedDesigns();
+  }, []);
+
+  const loadBookmarkedDesigns = async () => {
+    try {
+      const { data: bookmarks, error } = await supabase
+        .from('bookmarked_designs')
+        .select('image_url');
+
+      if (error) throw error;
+
+      // Update designs with bookmark status
+      setDesigns(designs.map(design => ({
+        ...design,
+        bookmarked: bookmarks?.some(bookmark => bookmark.image_url === design.imageUrl) || false
+      })));
+    } catch (error) {
+      console.error('Error loading bookmarks:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to load bookmarked designs.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSearch = (term: string) => {
     setSearchTerm(term);
@@ -45,26 +85,84 @@ const DesignInspiration = () => {
     console.log("Searching for:", term);
   };
 
-  const toggleBookmark = (id: string) => {
-    setDesigns(designs.map(design => 
-      design.id === id 
-        ? { ...design, bookmarked: !design.bookmarked }
-        : design
-    ));
-    
-    toast({
-      title: "Design saved",
-      description: "The design has been added to your bookmarks.",
+  const toggleBookmark = async (design: Design) => {
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.user) {
+        toast({
+          title: "Authentication required",
+          description: "Please log in to bookmark designs.",
+        });
+        return;
+      }
+
+      if (design.bookmarked) {
+        // Remove bookmark
+        const { error } = await supabase
+          .from('bookmarked_designs')
+          .delete()
+          .eq('image_url', design.imageUrl)
+          .eq('user_id', session.session.user.id);
+
+        if (error) throw error;
+      } else {
+        // Add bookmark
+        const { error } = await supabase
+          .from('bookmarked_designs')
+          .insert({
+            user_id: session.session.user.id,
+            image_url: design.imageUrl,
+            description: design.description
+          });
+
+        if (error) throw error;
+      }
+
+      // Update local state
+      setDesigns(designs.map(d => 
+        d.id === design.id ? { ...d, bookmarked: !d.bookmarked } : d
+      ));
+
+      toast({
+        title: design.bookmarked ? "Design removed" : "Design saved",
+        description: design.bookmarked 
+          ? "The design has been removed from your bookmarks."
+          : "The design has been added to your bookmarks.",
+      });
+    } catch (error) {
+      console.error('Error toggling bookmark:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update bookmark.",
+      });
+    }
+  };
+
+  const shareWithSeamstress = (design: Design) => {
+    // Navigate to messaging portal with the design data
+    navigate('/messaging', { 
+      state: { 
+        seamstress: {
+          id: "demo-seamstress",
+          name: "Sarah Johnson",
+          image: "https://images.unsplash.com/photo-1589156191108-c762ff4b96ab?w=400&h=400&fit=crop"
+        },
+        designToShare: {
+          imageUrl: design.imageUrl,
+          description: design.description
+        }
+      }
     });
   };
 
-  const shareWithSeamstress = (design: typeof designs[0]) => {
-    // This would integrate with the messaging system
-    toast({
-      title: "Design shared",
-      description: "The design has been shared with your seamstress.",
-    });
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#EBE2D3] p-6 flex items-center justify-center">
+        <p>Loading designs...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#EBE2D3] p-6">
@@ -93,7 +191,7 @@ const DesignInspiration = () => {
                       <Button
                         variant="secondary"
                         size="sm"
-                        onClick={() => toggleBookmark(design.id)}
+                        onClick={() => toggleBookmark(design)}
                         className="flex-1"
                       >
                         <Bookmark 

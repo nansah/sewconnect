@@ -24,6 +24,30 @@ export type Database = {
         }
         Relationships: []
       }
+      bookmarked_designs: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          image_url: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
           created_at: string | null
