@@ -76,17 +76,17 @@ const SeamstressProfile = () => {
       <div className="max-w-6xl mx-auto px-6 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           {/* Left Column - Details */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2">
             <Tabs defaultValue="about" className="w-full">
-              <TabsList className="bg-white/50 backdrop-blur-sm">
-                <TabsTrigger value="about">About</TabsTrigger>
-                <TabsTrigger value="specialties">Specialties</TabsTrigger>
-                <TabsTrigger value="gallery">Gallery</TabsTrigger>
+              <TabsList className="w-full bg-white/50 backdrop-blur-sm mb-6">
+                <TabsTrigger value="about" className="flex-1">About</TabsTrigger>
+                <TabsTrigger value="specialties" className="flex-1">Specialties</TabsTrigger>
+                <TabsTrigger value="gallery" className="flex-1">Gallery</TabsTrigger>
               </TabsList>
               
-              <TabsContent value="about" className="mt-6">
-                <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg">
-                  <h3 className="text-xl font-semibold mb-4">About Me</h3>
+              <TabsContent value="about" className="mt-6 bg-[#F2FCE2] rounded-xl p-8">
+                <div className="space-y-4">
+                  <h3 className="text-2xl font-semibold mb-4">About Me</h3>
                   <p className="text-gray-700 leading-relaxed">
                     With over 10 years of experience in creating beautiful, custom-made garments, 
                     I specialize in bringing your vision to life. My passion lies in combining traditional 
@@ -95,8 +95,8 @@ const SeamstressProfile = () => {
                 </div>
               </TabsContent>
 
-              <TabsContent value="specialties" className="mt-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <TabsContent value="specialties" className="mt-6 bg-[#FEF7CD] rounded-xl p-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {["Traditional African Attire", "Wedding Dresses", "Evening Gowns", "Alterations"].map((specialty, index) => (
                     <div key={index} className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg">
                       <h4 className="font-semibold text-lg mb-2">{specialty}</h4>
@@ -108,8 +108,8 @@ const SeamstressProfile = () => {
                 </div>
               </TabsContent>
 
-              <TabsContent value="gallery" className="mt-6">
-                <div className="grid grid-cols-2 gap-4">
+              <TabsContent value="gallery" className="mt-6 bg-[#D3E4FD] rounded-xl p-8">
+                <div className="grid grid-cols-2 gap-6">
                   {galleryImages.map((image, index) => (
                     <div key={index} className="aspect-square rounded-xl overflow-hidden shadow-lg">
                       <img
