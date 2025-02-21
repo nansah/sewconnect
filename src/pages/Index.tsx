@@ -154,12 +154,14 @@ const Index = () => {
 
     // Apply search filter
     if (search) {
-      const searchLower = search.toLowerCase();
+      const searchLower = search.toLowerCase().trim();
       filtered = filtered.filter(seamstress =>
         seamstress.location.toLowerCase().includes(searchLower) ||
         seamstress.specialty.toLowerCase().includes(searchLower) ||
         seamstress.name.toLowerCase().includes(searchLower)
       );
+      console.log("Search term (lowercase):", searchLower); // Debug log
+      console.log("Available locations:", demoSeamstresses.map(s => s.location)); // Debug log
       console.log("Filtered results:", filtered); // Debug log
     }
 
@@ -185,14 +187,13 @@ const Index = () => {
     // Apply location filter
     if (filters.location) {
       filtered = filtered.filter(seamstress =>
-        seamstress.location.includes(filters.location)
+        seamstress.location.toLowerCase().includes(filters.location.toLowerCase())
       );
     }
 
     setFilteredSeamstresses(filtered);
   };
 
-  // Added useEffect to log initial state
   useEffect(() => {
     console.log("Current filtered seamstresses:", filteredSeamstresses);
   }, [filteredSeamstresses]);
