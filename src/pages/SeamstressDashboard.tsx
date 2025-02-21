@@ -10,133 +10,212 @@ import {
   Ruler,
   DollarSign,
   Calendar,
-  Image
+  Image,
+  Edit
 } from "lucide-react";
 import { Button } from "../components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
 
 const SeamstressDashboard = () => {
-  const totalOrders = 11;
-  const queueOrders = 8;
-  const progressOrders = 3;
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [profile, setProfile] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState({
+    name: '',
+    specialty: '',
+    location: '',
+    price: ''
+  });
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    checkAuth();
+    fetchProfile();
+    fetchOrders();
+  }, []);
+
+  const checkAuth = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      navigate('/login');
+      return;
+    }
+
+    // Check if user is a seamstress
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('user_type')
+      .eq('id', session.user.id)
+      .single();
+
+    if (profile?.user_type !== 'seamstress') {
+      navigate('/');
+      toast({
+        variant: "destructive",
+        title: "Access Denied",
+        description: "This area is only for seamstresses.",
+      });
+    }
+  };
+
+  const fetchProfile = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+
+    const { data, error } = await supabase
+      .from('seamstress_profiles')
+      .select('*')
+      .eq('user_id', session.user.id)
+      .single();
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to fetch profile.",
+      });
+      return;
+    }
+
+    if (data) {
+      setProfile(data);
+      setEditForm({
+        name: data.name,
+        specialty: data.specialty,
+        location: data.location,
+        price: data.price
+      });
+    }
+  };
+
+  const fetchOrders = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('seamstress_id', session.user.id)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to fetch orders.",
+      });
+      return;
+    }
+
+    setOrders(data || []);
+    setLoading(false);
+  };
+
+  const handleUpdateProfile = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+
+    const { error } = await supabase
+      .from('seamstress_profiles')
+      .update(editForm)
+      .eq('user_id', session.user.id);
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update profile.",
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Profile updated successfully.",
+    });
+    
+    setIsEditing(false);
+    fetchProfile();
+  };
+
+  if (loading) {
+    return <div className="min-h-screen bg-[#EBE2D3] p-8 flex items-center justify-center">
+      Loading...
+    </div>;
+  }
+
+  const queueOrders = orders.filter(order => order.status === 'queued');
+  const progressOrders = orders.filter(order => order.status === 'in_progress');
+  const totalOrders = orders.length;
   
-  const queuePercentage = (queueOrders / totalOrders) * 100;
-  const progressPercentage = (progressOrders / totalOrders) * 100;
+  const queuePercentage = totalOrders ? (queueOrders.length / totalOrders) * 100 : 0;
+  const progressPercentage = totalOrders ? (progressOrders.length / totalOrders) * 100 : 0;
 
-  // Sample progress data for each order with additional details
-  const orderProgress = [
-    { 
-      id: 2001, 
-      progress: 75, 
-      customerName: "Emma Wilson",
-      measurements: "Bust: 36\nWaist: 28\nHips: 38",
-      price: "$250",
-      timeframe: "2 weeks",
-      inspiration: "https://images.unsplash.com/photo-1618932260643-eee4a2f652a6"
-    },
-    { 
-      id: 2002, 
-      progress: 45, 
-      customerName: "James Smith",
-      measurements: "Bust: 34\nWaist: 26\nHips: 36",
-      price: "$200",
-      timeframe: "10 days",
-      inspiration: "https://images.unsplash.com/photo-1618932260643-eee4a2f652a6"
-    },
-    { 
-      id: 2003, 
-      progress: 90, 
-      customerName: "Sarah Johnson",
-      measurements: "Bust: 38\nWaist: 30\nHips: 40",
-      price: "$300",
-      timeframe: "3 weeks",
-      inspiration: "https://images.unsplash.com/photo-1618932260643-eee4a2f652a6"
-    },
-  ];
-
-  // Sample queue data with additional details
-  const queuedOrders = [
-    { 
-      id: 1001, 
-      customerName: "Michael Brown",
-      measurements: "Bust: 40\nWaist: 32\nHips: 42",
-      price: "$275",
-      timeframe: "2 weeks",
-      inspiration: "https://images.unsplash.com/photo-1618932260643-eee4a2f652a6"
-    },
-    { 
-      id: 1002, 
-      customerName: "Sophie Taylor",
-      measurements: "Bust: 35\nWaist: 27\nHips: 37",
-      price: "$225",
-      timeframe: "1 week",
-      inspiration: "https://images.unsplash.com/photo-1618932260643-eee4a2f652a6"
-    },
-    { 
-      id: 1003, 
-      customerName: "David Miller",
-      measurements: "Bust: 42\nWaist: 34\nHips: 44",
-      price: "$300",
-      timeframe: "3 weeks",
-      inspiration: "https://images.unsplash.com/photo-1618932260643-eee4a2f652a6"
-    },
-    { 
-      id: 1004, 
-      customerName: "Lisa Anderson",
-      measurements: "Bust: 37\nWaist: 29\nHips: 39",
-      price: "$250",
-      timeframe: "2 weeks",
-      inspiration: "https://images.unsplash.com/photo-1618932260643-eee4a2f652a6"
-    },
-    { 
-      id: 1005, 
-      customerName: "Robert Clark",
-      measurements: "Bust: 39\nWaist: 31\nHips: 41",
-      price: "$275",
-      timeframe: "2 weeks",
-      inspiration: "https://images.unsplash.com/photo-1618932260643-eee4a2f652a6"
-    },
-    { 
-      id: 1006, 
-      customerName: "Emily White",
-      measurements: "Bust: 36\nWaist: 28\nHips: 38",
-      price: "$225",
-      timeframe: "10 days",
-      inspiration: "https://images.unsplash.com/photo-1618932260643-eee4a2f652a6"
-    },
-    { 
-      id: 1007, 
-      customerName: "John Davis",
-      measurements: "Bust: 41\nWaist: 33\nHips: 43",
-      price: "$290",
-      timeframe: "3 weeks",
-      inspiration: "https://images.unsplash.com/photo-1618932260643-eee4a2f652a6"
-    },
-    { 
-      id: 1008, 
-      customerName: "Amy Thompson",
-      measurements: "Bust: 38\nWaist: 30\nHips: 40",
-      price: "$260",
-      timeframe: "2 weeks",
-      inspiration: "https://images.unsplash.com/photo-1618932260643-eee4a2f652a6"
-    },
-  ];
-
-  // State for showing order details
-  const [selectedOrder, setSelectedOrder] = useState<any>(null);
-
-  // Calculate total progress
-  const totalProgress = orderProgress.reduce((sum, order) => sum + order.progress, 0) / orderProgress.length;
+  // Calculate total progress for orders in progress
+  const totalProgress = progressOrders.length > 0 
+    ? progressOrders.reduce((sum, order) => {
+        const conversation = order.conversation || {};
+        return sum + (conversation.progress || 0);
+      }, 0) / progressOrders.length 
+    : 0;
 
   return (
     <div className="min-h-screen bg-[#EBE2D3] p-8">
       <div className="max-w-7xl mx-auto space-y-8">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold text-gray-800">Seamstress Dashboard</h1>
-          <Button className="bg-accent hover:bg-accent/90 text-white">
-            New Order
+          <Button 
+            onClick={() => setIsEditing(!isEditing)}
+            className="bg-accent hover:bg-accent/90 text-white"
+          >
+            <Edit className="w-4 h-4 mr-2" />
+            {isEditing ? "Cancel Editing" : "Edit Profile"}
           </Button>
         </div>
+
+        {/* Profile Edit Form */}
+        {isEditing && (
+          <Card className="p-6 bg-white border-none shadow-lg">
+            <h2 className="text-xl font-semibold mb-4">Edit Profile</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Name</label>
+                <Input
+                  value={editForm.name}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Specialty</label>
+                <Input
+                  value={editForm.specialty}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, specialty: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Location</label>
+                <Input
+                  value={editForm.location}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, location: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Price Range</label>
+                <Input
+                  value={editForm.price}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, price: e.target.value }))}
+                />
+              </div>
+              <Button onClick={handleUpdateProfile}>Save Changes</Button>
+            </div>
+          </Card>
+        )}
         
         {/* Analytics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -147,7 +226,12 @@ const SeamstressDashboard = () => {
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">Total Sales</p>
-                <p className="text-3xl font-bold text-gray-800">$2,450</p>
+                <p className="text-3xl font-bold text-gray-800">
+                  ${orders.reduce((sum, order) => {
+                    const price = order.conversation?.orderDetails?.price || "0";
+                    return sum + parseInt(price.replace(/\D/g, ''));
+                  }, 0)}
+                </p>
               </div>
             </div>
           </Card>
@@ -159,7 +243,9 @@ const SeamstressDashboard = () => {
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">Customers</p>
-                <p className="text-3xl font-bold text-gray-800">24</p>
+                <p className="text-3xl font-bold text-gray-800">
+                  {new Set(orders.map(order => order.customer_name)).size}
+                </p>
               </div>
             </div>
           </Card>
@@ -171,7 +257,7 @@ const SeamstressDashboard = () => {
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">In Queue</p>
-                <p className="text-3xl font-bold text-gray-800">{queueOrders}</p>
+                <p className="text-3xl font-bold text-gray-800">{queueOrders.length}</p>
               </div>
             </div>
             <div className="mt-4">
@@ -187,7 +273,7 @@ const SeamstressDashboard = () => {
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">In Progress</p>
-                <p className="text-3xl font-bold text-gray-800">{progressOrders}</p>
+                <p className="text-3xl font-bold text-gray-800">{progressOrders.length}</p>
               </div>
             </div>
             <div className="mt-4">
@@ -203,56 +289,30 @@ const SeamstressDashboard = () => {
           <Card className="p-8 bg-white border-none shadow-lg">
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-xl font-semibold text-gray-800">Orders in Queue</h2>
-              <Progress value={(queueOrders / 10) * 100} className="w-32 h-2" />
+              <Progress value={(queueOrders.length / 10) * 100} className="w-32 h-2" />
             </div>
             <div className="space-y-4">
-              {queuedOrders.map((order, index) => (
+              {queueOrders.map((order, index) => (
                 <div 
-                  key={index} 
+                  key={order.id} 
                   className="flex justify-between items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
-                  onClick={() => setSelectedOrder(selectedOrder?.id === order.id ? null : order)}
+                  onClick={() => navigate(`/orders/${order.id}`)}
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-medium">
                       #{index + 1}
                     </div>
                     <div>
-                      <p className="font-medium text-gray-800">Order #{order.id}</p>
-                      <p className="text-sm text-gray-500">{order.customerName}</p>
-                      {selectedOrder?.id === order.id && (
-                        <div className="mt-4 space-y-2 text-sm text-gray-600">
-                          <p className="flex items-center gap-2">
-                            <Ruler className="w-4 h-4" />
-                            <span className="whitespace-pre-line">{order.measurements}</span>
-                          </p>
-                          <p className="flex items-center gap-2">
-                            <DollarSign className="w-4 h-4" />
-                            Price: {order.price}
-                          </p>
-                          <p className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4" />
-                            Timeframe: {order.timeframe}
-                          </p>
-                          {order.inspiration && (
-                            <div className="mt-2">
-                              <p className="flex items-center gap-2 mb-2">
-                                <Image className="w-4 h-4" />
-                                Inspiration:
-                              </p>
-                              <img 
-                                src={order.inspiration} 
-                                alt="Inspiration" 
-                                className="w-32 h-32 object-cover rounded-lg"
-                              />
-                            </div>
-                          )}
-                        </div>
-                      )}
+                      <p className="font-medium text-gray-800">Order #{order.id.slice(0, 8)}</p>
+                      <p className="text-sm text-gray-500">{order.customer_name}</p>
                     </div>
                   </div>
-                  <ChevronRight className={`h-5 w-5 text-gray-400 transition-transform duration-200 ${selectedOrder?.id === order.id ? 'rotate-90' : ''}`} />
+                  <ChevronRight className="h-5 w-5 text-gray-400" />
                 </div>
               ))}
+              {queueOrders.length === 0 && (
+                <p className="text-center text-gray-500 py-4">No orders in queue</p>
+              )}
             </div>
           </Card>
 
@@ -265,63 +325,39 @@ const SeamstressDashboard = () => {
                   <span className="text-sm font-medium text-gray-600">Total Progress</span>
                   <span className="ml-2 text-lg font-bold text-primary">{totalProgress.toFixed(0)}%</span>
                 </div>
-                <Progress value={(progressOrders / 5) * 100} className="w-32 h-2" />
+                <Progress value={totalProgress} className="w-32 h-2" />
               </div>
             </div>
             <div className="space-y-4">
-              {orderProgress.map((order, index) => (
+              {progressOrders.map((order, index) => (
                 <div 
-                  key={index} 
+                  key={order.id} 
                   className="flex justify-between items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
-                  onClick={() => setSelectedOrder(selectedOrder?.id === order.id ? null : order)}
+                  onClick={() => navigate(`/orders/${order.id}`)}
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-medium">
                       #{index + 1}
                     </div>
                     <div>
-                      <p className="font-medium text-gray-800">Order #{order.id}</p>
-                      <p className="text-sm text-gray-500">{order.customerName}</p>
-                      {selectedOrder?.id === order.id && (
-                        <div className="mt-4 space-y-2 text-sm text-gray-600">
-                          <p className="flex items-center gap-2">
-                            <Ruler className="w-4 h-4" />
-                            <span className="whitespace-pre-line">{order.measurements}</span>
-                          </p>
-                          <p className="flex items-center gap-2">
-                            <DollarSign className="w-4 h-4" />
-                            Price: {order.price}
-                          </p>
-                          <p className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4" />
-                            Timeframe: {order.timeframe}
-                          </p>
-                          {order.inspiration && (
-                            <div className="mt-2">
-                              <p className="flex items-center gap-2 mb-2">
-                                <Image className="w-4 h-4" />
-                                Inspiration:
-                              </p>
-                              <img 
-                                src={order.inspiration} 
-                                alt="Inspiration" 
-                                className="w-32 h-32 object-cover rounded-lg"
-                              />
-                            </div>
-                          )}
-                        </div>
-                      )}
+                      <p className="font-medium text-gray-800">Order #{order.id.slice(0, 8)}</p>
+                      <p className="text-sm text-gray-500">{order.customer_name}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="flex flex-col items-end gap-1">
-                      <Progress value={order.progress} className="w-24 h-2" />
-                      <span className="text-sm font-medium text-primary">{order.progress}%</span>
+                      <Progress value={order.conversation?.progress || 0} className="w-24 h-2" />
+                      <span className="text-sm font-medium text-primary">
+                        {order.conversation?.progress || 0}%
+                      </span>
                     </div>
-                    <ChevronRight className={`h-5 w-5 text-gray-400 transition-transform duration-200 ${selectedOrder?.id === order.id ? 'rotate-90' : ''}`} />
+                    <ChevronRight className="h-5 w-5 text-gray-400" />
                   </div>
                 </div>
               ))}
+              {progressOrders.length === 0 && (
+                <p className="text-center text-gray-500 py-4">No orders in progress</p>
+              )}
             </div>
           </Card>
         </div>
