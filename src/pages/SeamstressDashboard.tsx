@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,7 +5,7 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { ProfileSection, type SeamstressProfile, type ProfileFormData } from "@/components/dashboard/ProfileSection";
 import { AnalyticsSection } from "@/components/dashboard/AnalyticsSection";
-import { OrdersSection, type Order } from "@/components/dashboard/OrdersSection";
+import OrdersSection, { type Order } from "@/components/dashboard/OrdersSection";
 
 const SeamstressDashboard = () => {
   const navigate = useNavigate();
