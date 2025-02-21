@@ -34,18 +34,20 @@ export const useConversation = (seamstress: Seamstress) => {
 
       if (existingConv) {
         setConversationId(existingConv.id);
-        setMessages(existingConv.messages || []);
+        setMessages(existingConv.messages as Message[] || []);
       } else {
+        const initialMessage: Message = {
+          text: `Hello! I'm ${seamstress.name}. How can I help you today?`,
+          sender: "seamstress",
+          created_at: new Date().toISOString()
+        };
+
         const { data: newConv, error } = await supabase
           .from('conversations')
           .insert({
             user_id: session.user.id,
             seamstress_id: seamstress.id,
-            messages: [{
-              text: `Hello! I'm ${seamstress.name}. How can I help you today?`,
-              sender: "seamstress",
-              created_at: new Date().toISOString()
-            }]
+            messages: [initialMessage]
           })
           .select()
           .single();
@@ -53,7 +55,7 @@ export const useConversation = (seamstress: Seamstress) => {
         if (error) throw error;
 
         setConversationId(newConv.id);
-        setMessages(newConv.messages || []);
+        setMessages([initialMessage]);
       }
 
       // Subscribe to real-time updates
@@ -67,9 +69,9 @@ export const useConversation = (seamstress: Seamstress) => {
             table: 'conversations',
             filter: `id=eq.${existingConv?.id}`
           },
-          (payload) => {
+          (payload: any) => {
             if (payload.new.messages) {
-              setMessages(payload.new.messages);
+              setMessages(payload.new.messages as Message[]);
             }
           }
         )
@@ -91,7 +93,14 @@ export const useConversation = (seamstress: Seamstress) => {
 
     const { error } = await supabase
       .from('conversations')
-      .update({ messages: newMessages })
+      .update({ 
+        messages: newMessages.map(msg => ({
+          text: msg.text,
+          sender: msg.sender,
+          type: msg.type || 'text',
+          created_at: msg.created_at
+        }))
+      })
       .eq('id', conversationId);
 
     if (error) {
