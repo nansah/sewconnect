@@ -90,18 +90,28 @@ export async function demoSeamstressLogin() {
       console.log("Successfully created and logged in demo account");
     }
 
+    const session = await supabase.auth.getSession();
+    const userId = session.data.session?.user.id;
+
+    if (!userId) {
+      throw new Error("No user ID found after authentication");
+    }
+
     // Create a seamstress profile if it doesn't exist
     const { error: profileError } = await supabase
       .from('seamstress_profiles')
       .upsert({
-        user_id: (await supabase.auth.getSession()).data.session?.user.id,
+        id: userId, // Use the user's ID as the profile ID
+        user_id: userId,
         name: "Demo Seamstress",
         specialty: "General Alterations",
         location: "Demo City",
-        price: "$50-100"
+        price: "$50-100",
+        rating: 5.0, // Add the required rating field
+        portfolio_images: [], // Add empty portfolio images array
+        image_url: null // Add optional image url
       })
-      .select()
-      .single();
+      .select();
 
     if (profileError) {
       console.error("Profile creation error:", profileError);
