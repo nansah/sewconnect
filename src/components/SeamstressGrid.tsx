@@ -1,7 +1,6 @@
 
 import { FilterSection } from "./FilterSection";
 import { SeamstressCard } from "./SeamstressCard";
-import { DateRange } from "react-day-picker";
 
 interface Seamstress {
   id: string;
@@ -19,7 +18,6 @@ interface SeamstressGridProps {
     priceRange: string;
     specialty: string;
     location: string;
-    dateRange: DateRange | undefined;
   }) => void;
   allSeamstresses: Seamstress[];
 }

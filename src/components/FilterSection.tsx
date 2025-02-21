@@ -1,8 +1,5 @@
 
-import { Calendar } from "./ui/calendar";
 import { useState } from "react";
-import { format } from "date-fns";
-import { DateRange } from "react-day-picker";
 
 interface Seamstress {
   name: string;
@@ -16,20 +13,14 @@ interface FilterSectionProps {
     priceRange: string;
     specialty: string;
     location: string;
-    dateRange: DateRange | undefined;
   }) => void;
   seamstresses: Seamstress[];
 }
 
 export const FilterSection = ({ onFilterChange, seamstresses }: FilterSectionProps) => {
-  const [date, setDate] = useState<DateRange | undefined>({
-    from: undefined,
-    to: undefined,
-  });
   const [priceRange, setPriceRange] = useState("");
   const [specialty, setSpecialty] = useState("");
   const [location, setLocation] = useState("");
-  const [showCalendar, setShowCalendar] = useState(false);
 
   // Get available options based on current filters
   const getFilteredOptions = () => {
@@ -77,18 +68,18 @@ export const FilterSection = ({ onFilterChange, seamstresses }: FilterSectionPro
   const { locations, specialties } = getFilteredOptions();
 
   const handleFilterChange = (
-    type: "priceRange" | "specialty" | "location" | "dateRange",
-    value: any
+    type: "priceRange" | "specialty" | "location",
+    value: string
   ) => {
     let newFilters;
     switch (type) {
       case "priceRange":
         setPriceRange(value);
-        newFilters = { priceRange: value, specialty, location, dateRange: date };
+        newFilters = { priceRange: value, specialty, location };
         break;
       case "specialty":
         setSpecialty(value);
-        newFilters = { priceRange, specialty: value, location, dateRange: date };
+        newFilters = { priceRange, specialty: value, location };
         break;
       case "location":
         setLocation(value);
@@ -98,24 +89,13 @@ export const FilterSection = ({ onFilterChange, seamstresses }: FilterSectionPro
         );
         if (!hasSpecialty) {
           setSpecialty("");
-          newFilters = { priceRange, specialty: "", location: value, dateRange: date };
+          newFilters = { priceRange, specialty: "", location: value };
         } else {
-          newFilters = { priceRange, specialty, location: value, dateRange: date };
+          newFilters = { priceRange, specialty, location: value };
         }
-        break;
-      case "dateRange":
-        setDate(value);
-        setShowCalendar(false);
-        newFilters = { priceRange, specialty, location, dateRange: value };
         break;
     }
     onFilterChange(newFilters);
-  };
-
-  const formatDateDisplay = (date: DateRange | undefined) => {
-    if (!date?.from) return "Select dates";
-    if (!date.to) return format(date.from, "MMM dd, yyyy");
-    return `${format(date.from, "MMM dd")} - ${format(date.to, "MMM dd, yyyy")}`;
   };
 
   return (
@@ -157,26 +137,6 @@ export const FilterSection = ({ onFilterChange, seamstresses }: FilterSectionPro
             </option>
           ))}
         </select>
-
-        <div className="relative">
-          <button
-            onClick={() => setShowCalendar(!showCalendar)}
-            className="px-4 py-2 rounded-md border-2 border-primary/30 focus:outline-none focus:border-primary bg-secondary/10 min-w-[200px] shadow-sm hover:border-primary/50 transition-colors text-left"
-          >
-            {formatDateDisplay(date)}
-          </button>
-          
-          {showCalendar && (
-            <div className="absolute z-10 mt-2 bg-white rounded-md shadow-lg border border-primary/20">
-              <Calendar
-                mode="range"
-                selected={date}
-                onSelect={(value) => handleFilterChange("dateRange", value)}
-                initialFocus
-              />
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );

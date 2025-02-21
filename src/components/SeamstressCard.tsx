@@ -10,15 +10,27 @@ interface SeamstressCardProps {
   rating: number;
   price: string;
   location: string;
+  yearsOfExperience?: number;
+  activeOrders?: number;
 }
 
-export const SeamstressCard = ({ id, name, image, specialty, rating, price, location }: SeamstressCardProps) => {
+export const SeamstressCard = ({ 
+  id, 
+  name, 
+  image, 
+  specialty, 
+  rating, 
+  price, 
+  location,
+  yearsOfExperience,
+  activeOrders 
+}: SeamstressCardProps) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
     navigate("/seamstress-profile", { 
       state: { 
-        seamstress: { id, name, image, specialty, rating, price, location } 
+        seamstress: { id, name, image, specialty, rating, price, location, yearsOfExperience, activeOrders } 
       } 
     });
   };
@@ -34,6 +46,11 @@ export const SeamstressCard = ({ id, name, image, specialty, rating, price, loca
           alt={name} 
           className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300" 
         />
+        {activeOrders !== undefined && activeOrders > 0 && (
+          <div className="absolute top-2 right-2 bg-primary text-white px-2 py-1 rounded-full text-sm font-medium">
+            {activeOrders} active order{activeOrders !== 1 ? 's' : ''}
+          </div>
+        )}
       </div>
       <div className="p-5 space-y-2">
         <div className="flex justify-between items-start">
@@ -45,6 +62,9 @@ export const SeamstressCard = ({ id, name, image, specialty, rating, price, loca
         </div>
         <p className="text-sm text-gray-600">{specialty}</p>
         <p className="text-sm text-gray-500">{location}</p>
+        {yearsOfExperience && (
+          <p className="text-sm text-gray-600">{yearsOfExperience} years of experience</p>
+        )}
         <p className="text-accent font-semibold pt-2 border-t border-gray-100">
           Starting at <span className="text-lg">{price}</span>
         </p>
