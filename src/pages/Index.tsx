@@ -87,9 +87,9 @@ const Index = () => {
     <div className="min-h-screen bg-[#EBE2D3]">
       <Header />
       <div 
-        className="relative h-[500px] bg-cover bg-center before:absolute before:inset-0 before:bg-black/40"
+        className="relative h-[600px] bg-cover bg-center before:absolute before:inset-0 before:bg-black/30"
         style={{ 
-          backgroundImage: `url('https://images.unsplash.com/photo-1439337153520-7082a56a81f4?auto=format&fit=crop&w=2000&q=80')`
+          backgroundImage: `url('https://images.unsplash.com/photo-1609032076069-1179f13c2aa6?auto=format&fit=crop&w=2000&q=80')`
         }}
       >
         <div className="absolute inset-0 flex flex-col items-center justify-center text-white z-10 px-4">
