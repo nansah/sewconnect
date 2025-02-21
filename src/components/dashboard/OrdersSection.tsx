@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { ChevronRight } from "lucide-react";
@@ -8,7 +7,7 @@ export interface Order {
   id: string;
   customer_name: string;
   status: 'queued' | 'in_progress' | 'completed';
-  conversation: any; // Changed to any to fix type mismatch with Supabase
+  conversation: any;
   created_at: string;
   measurements?: string;
   seamstress_id: string;
@@ -21,88 +20,43 @@ interface OrdersSectionProps {
   totalProgress: number;
 }
 
-// Change from 'export const' to 'const' and add 'export default'
-const OrdersSection = ({ queueOrders, progressOrders, totalProgress }: OrdersSectionProps) => {
+export const OrdersSection = ({ queueOrders, progressOrders, totalProgress }: OrdersSectionProps) => {
   const navigate = useNavigate();
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      <Card className="p-8 bg-white border-none shadow-lg">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-xl font-semibold text-gray-800">Orders in Queue</h2>
-          <Progress value={(queueOrders.length / 10) * 100} className="w-32 h-2" />
-        </div>
-        <div className="space-y-4">
-          {queueOrders.map((order, index) => (
-            <div 
-              key={order.id} 
-              className="flex justify-between items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
-              onClick={() => navigate(`/orders/${order.id}`)}
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-medium">
-                  #{index + 1}
-                </div>
-                <div>
-                  <p className="font-medium text-gray-800">Order #{order.id.slice(0, 8)}</p>
-                  <p className="text-sm text-gray-500">{order.customer_name}</p>
-                </div>
-              </div>
-              <ChevronRight className="h-5 w-5 text-gray-400" />
-            </div>
-          ))}
-          {queueOrders.length === 0 && (
-            <p className="text-center text-gray-500 py-4">No orders in queue</p>
-          )}
-        </div>
+    <section className="space-y-4">
+      <h3 className="text-xl font-semibold">Orders</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card className="p-4">
+          <h4 className="text-lg font-semibold mb-2">Queued Orders</h4>
+          <ul className="space-y-2">
+            {queueOrders.map((order) => (
+              <li key={order.id} className="flex items-center justify-between">
+                <span>{order.customer_name}</span>
+                <ChevronRight className="h-4 w-4 text-gray-500" />
+              </li>
+            ))}
+            {queueOrders.length === 0 && <p className="text-sm text-gray-500">No orders in queue.</p>}
+          </ul>
+        </Card>
+        <Card className="p-4">
+          <h4 className="text-lg font-semibold mb-2">In Progress</h4>
+          <ul className="space-y-2">
+            {progressOrders.map((order) => (
+              <li key={order.id} className="flex items-center justify-between">
+                <span>{order.customer_name}</span>
+                <ChevronRight className="h-4 w-4 text-gray-500" />
+              </li>
+            ))}
+            {progressOrders.length === 0 && <p className="text-sm text-gray-500">No orders in progress.</p>}
+          </ul>
+        </Card>
+      </div>
+      <Card className="p-4">
+        <h4 className="text-lg font-semibold mb-2">Overall Progress</h4>
+        <Progress value={totalProgress} />
+        <p className="text-sm text-gray-500 mt-2">You're {totalProgress}% towards completing all your active orders.</p>
       </Card>
-
-      <Card className="p-8 bg-white border-none shadow-lg">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-xl font-semibold text-gray-800">Orders in Progress</h2>
-          <div className="text-right">
-            <div className="mb-2">
-              <span className="text-sm font-medium text-gray-600">Total Progress</span>
-              <span className="ml-2 text-lg font-bold text-primary">{totalProgress.toFixed(0)}%</span>
-            </div>
-            <Progress value={totalProgress} className="w-32 h-2" />
-          </div>
-        </div>
-        <div className="space-y-4">
-          {progressOrders.map((order, index) => (
-            <div 
-              key={order.id} 
-              className="flex justify-between items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
-              onClick={() => navigate(`/orders/${order.id}`)}
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-medium">
-                  #{index + 1}
-                </div>
-                <div>
-                  <p className="font-medium text-gray-800">Order #{order.id.slice(0, 8)}</p>
-                  <p className="text-sm text-gray-500">{order.customer_name}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="flex flex-col items-end gap-1">
-                  <Progress value={order.conversation?.progress || 0} className="w-24 h-2" />
-                  <span className="text-sm font-medium text-primary">
-                    {order.conversation?.progress || 0}%
-                  </span>
-                </div>
-                <ChevronRight className="h-5 w-5 text-gray-400" />
-              </div>
-            </div>
-          ))}
-          {progressOrders.length === 0 && (
-            <p className="text-center text-gray-500 py-4">No orders in progress</p>
-          )}
-        </div>
-      </Card>
-    </div>
+    </section>
   );
 };
-
-// Add default export
-export default OrdersSection;

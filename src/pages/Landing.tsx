@@ -18,8 +18,12 @@ const Landing = () => {
 
     setSubmitting(true);
     try {
-      // Since we don't have a waitlist table yet, we'll just show a success message
-      // You'll need to create the table first
+      const { error } = await supabase
+        .from('waitlist')
+        .insert([{ email }]);
+
+      if (error) throw error;
+
       toast("Success!", {
         description: "You've been added to our waitlist. We'll notify you when we launch!"
       });

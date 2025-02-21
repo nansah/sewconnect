@@ -5,174 +5,132 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { ProfileSection, type SeamstressProfile, type ProfileFormData } from "@/components/dashboard/ProfileSection";
 import { AnalyticsSection } from "@/components/dashboard/AnalyticsSection";
-import OrdersSection, { type Order } from "@/components/dashboard/OrdersSection";
+import { OrdersSection, type Order } from "@/components/dashboard/OrdersSection";
 
-const SeamstressDashboard = () => {
-  const navigate = useNavigate();
+interface SeamstressDashboardProps { }
+
+const SeamstressDashboard: React.FC<SeamstressDashboardProps> = () => {
   const [profile, setProfile] = useState<SeamstressProfile | null>(null);
-  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [queueOrders, setQueueOrders] = useState<Order[]>([]);
+  const [progressOrders, setProgressOrders] = useState<Order[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const initializeDashboard = async () => {
-      const isAuthenticated = await checkAuth();
-      if (isAuthenticated) {
-        await Promise.all([fetchProfile(), fetchOrders()]);
+    const fetchSeamstressProfile = async () => {
+      setLoading(true);
+      try {
+        const { data: profileData, error: profileError } = await supabase
+          .from('seamstress_profiles')
+          .select('*')
+          .eq('user_id', supabase.auth.currentUser?.id)
+          .single();
+
+        if (profileError) {
+          throw profileError;
+        }
+
+        if (profileData) {
+          setProfile(profileData as SeamstressProfile);
+        } else {
+          // If no profile exists, navigate to profile creation page
+          navigate('/seamstress-profile');
+        }
+
+        const { data: orders, error: ordersError } = await supabase
+          .from('orders')
+          .select('*')
+          .eq('seamstress_id', supabase.auth.currentUser?.id);
+
+        if (ordersError) {
+          throw ordersError;
+        }
+
+        if (orders) {
+          const queue = orders.filter(order => order.status === 'queued');
+          const progress = orders.filter(order => order.status === 'in_progress');
+
+          setQueueOrders(queue);
+          setProgressOrders(progress);
+        }
+
+      } catch (error: any) {
+        toast("Error", {
+          description: error.message || "Could not fetch seamstress profile."
+        });
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
-    initializeDashboard();
-  }, []);
+    fetchSeamstressProfile();
+  }, [navigate]);
 
-  const checkAuth = async (): Promise<boolean> => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      navigate('/login');
-      return false;
-    }
-
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('user_type')
-      .eq('id', session.user.id)
-      .single();
-
-    if (profile?.user_type !== 'seamstress') {
-      navigate('/');
-      toast("Access Denied", {
-        description: "This area is only for seamstresses."
-      });
-      return false;
-    }
-
-    return true;
-  };
-
-  const fetchProfile = async () => {
+  const handleProfileUpdate = async (data: ProfileFormData) => {
+    setLoading(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
-
-      const { data, error } = await supabase
-        .from('seamstress_profiles')
-        .select('*')
-        .eq('user_id', session.user.id)
-        .single();
-
-      if (error) throw error;
-      if (data) setProfile(data);
-    } catch (error: any) {
-      console.error('Error in fetchProfile:', error);
-      toast("Error", {
-        description: error.message
-      });
-    }
-  };
-
-  const fetchOrders = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
-
-      const { data, error } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('seamstress_id', session.user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setOrders(data.map(order => ({
-        ...order,
-        status: order.status as 'queued' | 'in_progress' | 'completed'
-      })));
-    } catch (error: any) {
-      console.error('Error in fetchOrders:', error);
-      toast("Error", {
-        description: error.message
-      });
-    }
-  };
-
-  const handleUpdateProfile = async (formData: ProfileFormData) => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast("Error", {
-          description: "You must be logged in to update your profile."
-        });
-        return;
-      }
-
       const { error } = await supabase
         .from('seamstress_profiles')
-        .update(formData)
-        .eq('user_id', session.user.id);
+        .update({ ...data })
+        .eq('user_id', supabase.auth.currentUser?.id);
 
       if (error) throw error;
 
-      toast("Success", {
+      toast("Success!", {
         description: "Profile updated successfully."
       });
-      
-      await fetchProfile();
+
+      // Refresh profile
+      const { data: updatedProfile, error: profileError } = await supabase
+        .from('seamstress_profiles')
+        .select('*')
+        .eq('user_id', supabase.auth.currentUser?.id)
+        .single();
+
+      if (profileError) {
+        throw profileError;
+      }
+
+      if (updatedProfile) {
+        setProfile(updatedProfile as SeamstressProfile);
+      }
+
     } catch (error: any) {
-      console.error('Error in handleUpdateProfile:', error);
-      throw error;
+      toast("Error", {
+        description: error.message || "Could not update profile."
+      });
+    } finally {
+      setLoading(false);
     }
   };
+
+  const totalProgress = progressOrders.length > 0 ? (progressOrders.length / (queueOrders.length + progressOrders.length)) * 100 : 0;
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#EBE2D3] p-8 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="flex justify-center items-center h-screen">
+        <Loader2 className="animate-spin h-6 w-6" />
       </div>
     );
   }
 
-  const queueOrders = orders.filter(order => order.status === 'queued');
-  const progressOrders = orders.filter(order => order.status === 'in_progress');
-  const totalOrders = orders.length;
-  
-  const queuePercentage = totalOrders ? (queueOrders.length / totalOrders) * 100 : 0;
-  const progressPercentage = totalOrders ? (progressOrders.length / totalOrders) * 100 : 0;
-
-  const totalProgress = progressOrders.length > 0 
-    ? progressOrders.reduce((sum, order) => sum + (order.conversation?.progress || 0), 0) / progressOrders.length 
-    : 0;
-
-  const totalSales = orders.reduce((sum, order) => {
-    const price = order.conversation?.orderDetails?.price || "0";
-    return sum + parseInt(price.replace(/\D/g, ''));
-  }, 0);
-
-  const uniqueCustomers = new Set(orders.map(order => order.customer_name)).size;
-
   return (
-    <div className="min-h-screen bg-[#EBE2D3] p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
-        <ProfileSection 
-          profile={profile}
-          onUpdateProfile={handleUpdateProfile}
-        />
-        
-        <AnalyticsSection 
-          totalSales={totalSales}
-          uniqueCustomers={uniqueCustomers}
-          queueOrders={queueOrders.length}
-          progressOrders={progressOrders.length}
-          totalOrders={totalOrders}
-          queuePercentage={queuePercentage}
-          progressPercentage={progressPercentage}
-          totalProgress={totalProgress}
-        />
+    <div className="container mx-auto py-8">
+      <h1 className="text-2xl font-bold mb-4">Seamstress Dashboard</h1>
 
-        <OrdersSection 
-          queueOrders={queueOrders}
-          progressOrders={progressOrders}
-          totalProgress={totalProgress}
-        />
-      </div>
+      <ProfileSection
+        initialData={profile}
+        onSubmit={handleProfileUpdate}
+        isLoading={loading}
+      />
+
+      <AnalyticsSection />
+
+      <OrdersSection
+        queueOrders={queueOrders}
+        progressOrders={progressOrders}
+        totalProgress={totalProgress}
+      />
     </div>
   );
 };
