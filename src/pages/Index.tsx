@@ -3,7 +3,7 @@ import { Header } from "@/components/Header";
 import { SearchBar } from "@/components/SearchBar";
 import { FilterSection } from "@/components/FilterSection";
 import { SeamstressCard } from "@/components/SeamstressCard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DateRange } from "react-day-picker";
 
 const Index = () => {
@@ -128,6 +128,7 @@ const Index = () => {
   });
 
   const handleSearch = (term: string) => {
+    console.log("Search handler called with term:", term); // Debug log
     setSearchTerm(term);
     applyFilters(term, activeFilters);
   };
@@ -148,6 +149,7 @@ const Index = () => {
     location: string;
     dateRange: DateRange | undefined;
   }) => {
+    console.log("Applying filters with search:", search); // Debug log
     let filtered = [...demoSeamstresses];
 
     // Apply search filter
@@ -158,6 +160,7 @@ const Index = () => {
         seamstress.specialty.toLowerCase().includes(searchLower) ||
         seamstress.name.toLowerCase().includes(searchLower)
       );
+      console.log("Filtered results:", filtered); // Debug log
     }
 
     // Apply price range filter
@@ -188,6 +191,11 @@ const Index = () => {
 
     setFilteredSeamstresses(filtered);
   };
+
+  // Added useEffect to log initial state
+  useEffect(() => {
+    console.log("Current filtered seamstresses:", filteredSeamstresses);
+  }, [filteredSeamstresses]);
 
   return (
     <div className="min-h-screen bg-[#EBE2D3]">
