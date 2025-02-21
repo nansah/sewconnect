@@ -1,4 +1,6 @@
+
 import { Star } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface SeamstressCardProps {
   name: string;
@@ -10,6 +12,16 @@ interface SeamstressCardProps {
 }
 
 export const SeamstressCard = ({ name, image, specialty, rating, price, location }: SeamstressCardProps) => {
+  const navigate = useNavigate();
+
+  const handleBookAppointment = () => {
+    navigate("/messaging", { 
+      state: { 
+        seamstress: { name, image } 
+      } 
+    });
+  };
+
   return (
     <div className="seamstress-card bg-white rounded-lg overflow-hidden">
       <img src={image} alt={name} className="w-full h-64 object-cover" />
@@ -22,7 +34,10 @@ export const SeamstressCard = ({ name, image, specialty, rating, price, location
         </div>
         <p className="text-gray-600">{location}</p>
         <p className="text-accent font-semibold mt-2">Starting at {price}</p>
-        <button className="w-full mt-4 bg-primary text-white py-2 rounded-md hover:bg-opacity-90 transition-colors">
+        <button 
+          onClick={handleBookAppointment}
+          className="w-full mt-4 bg-primary text-white py-2 rounded-md hover:bg-opacity-90 transition-colors"
+        >
           Book Appointment
         </button>
       </div>
