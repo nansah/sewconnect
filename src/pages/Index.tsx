@@ -1,3 +1,4 @@
+
 import { SearchBar } from "../components/SearchBar";
 import { SeamstressCard } from "../components/SeamstressCard";
 import { FilterSection } from "../components/FilterSection";
@@ -5,7 +6,7 @@ import { FilterSection } from "../components/FilterSection";
 const SEAMSTRESSES = [
   {
     name: "Amara Okafor",
-    image: "https://images.unsplash.com/photo-1534371262913-78ee95bc3671?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.pexels.com/photos/2065195/pexels-photo-2065195.jpeg?auto=compress&cs=tinysrgb&w=800",
     specialty: "Traditional African Attire & Wedding Dresses",
     rating: 4.9,
     price: "$120/hr",
@@ -13,7 +14,7 @@ const SEAMSTRESSES = [
   },
   {
     name: "Zainab Mensah",
-    image: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.pexels.com/photos/2739792/pexels-photo-2739792.jpeg?auto=compress&cs=tinysrgb&w=800",
     specialty: "Evening Gowns & Traditional Wear",
     rating: 4.8,
     price: "$95/hr",
@@ -21,7 +22,7 @@ const SEAMSTRESSES = [
   },
   {
     name: "Chioma Adebayo",
-    image: "https://images.unsplash.com/photo-1580651315530-69c8e0026377?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.pexels.com/photos/2681751/pexels-photo-2681751.jpeg?auto=compress&cs=tinysrgb&w=800",
     specialty: "Contemporary African Fashion",
     rating: 4.7,
     price: "$85/hr",
