@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -20,11 +19,11 @@ interface Post {
 // Example comments data
 const EXAMPLE_COMMENTS = {
   "demo-1": [
-    { author: "Maria Chen", content: "Love this! I've been looking for someone to help with alterations.", time: "2h ago" },
-    { author: "James Wilson", content: "The work looks amazing!", time: "1h ago" }
+    { author: "Maria Chen", content: "Just got my traditional dress altered - it fits perfectly now!", time: "2h ago" },
+    { author: "James Wilson", content: "Could you share the seamstress contact? Looking to get some work done too.", time: "1h ago" }
   ],
   "demo-2": [
-    { author: "Sarah Johnson", content: "Thanks for sharing these tips!", time: "30m ago" }
+    { author: "Sarah Johnson", content: "The attention to detail on my attire was amazing. Highly recommend!", time: "30m ago" }
   ]
 };
 
@@ -37,10 +36,10 @@ const Forum = () => {
 
   // Demo group data
   const groupInfo = {
-    name: "SewConnect Community",
-    members: 1283,
-    description: "A community of seamstresses and clients sharing their experiences, tips, and success stories.",
-    bannerImage: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=1200&fit=crop"
+    name: "African Fashion Community",
+    members: 856,
+    description: "A welcoming space for customers to connect, share experiences, and discuss their African fashion journey. Find recommendations, share success stories, and get advice from fellow fashion enthusiasts.",
+    bannerImage: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=1200&fit=crop" // Note: This needs to be replaced with an appropriate African attire image
   };
 
   // Fetch initial posts and subscribe to changes
