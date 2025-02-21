@@ -104,12 +104,12 @@ const Forum = () => {
   const [comments, setComments] = useState<{ [key: string]: Comment[]}>(demoComments);
   const [newComments, setNewComments] = useState<{ [key: string]: string }>({});
 
-  // Group info data
+  // Updated groupInfo with new African attire banner image
   const groupInfo = {
     name: "SewConnect Community",
     members: 856,
     description: "A welcoming space for customers to connect, share experiences, and discuss their African fashion journey. Find recommendations, share success stories, and get advice from fellow fashion enthusiasts.",
-    bannerImage: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=1200&fit=crop"
+    bannerImage: "https://images.pexels.com/photos/5561471/pexels-photo-5561471.jpeg"
   };
 
   useEffect(() => {
