@@ -4,7 +4,7 @@ import { useLocation } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { ScrollArea } from "../components/ui/scroll-area";
-import { Send } from "lucide-react";
+import { Send, Image, Ruler } from "lucide-react";
 
 interface LocationState {
   seamstress: {
@@ -13,6 +13,24 @@ interface LocationState {
   };
 }
 
+interface Measurements {
+  bust: string;
+  waist: string;
+  hips: string;
+  height: string;
+  shoulderToWaist: string;
+  waistToKnee: string;
+}
+
+const DEFAULT_MEASUREMENTS: Measurements = {
+  bust: "",
+  waist: "",
+  hips: "",
+  height: "",
+  shoulderToWaist: "",
+  waistToKnee: ""
+};
+
 const MessagingPortal = () => {
   const location = useLocation();
   const { seamstress } = (location.state as LocationState) || { 
@@ -20,7 +38,9 @@ const MessagingPortal = () => {
   };
   
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState<Array<{text: string; sender: "user" | "seamstress"}>>([
+  const [showMeasurements, setShowMeasurements] = useState(false);
+  const [measurements, setMeasurements] = useState<Measurements>(DEFAULT_MEASUREMENTS);
+  const [messages, setMessages] = useState<Array<{text: string; sender: "user" | "seamstress"; type?: "measurements" | "image"}>>([
     {
       text: `Hello! I'm ${seamstress.name}. How can I help you today?`,
       sender: "seamstress"
@@ -32,6 +52,38 @@ const MessagingPortal = () => {
     
     setMessages(prev => [...prev, { text: message, sender: "user" }]);
     setMessage("");
+  };
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const imageUrl = e.target?.result as string;
+        setMessages(prev => [...prev, { 
+          text: imageUrl,
+          sender: "user",
+          type: "image"
+        }]);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleShareMeasurements = () => {
+    const measurementText = Object.entries(measurements)
+      .filter(([_, value]) => value)
+      .map(([key, value]) => `${key}: ${value}`)
+      .join('\n');
+    
+    if (measurementText) {
+      setMessages(prev => [...prev, {
+        text: measurementText,
+        sender: "user",
+        type: "measurements"
+      }]);
+      setShowMeasurements(false);
+    }
   };
 
   return (
@@ -62,25 +114,85 @@ const MessagingPortal = () => {
                       : "bg-secondary"
                   }`}
                 >
-                  {msg.text}
+                  {msg.type === "image" ? (
+                    <img src={msg.text} alt="Inspiration" className="max-w-full rounded" />
+                  ) : msg.type === "measurements" ? (
+                    <pre className="whitespace-pre-wrap font-sans">{msg.text}</pre>
+                  ) : (
+                    msg.text
+                  )}
                 </div>
               </div>
             ))}
           </div>
         </ScrollArea>
 
+        {/* Measurements Form */}
+        {showMeasurements && (
+          <div className="p-4 border-t">
+            <div className="grid grid-cols-2 gap-4">
+              {Object.entries(measurements).map(([key, value]) => (
+                <div key={key}>
+                  <label className="block text-sm font-medium mb-1 capitalize">
+                    {key.replace(/([A-Z])/g, ' $1')}
+                  </label>
+                  <Input
+                    value={value}
+                    onChange={(e) => setMeasurements(prev => ({
+                      ...prev,
+                      [key]: e.target.value
+                    }))}
+                    placeholder="in inches"
+                    className="w-full"
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowMeasurements(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleShareMeasurements}>
+                Share Measurements
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* Input */}
-        <div className="p-4 border-t flex gap-2">
-          <Input
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Type your message..."
-            onKeyPress={(e) => e.key === "Enter" && handleSend()}
-            className="flex-1"
-          />
-          <Button onClick={handleSend}>
-            <Send className="h-4 w-4" />
-          </Button>
+        <div className="p-4 border-t">
+          <div className="flex gap-2 mb-2">
+            <Button 
+              variant="outline" 
+              size="icon"
+              onClick={() => setShowMeasurements(true)}
+            >
+              <Ruler className="h-4 w-4" />
+            </Button>
+            <label className="cursor-pointer">
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageUpload}
+              />
+              <Button variant="outline" size="icon" type="button">
+                <Image className="h-4 w-4" />
+              </Button>
+            </label>
+          </div>
+          <div className="flex gap-2">
+            <Input
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Type your message..."
+              onKeyPress={(e) => e.key === "Enter" && handleSend()}
+              className="flex-1"
+            />
+            <Button onClick={handleSend}>
+              <Send className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
     </div>
