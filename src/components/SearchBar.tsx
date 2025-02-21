@@ -1,6 +1,6 @@
 
 import { Search } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 interface SearchBarProps {
   onSearch: (searchTerm: string) => void;
@@ -12,7 +12,6 @@ export const SearchBar = ({ onSearch }: SearchBarProps) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setInputValue(value);
-    console.log("Search term:", value); // Debug log
     onSearch(value);
   };
 
@@ -21,7 +20,7 @@ export const SearchBar = ({ onSearch }: SearchBarProps) => {
       <input
         type="text"
         value={inputValue}
-        placeholder="Search by location or specialty..."
+        placeholder="Search for dress styles, patterns, designs..."
         className="w-full px-6 py-4 pl-14 rounded-full border border-primary/20 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-white/90 backdrop-blur-sm text-accent placeholder:text-accent/50 shadow-lg"
         onChange={handleChange}
       />

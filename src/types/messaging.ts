@@ -1,7 +1,8 @@
+
 export interface Message {
   text: string;
   sender: "user" | "seamstress" | "system";
-  type?: "text" | "image" | "measurements";
+  type?: "text" | "image" | "measurements" | "delivery" | "system";
   created_at: string;
 }
 
@@ -27,11 +28,4 @@ export interface Measurements {
 export interface DeliveryTimeframe {
   date: Date;
   urgency: "standard" | "rush" | "express";
-}
-
-export interface Message {
-  text: string;
-  sender: "user" | "seamstress" | "system";
-  type?: "text" | "image" | "measurements" | "delivery" | "system";
-  created_at: string;
 }
