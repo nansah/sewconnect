@@ -120,9 +120,9 @@ export const FilterSection = ({ onFilterChange, seamstresses }: FilterSectionPro
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-4 flex-wrap items-center">
+      <div className="flex gap-6 flex-wrap items-center">
         <select
-          className="px-4 py-2 rounded-md border border-primary/20 focus:outline-none focus:border-primary bg-white"
+          className="px-4 py-2 rounded-md border border-primary/20 focus:outline-none focus:border-primary bg-white min-w-[160px]"
           value={priceRange}
           onChange={(e) => handleFilterChange("priceRange", e.target.value)}
         >
@@ -133,7 +133,7 @@ export const FilterSection = ({ onFilterChange, seamstresses }: FilterSectionPro
         </select>
         
         <select
-          className="px-4 py-2 rounded-md border border-primary/20 focus:outline-none focus:border-primary bg-white"
+          className="px-4 py-2 rounded-md border border-primary/20 focus:outline-none focus:border-primary bg-white min-w-[200px]"
           value={specialty}
           onChange={(e) => handleFilterChange("specialty", e.target.value)}
         >
@@ -146,7 +146,7 @@ export const FilterSection = ({ onFilterChange, seamstresses }: FilterSectionPro
         </select>
         
         <select
-          className="px-4 py-2 rounded-md border border-primary/20 focus:outline-none focus:border-primary bg-white"
+          className="px-4 py-2 rounded-md border border-primary/20 focus:outline-none focus:border-primary bg-white min-w-[180px]"
           value={location}
           onChange={(e) => handleFilterChange("location", e.target.value)}
         >
@@ -161,7 +161,7 @@ export const FilterSection = ({ onFilterChange, seamstresses }: FilterSectionPro
         <div className="relative">
           <button
             onClick={() => setShowCalendar(!showCalendar)}
-            className="px-4 py-2 rounded-md border border-primary/20 focus:outline-none focus:border-primary bg-white text-left w-[200px]"
+            className="px-4 py-2 rounded-md border border-primary/20 focus:outline-none focus:border-primary bg-white text-left min-w-[200px]"
           >
             {formatDateDisplay(date)}
           </button>

@@ -1,4 +1,3 @@
-
 import { Header } from "@/components/Header";
 import { SearchBar } from "@/components/SearchBar";
 import { FilterSection } from "@/components/FilterSection";
@@ -88,6 +87,33 @@ const Index = () => {
       rating: 4.9,
       price: "$94/hr",
       location: "Bamako, Mali"
+    },
+    {
+      id: "demo-seamstress-132",
+      name: "Sarah Chen",
+      image: "https://images.unsplash.com/photo-1607346256330-dee7af15f7c5?w=400&h=400&fit=crop",
+      specialty: "Modern Fusion & Alterations",
+      rating: 4.8,
+      price: "$95/hr",
+      location: "New York, USA"
+    },
+    {
+      id: "demo-seamstress-133",
+      name: "Isabella Martinez",
+      image: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=400&h=400&fit=crop",
+      specialty: "Haute Couture & Evening Wear",
+      rating: 4.9,
+      price: "$98/hr",
+      location: "Los Angeles, USA"
+    },
+    {
+      id: "demo-seamstress-134",
+      name: "Maya Johnson",
+      image: "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?w=400&h=400&fit=crop",
+      specialty: "Professional Attire & Tailoring",
+      rating: 4.8,
+      price: "$92/hr",
+      location: "Washington DC, USA"
     }
   ];
 
