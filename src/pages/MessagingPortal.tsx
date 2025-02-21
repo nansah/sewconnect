@@ -159,19 +159,29 @@ const MessagingPortal = () => {
     simulateSeamstressResponse(newMessage);
   };
 
+  // Enhanced payment handling
   const handlePaymentSubmit = () => {
-    const paymentMessage = "I've submitted the deposit payment.";
+    const paymentMessage = "I've submitted the deposit payment and booked the appointment.";
     const newMessage: Message = {
       text: paymentMessage,
       sender: "user",
       created_at: new Date().toISOString(),
       type: "text",
     };
-    updateConversation([...messages, newMessage]);
+    
+    const seamstressResponse: Message = {
+      text: "Thank you for your payment! I've confirmed your appointment and will start working on your dress. I'll keep you updated on the progress. Feel free to message me if you have any questions!",
+      sender: "seamstress",
+      created_at: new Date(Date.now() + 1000).toISOString(),
+      type: "text",
+    };
+    
+    updateConversation([...messages, newMessage, seamstressResponse]);
     setShowPaymentDialog(false);
+    
     toast({
-      title: "Payment Successful",
-      description: "Your deposit has been processed. The seamstress will begin working on your order.",
+      title: "Booking Confirmed!",
+      description: "Your deposit has been processed and your appointment is confirmed. The seamstress will begin working on your order.",
     });
   };
 
@@ -269,8 +279,22 @@ const MessagingPortal = () => {
               <p className="text-sm text-white/80">Online</p>
             </div>
           </div>
-          <div>
-            <Button size="sm" onClick={handleDesignShare} className="bg-primary hover:bg-primary/90">Share Design</Button>
+          <div className="flex items-center space-x-2">
+            <Button 
+              size="sm" 
+              variant="secondary"
+              onClick={() => setShowPaymentDialog(true)}
+              className="bg-white text-accent hover:bg-white/90"
+            >
+              Book Appointment
+            </Button>
+            <Button 
+              size="sm" 
+              onClick={handleDesignShare} 
+              className="bg-primary hover:bg-primary/90"
+            >
+              Share Design
+            </Button>
           </div>
         </div>
 
@@ -402,31 +426,58 @@ const MessagingPortal = () => {
 
       {/* Payment Dialog */}
       <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Make a Deposit</DialogTitle>
+            <DialogTitle>Book Your Appointment</DialogTitle>
             <DialogDescription>
-              Please provide your payment details to secure your booking.
+              Please provide your payment details to secure your booking. A 50% deposit is required.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
               <label htmlFor="cardNumber" className="text-sm font-medium block mb-1">Card Number</label>
-              <Input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" />
+              <Input 
+                type="text" 
+                id="cardNumber" 
+                placeholder="1234 5678 9012 3456" 
+                className="font-mono"
+                maxLength={16}
+              />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label htmlFor="expiry" className="text-sm font-medium block mb-1">Expiry Date</label>
-                <Input type="text" id="expiry" placeholder="MM/YY" />
+                <Input 
+                  type="text" 
+                  id="expiry" 
+                  placeholder="MM/YY"
+                  maxLength={5}
+                  className="font-mono"
+                />
               </div>
               <div>
                 <label htmlFor="cvc" className="text-sm font-medium block mb-1">CVC</label>
-                <Input type="text" id="cvc" placeholder="123" />
+                <Input 
+                  type="text" 
+                  id="cvc" 
+                  placeholder="123"
+                  maxLength={3}
+                  className="font-mono"
+                />
               </div>
             </div>
-            <Button onClick={handlePaymentSubmit} className="w-full">
-              Pay Deposit ($250)
-            </Button>
+            <div className="border-t pt-4 mt-4">
+              <div className="flex justify-between mb-2">
+                <span className="text-sm text-gray-600">Deposit Amount (50%)</span>
+                <span className="font-semibold">$250.00</span>
+              </div>
+              <Button 
+                onClick={handlePaymentSubmit} 
+                className="w-full bg-primary hover:bg-primary/90"
+              >
+                Confirm Booking & Pay Deposit
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
