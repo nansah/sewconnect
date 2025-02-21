@@ -119,6 +119,18 @@ const Index = () => {
   ];
 
   const [filteredSeamstresses, setFilteredSeamstresses] = useState(demoSeamstresses);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeFilters, setActiveFilters] = useState({
+    priceRange: "",
+    specialty: "",
+    location: "",
+    dateRange: undefined as DateRange | undefined,
+  });
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    applyFilters(term, activeFilters);
+  };
 
   const handleFilterChange = (filters: {
     priceRange: string;
@@ -126,8 +138,29 @@ const Index = () => {
     location: string;
     dateRange: DateRange | undefined;
   }) => {
+    setActiveFilters(filters);
+    applyFilters(searchTerm, filters);
+  };
+
+  const applyFilters = (search: string, filters: {
+    priceRange: string;
+    specialty: string;
+    location: string;
+    dateRange: DateRange | undefined;
+  }) => {
     let filtered = [...demoSeamstresses];
 
+    // Apply search filter
+    if (search) {
+      const searchLower = search.toLowerCase();
+      filtered = filtered.filter(seamstress =>
+        seamstress.location.toLowerCase().includes(searchLower) ||
+        seamstress.specialty.toLowerCase().includes(searchLower) ||
+        seamstress.name.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Apply price range filter
     if (filters.priceRange) {
       filtered = filtered.filter(seamstress => {
         const price = parseInt(seamstress.price.replace(/\D/g, ""));
@@ -139,12 +172,14 @@ const Index = () => {
       });
     }
 
+    // Apply specialty filter
     if (filters.specialty) {
       filtered = filtered.filter(seamstress =>
         seamstress.specialty.toLowerCase().includes(filters.specialty.toLowerCase())
       );
     }
 
+    // Apply location filter
     if (filters.location) {
       filtered = filtered.filter(seamstress =>
         seamstress.location.includes(filters.location)
@@ -172,7 +207,7 @@ const Index = () => {
             Discover talented seamstresses who bring your fashion dreams to life with authentic African craftsmanship
           </p>
           <div className="w-full max-w-2xl animate-fade-up">
-            <SearchBar />
+            <SearchBar onSearch={handleSearch} />
           </div>
         </div>
       </div>
