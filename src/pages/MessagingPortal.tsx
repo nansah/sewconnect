@@ -1,26 +1,10 @@
 
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { ScrollArea } from "../components/ui/scroll-area";
-import { Send, Image, Ruler } from "lucide-react";
-
-interface LocationState {
-  seamstress: {
-    name: string;
-    image: string;
-  };
-}
-
-interface Measurements {
-  bust: string;
-  waist: string;
-  hips: string;
-  height: string;
-  shoulderToWaist: string;
-  waistToKnee: string;
-}
+import { LocationState, Message, Measurements } from "@/types/messaging";
+import { MessageList } from "@/components/messaging/MessageList";
+import { MessageInput } from "@/components/messaging/MessageInput";
+import { MeasurementsForm } from "@/components/messaging/MeasurementsForm";
 
 const DEFAULT_MEASUREMENTS: Measurements = {
   bust: "",
@@ -40,7 +24,7 @@ const MessagingPortal = () => {
   const [message, setMessage] = useState("");
   const [showMeasurements, setShowMeasurements] = useState(false);
   const [measurements, setMeasurements] = useState<Measurements>(DEFAULT_MEASUREMENTS);
-  const [messages, setMessages] = useState<Array<{text: string; sender: "user" | "seamstress"; type?: "measurements" | "image"}>>([
+  const [messages, setMessages] = useState<Message[]>([
     {
       text: `Hello! I'm ${seamstress.name}. How can I help you today?`,
       sender: "seamstress"
@@ -99,104 +83,24 @@ const MessagingPortal = () => {
           <h2 className="text-xl font-semibold">{seamstress.name}</h2>
         </div>
 
-        {/* Messages */}
-        <ScrollArea className="h-[500px] p-4">
-          <div className="space-y-4">
-            {messages.map((msg, index) => (
-              <div
-                key={index}
-                className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
-              >
-                <div
-                  className={`max-w-[80%] p-3 rounded-lg ${
-                    msg.sender === "user"
-                      ? "bg-primary text-primary-foreground ml-auto"
-                      : "bg-secondary"
-                  }`}
-                >
-                  {msg.type === "image" ? (
-                    <img src={msg.text} alt="Uploaded" className="max-w-full rounded" />
-                  ) : msg.type === "measurements" ? (
-                    <pre className="whitespace-pre-wrap font-sans">{msg.text}</pre>
-                  ) : (
-                    msg.text
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </ScrollArea>
+        <MessageList messages={messages} />
 
-        {/* Measurements Form */}
         {showMeasurements && (
-          <div className="p-4 border-t">
-            <div className="grid grid-cols-2 gap-4">
-              {Object.entries(measurements).map(([key, value]) => (
-                <div key={key}>
-                  <label className="block text-sm font-medium mb-1 capitalize">
-                    {key.replace(/([A-Z])/g, ' $1')}
-                  </label>
-                  <Input
-                    value={value}
-                    onChange={(e) => setMeasurements(prev => ({
-                      ...prev,
-                      [key]: e.target.value
-                    }))}
-                    placeholder="in inches"
-                    className="w-full"
-                  />
-                </div>
-              ))}
-            </div>
-            <div className="mt-4 flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setShowMeasurements(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleShareMeasurements}>
-                Share Measurements
-              </Button>
-            </div>
-          </div>
+          <MeasurementsForm
+            measurements={measurements}
+            setMeasurements={setMeasurements}
+            onCancel={() => setShowMeasurements(false)}
+            onShare={handleShareMeasurements}
+          />
         )}
 
-        {/* Input */}
-        <div className="p-4 border-t">
-          <div className="flex gap-2 mb-2">
-            <Button 
-              variant="outline" 
-              size="icon"
-              onClick={() => setShowMeasurements(true)}
-            >
-              <Ruler className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => document.getElementById('image-upload')?.click()}
-            >
-              <Image className="h-4 w-4" />
-              <input
-                id="image-upload"
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleImageUpload}
-              />
-            </Button>
-          </div>
-          <div className="flex gap-2">
-            <Input
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Type your message..."
-              onKeyPress={(e) => e.key === "Enter" && handleSend()}
-              className="flex-1"
-            />
-            <Button onClick={handleSend}>
-              <Send className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
+        <MessageInput
+          message={message}
+          setMessage={setMessage}
+          onSend={handleSend}
+          onImageUpload={handleImageUpload}
+          onMeasurementsClick={() => setShowMeasurements(true)}
+        />
       </div>
     </div>
   );
