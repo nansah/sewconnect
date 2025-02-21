@@ -22,7 +22,7 @@ const DEFAULT_MEASUREMENTS: Measurements = {
 const MessagingPortal = () => {
   const location = useLocation();
   const { seamstress } = (location.state as LocationState) || { 
-    seamstress: { name: "Seamstress", image: "" } 
+    seamstress: { name: "Seamstress", image: "", id: "" } 
   };
   
   const { toast } = useToast();
@@ -77,6 +77,11 @@ const MessagingPortal = () => {
 
   const handleSubmitOrder = async () => {
     try {
+      // Validate seamstress ID
+      if (!seamstress.id) {
+        throw new Error("Seamstress ID is required");
+      }
+
       // Get the last measurement message if it exists
       const lastMeasurement = messages.find(msg => msg.type === 'measurements');
       
@@ -84,12 +89,12 @@ const MessagingPortal = () => {
       const { error } = await supabase
         .from('orders')
         .insert({
-          seamstress_id: seamstress.id || '',
+          seamstress_id: seamstress.id,
           customer_name: "Customer Name", // This should come from auth context in a real app
           status: 'queued',
           measurements: lastMeasurement?.text || '',
           conversation: messages
-        } as any) // Using 'any' temporarily until we define proper database types
+        })
         .select()
         .single();
 
@@ -105,7 +110,7 @@ const MessagingPortal = () => {
         text: "✨ Order has been submitted successfully",
         sender: "seamstress",
         type: "system"
-      } as Message]);
+      }]);
 
     } catch (error) {
       console.error('Error submitting order:', error);
