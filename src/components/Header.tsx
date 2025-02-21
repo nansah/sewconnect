@@ -66,11 +66,6 @@ export const Header = () => {
           )}
         </div>
       </div>
-      <div className="absolute bottom-0 left-0 w-full text-center text-white/70 text-sm py-2">
-        <Link to="/privacy-policy" className="hover:text-white transition-colors">
-          Privacy Policy
-        </Link>
-      </div>
     </header>
   );
 };
