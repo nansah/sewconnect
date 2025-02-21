@@ -115,7 +115,7 @@ const MessagingPortal = () => {
                   }`}
                 >
                   {msg.type === "image" ? (
-                    <img src={msg.text} alt="Inspiration" className="max-w-full rounded" />
+                    <img src={msg.text} alt="Uploaded" className="max-w-full rounded" />
                   ) : msg.type === "measurements" ? (
                     <pre className="whitespace-pre-wrap font-sans">{msg.text}</pre>
                   ) : (
@@ -169,17 +169,20 @@ const MessagingPortal = () => {
             >
               <Ruler className="h-4 w-4" />
             </Button>
-            <label className="cursor-pointer">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => document.getElementById('image-upload')?.click()}
+            >
+              <Image className="h-4 w-4" />
               <input
+                id="image-upload"
                 type="file"
                 accept="image/*"
                 className="hidden"
                 onChange={handleImageUpload}
               />
-              <Button variant="outline" size="icon" type="button">
-                <Image className="h-4 w-4" />
-              </Button>
-            </label>
+            </Button>
           </div>
           <div className="flex gap-2">
             <Input
