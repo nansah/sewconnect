@@ -7,7 +7,7 @@
 
 @layer base {
   body {
-    @apply bg-secondary font-inter text-accent;
+    @apply bg-[#EBE2D3] font-inter text-accent;
   }
 
   h1, h2, h3, h4, h5, h6 {

@@ -8,6 +8,7 @@ import Signup from "@/pages/Signup";
 import SeamstressProfile from "@/pages/SeamstressProfile";
 import SeamstressDashboard from "@/pages/SeamstressDashboard";
 import MessagingPortal from "@/pages/MessagingPortal";
+import Forum from "@/pages/Forum";
 
 const App = () => {
   return (
@@ -20,6 +21,7 @@ const App = () => {
         <Route path="/seamstress-profile" element={<SeamstressProfile />} />
         <Route path="/seamstress-dashboard" element={<SeamstressDashboard />} />
         <Route path="/messaging" element={<MessagingPortal />} />
+        <Route path="/forum" element={<Forum />} />
       </Routes>
       <Toaster />
     </Router>

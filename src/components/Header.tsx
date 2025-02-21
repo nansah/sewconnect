@@ -1,7 +1,7 @@
 
 import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
-import { LogIn, LogOut, UserPlus } from "lucide-react";
+import { LogIn, LogOut, UserPlus, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
@@ -26,10 +26,16 @@ export const Header = () => {
   return (
     <header className="bg-white shadow-sm">
       <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-        <Link to="/" className="text-xl font-bold text-primary">
+        <Link to="/" className="text-xl font-bold text-[#1A1F2C]">
           SewConnect
         </Link>
         <div className="flex gap-4">
+          <Link to="/forum">
+            <Button variant="outline" className="flex gap-2">
+              <Users className="w-4 h-4" />
+              Community
+            </Button>
+          </Link>
           {user ? (
             <Button variant="outline" className="flex gap-2" onClick={signOut}>
               <LogOut className="w-4 h-4" />
