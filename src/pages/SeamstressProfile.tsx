@@ -84,7 +84,7 @@ const SeamstressProfile = () => {
                 <TabsTrigger value="gallery" className="flex-1">Gallery</TabsTrigger>
               </TabsList>
               
-              <TabsContent value="about" className="mt-6 bg-[#F2FCE2] rounded-xl p-8">
+              <TabsContent value="about" className="mt-6 bg-[#FDE1D3] rounded-xl p-8">
                 <div className="space-y-4">
                   <h3 className="text-2xl font-semibold mb-4">About Me</h3>
                   <p className="text-gray-700 leading-relaxed">
@@ -95,7 +95,7 @@ const SeamstressProfile = () => {
                 </div>
               </TabsContent>
 
-              <TabsContent value="specialties" className="mt-6 bg-[#FEF7CD] rounded-xl p-8">
+              <TabsContent value="specialties" className="mt-6 bg-[#FEC6A1] rounded-xl p-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {["Traditional African Attire", "Wedding Dresses", "Evening Gowns", "Alterations"].map((specialty, index) => (
                     <div key={index} className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg">
@@ -108,7 +108,7 @@ const SeamstressProfile = () => {
                 </div>
               </TabsContent>
 
-              <TabsContent value="gallery" className="mt-6 bg-[#D3E4FD] rounded-xl p-8">
+              <TabsContent value="gallery" className="mt-6 bg-[#F1F0FB] rounded-xl p-8">
                 <div className="grid grid-cols-2 gap-6">
                   {galleryImages.map((image, index) => (
                     <div key={index} className="aspect-square rounded-xl overflow-hidden shadow-lg">
