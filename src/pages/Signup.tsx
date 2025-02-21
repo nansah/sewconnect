@@ -32,7 +32,7 @@ const Signup = () => {
 
   return (
     <div className="min-h-screen bg-[#eee] flex items-center justify-center p-4">
-      <Card className="w-full max-w-md p-6 space-y-6">
+      <Card className="w-full max-w-md p-6 space-y-6 bg-white">
         <h1 className="text-2xl font-bold text-center">Create Account</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <RadioGroup 
