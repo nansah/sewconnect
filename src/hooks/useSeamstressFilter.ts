@@ -14,14 +14,20 @@ interface Seamstress {
   activeOrders?: number;
 }
 
-export const useSeamstressFilter = () => {
-  const [seamstresses, setSeamstresses] = useState<Seamstress[]>([]);
-  const [filteredSeamstresses, setFilteredSeamstresses] = useState<Seamstress[]>([]);
+export const useSeamstressFilter = (initialSeamstresses: Seamstress[] = []) => {
+  const [seamstresses, setSeamstresses] = useState<Seamstress[]>(initialSeamstresses);
+  const [filteredSeamstresses, setFilteredSeamstresses] = useState<Seamstress[]>(initialSeamstresses);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchSeamstresses();
-  }, []);
+    if (initialSeamstresses.length > 0) {
+      setSeamstresses(initialSeamstresses);
+      setFilteredSeamstresses(initialSeamstresses);
+      setLoading(false);
+    } else {
+      fetchSeamstresses();
+    }
+  }, [initialSeamstresses]);
 
   const fetchSeamstresses = async () => {
     try {
