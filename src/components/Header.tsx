@@ -1,5 +1,5 @@
 
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "./ui/button";
 import { LogIn, LogOut, UserPlus, Users2 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -8,6 +8,7 @@ import { signOut } from "@/lib/auth";
 
 export const Header = () => {
   const [user, setUser] = useState(null);
+  const location = useLocation();
 
   useEffect(() => {
     // Get initial session
@@ -23,15 +24,25 @@ export const Header = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Determine header style based on route
+  const isIndex = location.pathname === "/";
+  const headerClasses = isIndex
+    ? "absolute w-full z-30"
+    : "w-full z-30 bg-[#1A1F2C] shadow-md";
+
+  const buttonClasses = isIndex
+    ? "flex gap-2 bg-white/10 text-white border-white/20 hover:bg-white/20"
+    : "flex gap-2 bg-white/5 text-white border-white/10 hover:bg-white/10";
+
   return (
-    <header className="absolute w-full z-30">
+    <header className={headerClasses}>
       <div className="max-w-6xl mx-auto px-4 py-6 flex justify-between items-center">
         <Link to="/" className="text-2xl font-bold text-white hover:text-white/90 transition-colors">
           SewConnect
         </Link>
         <div className="flex gap-4">
           <Link to="/forum">
-            <Button variant="outline" className="flex gap-2 bg-white/10 text-white border-white/20 hover:bg-white/20">
+            <Button variant="outline" className={buttonClasses}>
               <Users2 className="w-4 h-4" />
               Community
             </Button>
@@ -39,7 +50,7 @@ export const Header = () => {
           {user ? (
             <Button 
               variant="outline" 
-              className="flex gap-2 bg-white/10 text-white border-white/20 hover:bg-white/20" 
+              className={buttonClasses}
               onClick={signOut}
             >
               <LogOut className="w-4 h-4" />
@@ -50,7 +61,7 @@ export const Header = () => {
               <Link to="/login">
                 <Button 
                   variant="outline" 
-                  className="flex gap-2 bg-white/10 text-white border-white/20 hover:bg-white/20"
+                  className={buttonClasses}
                 >
                   <LogIn className="w-4 h-4" />
                   Login
