@@ -10,6 +10,8 @@ interface Seamstress {
   rating: number;
   price: string;
   location: string;
+  yearsOfExperience?: number;
+  activeOrders?: number;
 }
 
 interface SeamstressGridProps {

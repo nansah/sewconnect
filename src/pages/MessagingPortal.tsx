@@ -1,24 +1,41 @@
-
-import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { LocationState, Message, Measurements } from "@/types/messaging";
-import { MessageList } from "@/components/messaging/MessageList";
-import { MessageInput } from "@/components/messaging/MessageInput";
-import { MeasurementsForm } from "@/components/messaging/MeasurementsForm";
-import { ConversationHeader } from "@/components/messaging/ConversationHeader";
-import { supabase } from "@/integrations/supabase/client";
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Send, Paperclip, CheckCircle, AlertTriangle } from 'lucide-react';
 import { useConversation } from "@/hooks/useConversation";
-import { DeliveryTimeframe } from "@/components/inspiration/DeliveryTimeframe";
-import { DeliveryTimeframe as DeliveryTimeframeType } from "@/types/inspiration";
+
+interface LocationState {
+  seamstress: {
+    id: string;
+    name: string;
+    image: string;
+  };
+}
+
+interface Message {
+  text: string;
+  sender: "user" | "seamstress";
+  created_at: string;
+  type?: "text" | "image";
+}
+
+interface Measurements {
+  bust: string;
+  waist: string;
+  hips: string;
+  length: string;
+}
 
 const DEFAULT_MEASUREMENTS: Measurements = {
   bust: "",
   waist: "",
   hips: "",
-  height: "",
-  shoulderToWaist: "",
-  waistToKnee: ""
+  length: "",
 };
 
 const MessagingPortal = () => {
@@ -41,7 +58,7 @@ const MessagingPortal = () => {
   const { messages, conversationId, loading, updateConversation } = useConversation(seamstress);
 
   // Handle shared design when component mounts
-  useState(() => {
+  useEffect(() => {
     if (designToShare && conversationId) {
       const designMessage: Message = {
         text: designToShare.imageUrl,
@@ -56,229 +73,151 @@ const MessagingPortal = () => {
       };
       updateConversation([...messages, designMessage, descriptionMessage]);
     }
-  }, [conversationId, designToShare]);
+  }, [conversationId, designToShare, messages, updateConversation]);
 
-  const handleSend = async () => {
-    if (!message.trim() || !conversationId) return;
-    
+  const handleSendMessage = () => {
+    if (message.trim() === "") return;
+
     const newMessage: Message = {
       text: message,
       sender: "user",
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
+      type: "text",
     };
 
-    const updatedMessages = [...messages, newMessage];
-    const success = await updateConversation(updatedMessages);
-    
-    if (success) {
-      setMessage("");
-      // Simulate seamstress response
-      setTimeout(async () => {
-        const responseMessage: Message = {
-          text: "Thank you for your message! I'll be happy to help you with your request.",
-          sender: "seamstress",
-          created_at: new Date().toISOString()
-        };
-        updateConversation([...updatedMessages, responseMessage]);
-      }, 1000);
-    }
+    updateConversation([...messages, newMessage]);
+    setMessage("");
   };
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file || !conversationId) return;
-
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const imageUrl = e.target?.result as string;
-      const newMessage: Message = {
-        text: imageUrl,
-        sender: "user",
-        type: "image",
-        created_at: new Date().toISOString()
-      };
-
-      const updatedMessages = [...messages, newMessage];
-      const success = await updateConversation(updatedMessages);
-      
-      if (success) {
-        setTimeout(async () => {
-          const responseMessage: Message = {
-            text: "Thanks for sharing the image! This will help me understand your requirements better.",
-            sender: "seamstress",
-            created_at: new Date().toISOString()
-          };
-          updateConversation([...updatedMessages, responseMessage]);
-        }, 1000);
-      }
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleShareMeasurements = async () => {
-    if (!conversationId) return;
-
-    const measurementText = Object.entries(measurements)
-      .filter(([_, value]) => value)
-      .map(([key, value]) => `${key}: ${value}`)
-      .join('\n');
-    
-    if (measurementText) {
-      const newMessage: Message = {
-        text: measurementText,
-        sender: "user",
-        type: "measurements",
-        created_at: new Date().toISOString()
-      };
-
-      const updatedMessages = [...messages, newMessage];
-      const success = await updateConversation(updatedMessages);
-      
-      if (success) {
-        setShowMeasurements(false);
-        setTimeout(async () => {
-          const responseMessage: Message = {
-            text: "Perfect! I've received your measurements. This will help me create the perfect fit for you.",
-            sender: "seamstress",
-            created_at: new Date().toISOString()
-          };
-          updateConversation([...updatedMessages, responseMessage]);
-        }, 1000);
-      }
-    }
-  };
-
-  const handleSubmitOrder = async () => {
-    try {
-      if (!conversationId) return;
-
-      const measurementMsg = messages.find(msg => msg.type === 'measurements');
-      const inspirationMsg = messages.find(msg => msg.type === 'image');
-
-      const orderDetails = {
-        price: "$250",
-        timeframe: "2 weeks",
-        measurements: measurementMsg?.text || '',
-        inspiration: inspirationMsg?.text || '',
-      };
-
-      const conversationData = {
-        messages: messages.map(msg => ({
-          text: msg.text,
-          sender: msg.sender,
-          type: msg.type || null,
-          created_at: msg.created_at
-        })),
-        orderDetails
-      };
-
-      const { error } = await supabase
-        .from('orders')
-        .insert({
-          conversation_id: conversationId,
-          seamstress_id: seamstress.id,
-          customer_name: "Demo Customer",
-          status: 'queued',
-          measurements: measurementMsg?.text || '',
-          conversation: conversationData
-        });
-
-      if (error) throw error;
-
-      toast({
-        title: "Order Submitted",
-        description: "Your order has been sent to the seamstress.",
-      });
-
-      const orderConfirmMessage: Message = {
-        text: "✨ Order has been submitted successfully",
-        sender: "system",
-        type: "system",
-        created_at: new Date().toISOString()
-      };
-
-      await updateConversation([...messages, orderConfirmMessage]);
-
-    } catch (error) {
-      console.error('Error submitting order:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to submit order. Please try again.",
-      });
-    }
-  };
-
-  const handleTimeframeSelect = async (timeframe: DeliveryTimeframeType) => {
-    if (!conversationId) return;
-
+  const handleMeasurementsSubmit = () => {
+    const measurementsMessage = `Measurements: Bust - ${measurements.bust}, Waist - ${measurements.waist}, Hips - ${measurements.hips}, Length - ${measurements.length}`;
     const newMessage: Message = {
-      text: `Preferred delivery date: ${timeframe.date.toLocaleDateString()}\nDelivery speed: ${timeframe.urgency}`,
+      text: measurementsMessage,
       sender: "user",
-      type: "delivery",
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
+      type: "text",
     };
+    updateConversation([...messages, newMessage]);
+    setShowMeasurements(false);
+  };
 
-    const updatedMessages = [...messages, newMessage];
-    const success = await updateConversation(updatedMessages);
-    
-    if (success) {
-      setShowDeliveryTimeframe(false);
-      setTimeout(async () => {
-        const responseMessage: Message = {
-          text: "Thank you for selecting your delivery timeframe. I'll make sure to accommodate your schedule.",
-          sender: "seamstress",
-          created_at: new Date().toISOString()
-        };
-        updateConversation([...updatedMessages, responseMessage]);
-      }, 1000);
-    }
+  const handleToggleMeasurements = () => {
+    setShowMeasurements(!showMeasurements);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setMeasurements(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleDesignShare = () => {
+    navigate("/");
+    toast({
+      title: "Design Shared",
+      description: "Your design has been shared with the seamstress.",
+    });
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-[#EBE2D3] p-4 flex items-center justify-center">
-        Loading conversation...
-      </div>
-    );
+    return <div className="flex justify-center items-center h-screen">Loading messages...</div>;
   }
 
-  const hasMeasurements = messages.some(msg => msg.type === 'measurements');
-
   return (
-    <div className="min-h-screen bg-[#EBE2D3] p-4">
-      <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
-        <ConversationHeader 
-          seamstress={seamstress}
-          hasMeasurements={hasMeasurements}
-          onSubmitOrder={handleSubmitOrder}
-        />
+    <div className="min-h-screen bg-[#EBE2D3] py-6">
+      <div className="max-w-4xl mx-auto px-4 shadow-lg rounded-lg overflow-hidden">
+        {/* Header Section */}
+        <div className="bg-accent/80 text-white p-4 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <Avatar className="w-10 h-10">
+              <AvatarImage src={seamstress.image} alt={seamstress.name} />
+              <AvatarFallback>{seamstress.name.charAt(0)}</AvatarFallback>
+            </Avatar>
+            <div>
+              <h2 className="font-semibold">{seamstress.name}</h2>
+              <p className="text-sm text-white/80">Online</p>
+            </div>
+          </div>
+          <div>
+            <Button size="sm" onClick={handleDesignShare} className="bg-primary hover:bg-primary/90">Share Design</Button>
+          </div>
+        </div>
 
-        <MessageList messages={messages} />
+        {/* Chat Messages Section */}
+        <div className="bg-white h-[500px] overflow-y-auto p-4">
+          {messages.map((msg, index) => (
+            <div key={index} className={`mb-2 flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
+              <div className={`max-w-xs rounded-xl p-3 text-sm ${msg.sender === 'user' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-800'}`}>
+                {msg.type === "image" ? (
+                  <img src={msg.text} alt="Shared Design" className="max-w-full h-auto rounded-md" />
+                ) : (
+                  msg.text
+                )}
+              </div>
+              <span className="text-xs text-gray-500 mt-1">{new Date(msg.created_at).toLocaleTimeString()}</span>
+            </div>
+          ))}
+        </div>
 
-        {showMeasurements && (
-          <MeasurementsForm
-            measurements={measurements}
-            setMeasurements={setMeasurements}
-            onCancel={() => setShowMeasurements(false)}
-            onShare={handleShareMeasurements}
-          />
-        )}
+        {/* Input and Actions Section */}
+        <div className="bg-gray-50 p-4 border-t border-gray-200">
+          {showMeasurements ? (
+            <Card className="mb-4">
+              <CardContent className="grid gap-4">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label htmlFor="bust" className="text-sm font-medium block mb-1">Bust</label>
+                    <Input type="text" id="bust" name="bust" value={measurements.bust} onChange={handleInputChange} />
+                  </div>
+                  <div>
+                    <label htmlFor="waist" className="text-sm font-medium block mb-1">Waist</label>
+                    <Input type="text" id="waist" name="waist" value={measurements.waist} onChange={handleInputChange} />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label htmlFor="hips" className="text-sm font-medium block mb-1">Hips</label>
+                    <Input type="text" id="hips" name="hips" value={measurements.hips} onChange={handleInputChange} />
+                  </div>
+                  <div>
+                    <label htmlFor="length" className="text-sm font-medium block mb-1">Length</label>
+                    <Input type="text" id="length" name="length" value={measurements.length} onChange={handleInputChange} />
+                  </div>
+                </div>
+                <Button onClick={handleMeasurementsSubmit} className="bg-primary hover:bg-primary/90">Submit Measurements</Button>
+              </CardContent>
+            </Card>
+          ) : null}
 
-        {showDeliveryTimeframe && (
-          <DeliveryTimeframe
-            onTimeframeSelect={handleTimeframeSelect}
-          />
-        )}
-
-        <MessageInput
-          message={message}
-          setMessage={setMessage}
-          onSend={handleSend}
-          onImageUpload={handleImageUpload}
-          onMeasurementsClick={() => setShowMeasurements(true)}
-          onDeliveryTimeframeClick={() => setShowDeliveryTimeframe(true)}
-        />
+          <div className="flex items-center space-x-2">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={handleToggleMeasurements}
+              className="hover:bg-gray-200"
+            >
+              <Paperclip className="w-5 h-5" />
+            </Button>
+            <Input
+              type="text"
+              placeholder="Type your message here..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSendMessage();
+                }
+              }}
+              className="flex-grow rounded-full py-2 px-4 bg-gray-100 border-none focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+            <Button onClick={handleSendMessage} className="bg-primary hover:bg-primary/90 rounded-full">
+              <Send className="w-5 h-5" />
+              <span className="sr-only">Send</span>
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );

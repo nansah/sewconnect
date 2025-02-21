@@ -222,6 +222,7 @@ export type Database = {
           specialty: string
           updated_at: string | null
           user_id: string | null
+          years_of_experience: number | null
         }
         Insert: {
           created_at?: string | null
@@ -235,6 +236,7 @@ export type Database = {
           specialty: string
           updated_at?: string | null
           user_id?: string | null
+          years_of_experience?: number | null
         }
         Update: {
           created_at?: string | null
@@ -248,6 +250,7 @@ export type Database = {
           specialty?: string
           updated_at?: string | null
           user_id?: string | null
+          years_of_experience?: number | null
         }
         Relationships: [
           {
@@ -261,7 +264,13 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      seamstress_active_orders: {
+        Row: {
+          active_orders: number | null
+          seamstress_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
