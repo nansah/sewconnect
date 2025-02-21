@@ -47,99 +47,109 @@ const SeamstressProfile = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-secondary p-4">
-      <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
-        {/* Hero Section */}
-        <div className="relative h-64 md:h-96">
-          <img
-            src={seamstress.image}
-            alt={seamstress.name}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-6">
-            <h1 className="text-3xl font-bold text-white">{seamstress.name}</h1>
-            <p className="text-white/90">{seamstress.location}</p>
+    <div className="min-h-screen bg-[#EBE2D3]">
+      {/* Hero Section with Glassmorphism */}
+      <div className="relative h-[500px]">
+        <img
+          src={seamstress.image}
+          alt={seamstress.name}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-black/60" />
+        <div className="absolute bottom-0 left-0 right-0 bg-white/10 backdrop-blur-lg border-t border-white/20">
+          <div className="max-w-6xl mx-auto px-6 py-8">
+            <div className="flex justify-between items-end">
+              <div className="space-y-2">
+                <h1 className="text-4xl font-bold text-white">{seamstress.name}</h1>
+                <p className="text-white/90 text-lg">{seamstress.location}</p>
+              </div>
+              <Button onClick={handleMessageClick} size="lg" className="bg-primary hover:bg-primary/90">
+                <MessageCircle className="w-5 h-5 mr-2" />
+                Message
+              </Button>
+            </div>
           </div>
         </div>
+      </div>
 
-        {/* Content */}
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <p className="text-lg font-semibold text-accent">{seamstress.specialty}</p>
-              <p className="text-primary font-bold">{seamstress.price}</p>
-            </div>
-            <Button onClick={handleMessageClick} className="flex gap-2">
-              <MessageCircle className="w-4 h-4" />
-              Message
-            </Button>
+      {/* Content Section */}
+      <div className="max-w-6xl mx-auto px-6 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+          {/* Left Column - Details */}
+          <div className="lg:col-span-2 space-y-8">
+            <Tabs defaultValue="about" className="w-full">
+              <TabsList className="bg-white/50 backdrop-blur-sm">
+                <TabsTrigger value="about">About</TabsTrigger>
+                <TabsTrigger value="specialties">Specialties</TabsTrigger>
+                <TabsTrigger value="gallery">Gallery</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="about" className="mt-6">
+                <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg">
+                  <h3 className="text-xl font-semibold mb-4">About Me</h3>
+                  <p className="text-gray-700 leading-relaxed">
+                    With over 10 years of experience in creating beautiful, custom-made garments, 
+                    I specialize in bringing your vision to life. My passion lies in combining traditional 
+                    techniques with modern styles to create unique pieces that perfectly fit your body and personality.
+                  </p>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="specialties" className="mt-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {["Traditional African Attire", "Wedding Dresses", "Evening Gowns", "Alterations"].map((specialty, index) => (
+                    <div key={index} className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg">
+                      <h4 className="font-semibold text-lg mb-2">{specialty}</h4>
+                      <p className="text-gray-600 text-sm">
+                        Expert craftsmanship and attention to detail in {specialty.toLowerCase()}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="gallery" className="mt-6">
+                <div className="grid grid-cols-2 gap-4">
+                  {galleryImages.map((image, index) => (
+                    <div key={index} className="aspect-square rounded-xl overflow-hidden shadow-lg">
+                      <img
+                        src={image}
+                        alt={`Portfolio ${index + 1}`}
+                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
 
-          <Tabs defaultValue="about" className="w-full">
-            <TabsList>
-              <TabsTrigger value="about">About</TabsTrigger>
-              <TabsTrigger value="specialties">Specialties</TabsTrigger>
-              <TabsTrigger value="gallery">Gallery</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="about" className="mt-4">
-              <div className="prose max-w-none">
-                <h3 className="text-xl font-semibold mb-4">About Me</h3>
-                <p className="text-gray-600">
-                  With over 10 years of experience in creating beautiful, custom-made garments, 
-                  I specialize in bringing your vision to life. My passion lies in combining traditional 
-                  techniques with modern styles to create unique pieces that perfectly fit your body and personality.
-                </p>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="specialties" className="mt-4">
+          {/* Right Column - Booking Info */}
+          <div className="space-y-6">
+            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg">
+              <h3 className="text-xl font-semibold mb-4">Booking Information</h3>
               <div className="space-y-4">
-                <h3 className="text-xl font-semibold mb-4">My Specialties</h3>
-                <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <li className="flex items-center gap-2 bg-secondary rounded-lg p-4">
-                    <div className="flex-1">
-                      <h4 className="font-semibold">Traditional African Attire</h4>
-                      <p className="text-sm text-gray-600">Expert in various regional styles and modern fusion designs</p>
-                    </div>
-                  </li>
-                  <li className="flex items-center gap-2 bg-secondary rounded-lg p-4">
-                    <div className="flex-1">
-                      <h4 className="font-semibold">Wedding Dresses</h4>
-                      <p className="text-sm text-gray-600">Custom bridal wear with attention to detail</p>
-                    </div>
-                  </li>
-                  <li className="flex items-center gap-2 bg-secondary rounded-lg p-4">
-                    <div className="flex-1">
-                      <h4 className="font-semibold">Evening Gowns</h4>
-                      <p className="text-sm text-gray-600">Elegant and sophisticated formal wear</p>
-                    </div>
-                  </li>
-                  <li className="flex items-center gap-2 bg-secondary rounded-lg p-4">
-                    <div className="flex-1">
-                      <h4 className="font-semibold">Alterations</h4>
-                      <p className="text-sm text-gray-600">Professional garment modifications and repairs</p>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="gallery" className="mt-4">
-              <h3 className="text-xl font-semibold mb-4">Previous Work</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {galleryImages.map((image, index) => (
-                  <div key={index} className="aspect-square rounded-lg overflow-hidden">
-                    <img
-                      src={image}
-                      alt={`Previous work ${index + 1}`}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                    />
+                <div>
+                  <p className="text-gray-600">Starting Price</p>
+                  <p className="text-2xl font-semibold text-primary">{seamstress.price}</p>
+                </div>
+                <div>
+                  <p className="text-gray-600">Specialty</p>
+                  <p className="text-lg">{seamstress.specialty}</p>
+                </div>
+                <div>
+                  <p className="text-gray-600">Rating</p>
+                  <div className="flex items-center gap-1">
+                    <span className="text-lg font-semibold">{seamstress.rating.toFixed(1)}</span>
+                    <span className="text-yellow-500">★</span>
                   </div>
-                ))}
+                </div>
+                <Button className="w-full" size="lg" onClick={handleMessageClick}>
+                  Book Appointment
+                </Button>
               </div>
-            </TabsContent>
-          </Tabs>
+            </div>
+          </div>
         </div>
       </div>
     </div>
