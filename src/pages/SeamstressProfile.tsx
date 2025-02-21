@@ -78,13 +78,13 @@ const SeamstressProfile = () => {
           {/* Left Column - Details */}
           <div className="lg:col-span-2">
             <Tabs defaultValue="about" className="w-full">
-              <TabsList className="w-full bg-white mb-6">
-                <TabsTrigger value="about" className="flex-1 bg-white">About</TabsTrigger>
-                <TabsTrigger value="specialties" className="flex-1 bg-white">Specialties</TabsTrigger>
-                <TabsTrigger value="gallery" className="flex-1 bg-white">Gallery</TabsTrigger>
+              <TabsList className="w-full mb-6 bg-[#FDE1D3]">
+                <TabsTrigger value="about" className="flex-1 data-[state=active]:bg-[#FEC6A1]">About</TabsTrigger>
+                <TabsTrigger value="specialties" className="flex-1 data-[state=active]:bg-[#FEC6A1]">Specialties</TabsTrigger>
+                <TabsTrigger value="gallery" className="flex-1 data-[state=active]:bg-[#FEC6A1]">Gallery</TabsTrigger>
               </TabsList>
               
-              <TabsContent value="about" className="mt-6 bg-[#FDE1D3] rounded-xl p-8">
+              <TabsContent value="about" className="mt-6 bg-white rounded-xl p-8 shadow-lg">
                 <div className="space-y-4">
                   <h3 className="text-2xl font-semibold mb-4">About Me</h3>
                   <p className="text-gray-700 leading-relaxed">
@@ -95,10 +95,10 @@ const SeamstressProfile = () => {
                 </div>
               </TabsContent>
 
-              <TabsContent value="specialties" className="mt-6 bg-[#FEC6A1] rounded-xl p-8">
+              <TabsContent value="specialties" className="mt-6 bg-white rounded-xl p-8 shadow-lg">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {["Traditional African Attire", "Wedding Dresses", "Evening Gowns", "Alterations"].map((specialty, index) => (
-                    <div key={index} className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg">
+                    <div key={index} className="bg-[#FDE1D3]/10 backdrop-blur-sm rounded-xl p-6 shadow-lg">
                       <h4 className="font-semibold text-lg mb-2">{specialty}</h4>
                       <p className="text-gray-600 text-sm">
                         Expert craftsmanship and attention to detail in {specialty.toLowerCase()}
@@ -108,7 +108,7 @@ const SeamstressProfile = () => {
                 </div>
               </TabsContent>
 
-              <TabsContent value="gallery" className="mt-6 bg-[#F1F0FB] rounded-xl p-8">
+              <TabsContent value="gallery" className="mt-6 bg-white rounded-xl p-8 shadow-lg">
                 <div className="grid grid-cols-2 gap-6">
                   {galleryImages.map((image, index) => (
                     <div key={index} className="aspect-square rounded-xl overflow-hidden shadow-lg">
