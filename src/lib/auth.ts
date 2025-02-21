@@ -47,14 +47,15 @@ export async function signIn(email: string, password: string) {
 
 export async function demoSeamstressLogin() {
   try {
-    const { error } = await supabase.auth.signInWithPassword({
+    // First try to log in
+    let { data, error } = await supabase.auth.signInWithPassword({
       email: "demo.seamstress@example.com",
       password: "demo123456",
     });
 
+    // If login fails, try to create the account
     if (error) {
-      // If demo user doesn't exist, create it
-      const { error: signUpError } = await supabase.auth.signUp({
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: "demo.seamstress@example.com",
         password: "demo123456",
         options: {
@@ -66,20 +67,25 @@ export async function demoSeamstressLogin() {
         }
       });
 
-      if (signUpError) throw signUpError;
+      if (signUpError) {
+        throw signUpError;
+      }
 
-      // Try logging in again after creating the account
-      const { error: loginError } = await supabase.auth.signInWithPassword({
+      // Try logging in again
+      const { error: retryError } = await supabase.auth.signInWithPassword({
         email: "demo.seamstress@example.com",
         password: "demo123456",
       });
 
-      if (loginError) throw loginError;
+      if (retryError) {
+        throw retryError;
+      }
     }
 
     toast.success("Logged in as demo seamstress!");
     return { error: null };
   } catch (error: any) {
+    console.error("Demo login error:", error);
     toast.error(error.message);
     return { error };
   }

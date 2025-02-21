@@ -10,6 +10,7 @@ const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,9 +21,14 @@ const Login = () => {
   };
 
   const handleDemoLogin = async () => {
-    const { error } = await demoSeamstressLogin();
-    if (!error) {
-      navigate("/seamstress-dashboard");
+    setIsLoading(true);
+    try {
+      const { error } = await demoSeamstressLogin();
+      if (!error) {
+        navigate("/seamstress-dashboard");
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -77,9 +83,10 @@ const Login = () => {
               className="w-full"
               size="lg"
               onClick={handleDemoLogin}
+              disabled={isLoading}
             >
               <User className="w-4 h-4 mr-2" />
-              Try Demo Seamstress Account
+              {isLoading ? "Loading..." : "Try Demo Seamstress Account"}
             </Button>
           </div>
         </form>
