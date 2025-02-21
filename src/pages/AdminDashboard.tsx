@@ -27,14 +27,59 @@ export const AdminDashboard = () => {
   const [editingName, setEditingName] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
-    // Removed admin check for demo purposes
     fetchProfiles();
+
+    // Subscribe to real-time changes
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all changes (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'seamstress_profiles'
+        },
+        (payload) => {
+          console.log('Real-time change received:', payload);
+          
+          // Refresh the profiles list when any change occurs
+          fetchProfiles();
+          
+          // Show a toast notification
+          const eventType = payload.eventType;
+          let message = '';
+          
+          switch (eventType) {
+            case 'INSERT':
+              message = 'New seamstress profile created';
+              break;
+            case 'UPDATE':
+              message = 'Seamstress profile updated';
+              break;
+            case 'DELETE':
+              message = 'Seamstress profile deleted';
+              break;
+          }
+          
+          toast({
+            title: "Profile Change",
+            description: message,
+          });
+        }
+      )
+      .subscribe();
+
+    // Cleanup subscription on component unmount
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchProfiles = async () => {
     const { data, error } = await supabase
       .from('seamstress_profiles')
-      .select('*');
+      .select('*')
+      .order('created_at', { ascending: false }); // Show newest profiles first
 
     if (error) {
       toast({
@@ -88,7 +133,7 @@ export const AdminDashboard = () => {
         description: "Name updated successfully",
       });
 
-      fetchProfiles();
+      // No need to manually fetch profiles here as the real-time subscription will handle it
       setEditingName(prev => {
         const newState = { ...prev };
         delete newState[profileId];
