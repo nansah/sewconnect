@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { LocationState, Message, Measurements } from "@/types/messaging";
@@ -22,7 +23,7 @@ const DEFAULT_MEASUREMENTS: Measurements = {
 const DEMO_SEAMSTRESS = {
   id: "demo-seamstress-123",
   name: "Sarah Johnson",
-  image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=400&fit=crop"
+  image: "https://images.unsplash.com/photo-1589156191108-c762ff4b96ab?w=400&h=400&fit=crop"
 };
 
 const MessagingPortal = () => {
@@ -122,6 +123,16 @@ const MessagingPortal = () => {
         inspiration: inspirationMsg?.text || '',
       };
 
+      // Convert messages to a format compatible with Json type
+      const conversationData = {
+        messages: messages.map(msg => ({
+          text: msg.text,
+          sender: msg.sender,
+          type: msg.type || null
+        })),
+        orderDetails
+      };
+
       const { error } = await supabase
         .from('orders')
         .insert({
@@ -129,10 +140,7 @@ const MessagingPortal = () => {
           customer_name: "Demo Customer",
           status: 'queued',
           measurements: measurementMsg?.text || '',
-          conversation: {
-            messages,
-            orderDetails
-          }
+          conversation: conversationData
         });
 
       if (error) throw error;
