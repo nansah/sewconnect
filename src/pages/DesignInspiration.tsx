@@ -5,36 +5,59 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-// For now, we'll use static images for inspiration
-// Later we can integrate with Pinterest API or another service
+// Curated collection of African fashion inspiration
 const inspirationImages = [
   {
     id: 1,
-    url: "https://images.pexels.com/photos/291762/pexels-photo-291762.jpeg?auto=compress&cs=tinysrgb&w=800",
-    title: "Evening Gown",
-    category: "formal"
-  },
-  {
-    id: 2,
-    url: "https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg?auto=compress&cs=tinysrgb&w=800",
-    title: "Traditional Dress",
+    url: "https://images.pexels.com/photos/2700678/pexels-photo-2700678.jpeg?auto=compress&cs=tinysrgb&w=800",
+    title: "Traditional Ankara Gown",
     category: "traditional"
   },
   {
+    id: 2,
+    url: "https://images.pexels.com/photos/2771438/pexels-photo-2771438.jpeg?auto=compress&cs=tinysrgb&w=800",
+    title: "Modern African Print Dress",
+    category: "modern"
+  },
+  {
     id: 3,
-    url: "https://images.pexels.com/photos/1488507/pexels-photo-1488507.jpeg?auto=compress&cs=tinysrgb&w=800",
-    title: "Modern Suit",
+    url: "https://images.pexels.com/photos/3014865/pexels-photo-3014865.jpeg?auto=compress&cs=tinysrgb&w=800",
+    title: "African Print Blazer",
     category: "business"
   },
   {
     id: 4,
-    url: "https://images.pexels.com/photos/2850487/pexels-photo-2850487.jpeg?auto=compress&cs=tinysrgb&w=800",
-    title: "Wedding Dress",
+    url: "https://images.pexels.com/photos/2932658/pexels-photo-2932658.jpeg?auto=compress&cs=tinysrgb&w=800",
+    title: "Traditional Wedding Attire",
     category: "bridal"
+  },
+  {
+    id: 5,
+    url: "https://images.pexels.com/photos/2977547/pexels-photo-2977547.jpeg?auto=compress&cs=tinysrgb&w=800",
+    title: "Contemporary African Style",
+    category: "modern"
+  },
+  {
+    id: 6,
+    url: "https://images.pexels.com/photos/2923157/pexels-photo-2923157.jpeg?auto=compress&cs=tinysrgb&w=800",
+    title: "Formal African Dress",
+    category: "formal"
+  },
+  {
+    id: 7,
+    url: "https://images.pexels.com/photos/2942801/pexels-photo-2942801.jpeg?auto=compress&cs=tinysrgb&w=800",
+    title: "African Print Casual Wear",
+    category: "casual"
+  },
+  {
+    id: 8,
+    url: "https://images.pexels.com/photos/2915216/pexels-photo-2915216.jpeg?auto=compress&cs=tinysrgb&w=800",
+    title: "Modern Fusion Dress",
+    category: "modern"
   }
 ];
 
-const categories = ["All", "Formal", "Traditional", "Business", "Bridal", "Casual"];
+const categories = ["All", "Traditional", "Modern", "Business", "Bridal", "Formal", "Casual"];
 
 const DesignInspiration = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -51,9 +74,9 @@ const DesignInspiration = () => {
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold text-gray-900">Design Inspiration</h1>
+          <h1 className="text-4xl font-bold text-gray-900">African Fashion Inspiration</h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Browse through our collection of designs to find inspiration for your next custom piece
+            Explore our collection of African fashion designs to inspire your next custom piece
           </p>
         </div>
 
@@ -105,6 +128,10 @@ const DesignInspiration = () => {
               </div>
             </div>
           ))}
+        </div>
+
+        <div className="text-center text-sm text-gray-500 mt-8">
+          <p>Images sourced from Pexels. For a wider selection, visit Pinterest for more African fashion inspiration.</p>
         </div>
       </div>
     </div>
