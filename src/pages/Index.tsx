@@ -2,6 +2,7 @@
 import { SearchBar } from "../components/SearchBar";
 import { SeamstressCard } from "../components/SeamstressCard";
 import { FilterSection } from "../components/FilterSection";
+import { Header } from "../components/Header";
 
 const SEAMSTRESSES = [
   {
@@ -33,6 +34,7 @@ const SEAMSTRESSES = [
 const Index = () => {
   return (
     <div className="min-h-screen bg-secondary">
+      <Header />
       {/* Hero Section */}
       <div className="bg-primary/10 py-20 px-4">
         <div className="max-w-6xl mx-auto text-center">
