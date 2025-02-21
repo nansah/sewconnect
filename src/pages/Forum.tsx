@@ -28,39 +28,8 @@ const EXAMPLE_COMMENTS = {
   ]
 };
 
-// Example demo posts
-const DEMO_POSTS = [
-  {
-    id: "demo-1",
-    author: "Grace Adebayo",
-    content: "Just received my custom-made Ankara dress from one of the seamstresses here - absolutely stunning! The fit is perfect and the fabric choice was exactly what I wanted. Here's a tip: make sure to provide detailed measurements and reference photos of the style you want. It really helps in getting the perfect result! 💃🏾 #AfricanFashion #CustomMade",
-    likes: 24,
-    comments: 2,
-    created_at: new Date(Date.now() - 3600000 * 2).toISOString(), // 2 hours ago
-    user_id: "demo-user-1"
-  },
-  {
-    id: "demo-2",
-    author: "Chioma Okonkwo",
-    content: "Has anyone worked with a seamstress who specializes in beadwork? I'm looking to get a traditional wedding gown made with intricate beading details. Would love some recommendations! 👗✨",
-    likes: 15,
-    comments: 1,
-    created_at: new Date(Date.now() - 3600000 * 5).toISOString(), // 5 hours ago
-    user_id: "demo-user-2"
-  },
-  {
-    id: "demo-3",
-    author: "Aisha Mohammed",
-    content: "Pro tip: When getting your measurements taken for a traditional outfit, wear the undergarments you plan to wear with the final piece. It makes a huge difference in the fit! Also, don't forget to specify if you'll be wearing heels with the outfit - it affects the length measurements. #SewingTips #AfricanFashion",
-    likes: 42,
-    comments: 0,
-    created_at: new Date(Date.now() - 3600000 * 8).toISOString(), // 8 hours ago
-    user_id: "demo-user-3"
-  }
-];
-
 const Forum = () => {
-  const [posts, setPosts] = useState<Post[]>(DEMO_POSTS);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [newPost, setNewPost] = useState("");
   const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
@@ -71,7 +40,7 @@ const Forum = () => {
     name: "SewConnect Community",
     members: 856,
     description: "A welcoming space for customers to connect, share experiences, and discuss their African fashion journey. Find recommendations, share success stories, and get advice from fellow fashion enthusiasts.",
-    bannerImage: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=1200&fit=crop" // Note: This needs to be replaced with an appropriate African attire image
+    bannerImage: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=1200&fit=crop"
   };
 
   // Fetch initial posts and subscribe to changes
