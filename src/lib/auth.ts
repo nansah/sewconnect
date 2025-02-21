@@ -48,8 +48,8 @@ export async function signIn(email: string, password: string) {
 export async function demoSeamstressLogin() {
   console.log("Starting demo seamstress login...");
   try {
-    const email = "demo.seamstress@sewconnect.com";
-    const password = "demo123!@#";
+    const email = "demo.seamstress@example.com";
+    const password = "demo123456!";
     console.log("Using demo credentials:", { email, password });
     
     const { data, error } = await supabase.auth.signInWithPassword({
