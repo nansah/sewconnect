@@ -1,82 +1,91 @@
 
-import { useState } from "react";
-import { Button } from "../components/ui/button";
-import { Card } from "../components/ui/card";
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
-import { RadioGroup, RadioGroupItem } from "../components/ui/radio-group";
-import { signIn } from "@/lib/auth";
-import { useNavigate } from "react-router-dom";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
-const Login = () => {
+export const Login = () => {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [userType, setUserType] = useState<"customer" | "seamstress">("customer");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    
-    const { error } = await signIn(email, password);
-    
-    if (!error) {
-      navigate(userType === "seamstress" ? "/dashboard" : "/");
+    setLoading(true);
+
+    try {
+      const { data: { user }, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) throw error;
+
+      // Check if user is admin
+      const { data: adminData, error: adminError } = await supabase
+        .from('admin_users')
+        .select('user_id')
+        .eq('user_id', user?.id)
+        .single();
+
+      if (adminError || !adminData) {
+        throw new Error('Unauthorized access');
+      }
+
+      toast({
+        title: "Success",
+        description: "Logged in successfully",
+      });
+
+      navigate('/admin');
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
-    
-    setIsLoading(false);
   };
 
   return (
-    <div className="min-h-screen bg-secondary flex items-center justify-center p-4">
-      <Card className="w-full max-w-md p-6 space-y-6">
-        <h1 className="text-2xl font-bold text-center">Login</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <RadioGroup 
-            defaultValue="customer" 
-            className="flex justify-center gap-4"
-            onValueChange={(value) => setUserType(value as "customer" | "seamstress")}
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="customer" id="user" />
-              <Label htmlFor="user">Customer</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="seamstress" id="seamstress" />
-              <Label htmlFor="seamstress">Seamstress</Label>
-            </div>
-          </RadioGroup>
-          
-          <div className="space-y-2">
+    <div className="container mx-auto max-w-md py-12">
+      <div className="bg-white shadow-lg rounded-lg p-6">
+        <h1 className="text-2xl font-bold mb-6">Admin Login</h1>
+        
+        <form onSubmit={handleLogin} className="space-y-4">
+          <div>
             <Label htmlFor="email">Email</Label>
-            <Input 
-              id="email" 
-              type="email" 
-              placeholder="Enter your email"
+            <Input
+              id="email"
+              type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required 
+              required
             />
           </div>
           
-          <div className="space-y-2">
+          <div>
             <Label htmlFor="password">Password</Label>
-            <Input 
-              id="password" 
-              type="password" 
-              placeholder="Enter your password"
+            <Input
+              id="password"
+              type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required 
+              required
             />
           </div>
 
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Logging in..." : "Login"}
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
           </Button>
         </form>
-      </Card>
+      </div>
     </div>
   );
 };
