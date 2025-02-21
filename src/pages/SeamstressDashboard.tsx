@@ -20,13 +20,13 @@ const SeamstressDashboard = () => {
   const progressPercentage = (progressOrders / totalOrders) * 100;
 
   return (
-    <div className="min-h-screen bg-secondary p-6">
+    <div className="min-h-screen bg-[#EBE2D3] p-6">
       <div className="max-w-6xl mx-auto space-y-6">
         <h1 className="text-2xl font-bold">Dashboard</h1>
         
         {/* Analytics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="p-6 hover:shadow-lg transition-shadow">
+          <Card className="p-6 hover:shadow-lg transition-shadow bg-white">
             <div className="flex items-center gap-4">
               <div className="bg-primary/10 p-3 rounded-lg">
                 <BarChart className="w-6 h-6 text-primary" />
@@ -38,7 +38,7 @@ const SeamstressDashboard = () => {
             </div>
           </Card>
           
-          <Card className="p-6 hover:shadow-lg transition-shadow">
+          <Card className="p-6 hover:shadow-lg transition-shadow bg-white">
             <div className="flex items-center gap-4">
               <div className="bg-primary/10 p-3 rounded-lg">
                 <Users className="w-6 h-6 text-primary" />
@@ -50,7 +50,7 @@ const SeamstressDashboard = () => {
             </div>
           </Card>
           
-          <Card className="p-6 hover:shadow-lg transition-shadow">
+          <Card className="p-6 hover:shadow-lg transition-shadow bg-white">
             <div className="flex items-center gap-4">
               <div className="bg-primary/10 p-3 rounded-lg">
                 <Clock className="w-6 h-6 text-primary" />
@@ -66,7 +66,7 @@ const SeamstressDashboard = () => {
             </div>
           </Card>
           
-          <Card className="p-6 hover:shadow-lg transition-shadow">
+          <Card className="p-6 hover:shadow-lg transition-shadow bg-white">
             <div className="flex items-center gap-4">
               <div className="bg-primary/10 p-3 rounded-lg">
                 <ListChecks className="w-6 h-6 text-primary" />
@@ -86,7 +86,7 @@ const SeamstressDashboard = () => {
         {/* Orders Tables */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Queue Table */}
-          <Card className="p-6">
+          <Card className="p-6 bg-white">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-lg font-semibold">Orders in Queue</h2>
               <Progress value={(queueOrders / 10) * 100} className="w-32 h-2" />
@@ -112,7 +112,7 @@ const SeamstressDashboard = () => {
           </Card>
 
           {/* In Progress Table */}
-          <Card className="p-6">
+          <Card className="p-6 bg-white">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-lg font-semibold">Orders in Progress</h2>
               <Progress value={(progressOrders / 5) * 100} className="w-32 h-2" />
