@@ -7,16 +7,43 @@ interface HeroSectionProps {
 }
 
 export const HeroSection = ({ onSearch }: HeroSectionProps) => {
-  const [currentWord, setCurrentWord] = useState(0);
+  const [displayText, setDisplayText] = useState("");
   const words = ["Seamstresses", "Tailors", "Designers"];
+  const [wordIndex, setWordIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentWord((prev) => (prev + 1) % words.length);
-    }, 3000); // Rotate every 3 seconds
+    let timeoutId: NodeJS.Timeout;
 
-    return () => clearInterval(interval);
-  }, []);
+    const typeWriter = () => {
+      const currentWord = words[wordIndex];
+      const shouldDelete = isDeleting;
+
+      setDisplayText(prev => {
+        if (shouldDelete) {
+          return prev.slice(0, -1);
+        }
+        return currentWord.slice(0, prev.length + 1);
+      });
+
+      let timeout = shouldDelete ? 50 : 150; // Delete faster than type
+
+      if (!shouldDelete && displayText === currentWord) {
+        timeout = 2000; // Pause at the end of word
+        setIsDeleting(true);
+      } else if (shouldDelete && displayText === "") {
+        setIsDeleting(false);
+        setWordIndex((prev) => (prev + 1) % words.length);
+        timeout = 500; // Pause before starting new word
+      }
+
+      timeoutId = setTimeout(typeWriter, timeout);
+    };
+
+    timeoutId = setTimeout(typeWriter, 100);
+
+    return () => clearTimeout(timeoutId);
+  }, [displayText, isDeleting, wordIndex, words]);
 
   return (
     <div className="relative h-[600px] overflow-hidden">
@@ -29,8 +56,9 @@ export const HeroSection = ({ onSearch }: HeroSectionProps) => {
       <div className="absolute inset-0 flex flex-col items-center justify-center text-white z-10 px-4">
         <h1 className="text-5xl font-bold text-center mb-6 max-w-3xl animate-fade-up">
           Connect with Expert African{" "}
-          <span className="inline-block min-w-[280px] transition-all duration-500 animate-fade-up">
-            {words[currentWord]}
+          <span className="inline-block min-w-[280px]">
+            {displayText}
+            <span className="animate-pulse">|</span>
           </span>
         </h1>
         <p className="text-xl text-center mb-8 max-w-2xl animate-fade-up opacity-90">
