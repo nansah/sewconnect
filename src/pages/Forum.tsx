@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -27,8 +28,39 @@ const EXAMPLE_COMMENTS = {
   ]
 };
 
+// Example demo posts
+const DEMO_POSTS = [
+  {
+    id: "demo-1",
+    author: "Grace Adebayo",
+    content: "Just received my custom-made Ankara dress from one of the seamstresses here - absolutely stunning! The fit is perfect and the fabric choice was exactly what I wanted. Here's a tip: make sure to provide detailed measurements and reference photos of the style you want. It really helps in getting the perfect result! 💃🏾 #AfricanFashion #CustomMade",
+    likes: 24,
+    comments: 2,
+    created_at: new Date(Date.now() - 3600000 * 2).toISOString(), // 2 hours ago
+    user_id: "demo-user-1"
+  },
+  {
+    id: "demo-2",
+    author: "Chioma Okonkwo",
+    content: "Has anyone worked with a seamstress who specializes in beadwork? I'm looking to get a traditional wedding gown made with intricate beading details. Would love some recommendations! 👗✨",
+    likes: 15,
+    comments: 1,
+    created_at: new Date(Date.now() - 3600000 * 5).toISOString(), // 5 hours ago
+    user_id: "demo-user-2"
+  },
+  {
+    id: "demo-3",
+    author: "Aisha Mohammed",
+    content: "Pro tip: When getting your measurements taken for a traditional outfit, wear the undergarments you plan to wear with the final piece. It makes a huge difference in the fit! Also, don't forget to specify if you'll be wearing heels with the outfit - it affects the length measurements. #SewingTips #AfricanFashion",
+    likes: 42,
+    comments: 0,
+    created_at: new Date(Date.now() - 3600000 * 8).toISOString(), // 8 hours ago
+    user_id: "demo-user-3"
+  }
+];
+
 const Forum = () => {
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<Post[]>(DEMO_POSTS);
   const [newPost, setNewPost] = useState("");
   const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
@@ -121,8 +153,8 @@ const Forum = () => {
     if (!user) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Please login to like posts.",
+        title: "Authentication Required",
+        description: "Please create an account or log in to like posts.",
       });
       return;
     }
@@ -145,6 +177,14 @@ const Forum = () => {
   };
 
   const toggleComments = (postId: string) => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Create an account or log in to view and participate in discussions.",
+        variant: "destructive",
+      });
+      return;
+    }
     setShowComments(prev => ({
       ...prev,
       [postId]: !prev[postId]
@@ -232,7 +272,7 @@ const Forum = () => {
                     <p className="text-sm text-gray-500">{formatDate(post.created_at)}</p>
                   </div>
                 </div>
-                <p className="mb-4">{post.content}</p>
+                <p className="mb-4 whitespace-pre-wrap">{post.content}</p>
                 <div className="flex gap-4 text-sm text-gray-600">
                   <button 
                     className="flex items-center gap-1 hover:text-accent"
