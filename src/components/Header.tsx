@@ -1,7 +1,7 @@
 
 import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
-import { LogIn, LogOut, UserPlus, Users } from "lucide-react";
+import { LogIn, LogOut, UserPlus, Users2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
@@ -32,7 +32,7 @@ export const Header = () => {
         <div className="flex gap-4">
           <Link to="/forum">
             <Button variant="outline" className="flex gap-2 bg-white/10 text-white border-white/20 hover:bg-white/20">
-              <Users className="w-4 h-4" />
+              <Users2 className="w-4 h-4" />
               Community
             </Button>
           </Link>
@@ -65,11 +65,6 @@ export const Header = () => {
             </>
           )}
         </div>
-      </div>
-      <div className="absolute bottom-0 left-0 w-full text-center text-white/70 text-sm py-2">
-        <Link to="/privacy-policy" className="hover:text-white transition-colors">
-          Privacy Policy
-        </Link>
       </div>
     </header>
   );
