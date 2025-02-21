@@ -86,12 +86,27 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-[#EBE2D3]">
       <Header />
-      <main className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto space-y-8">
-          <h1 className="text-4xl font-bold text-center mb-8">
-            Find Your Perfect Seamstress
+      <div 
+        className="relative h-[500px] bg-cover bg-center before:absolute before:inset-0 before:bg-black/40"
+        style={{ 
+          backgroundImage: `url('https://images.unsplash.com/photo-1439337153520-7082a56a81f4?auto=format&fit=crop&w=2000&q=80')`
+        }}
+      >
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-white z-10 px-4">
+          <h1 className="text-5xl font-bold text-center mb-6 max-w-3xl animate-fade-up">
+            Connect with Expert African Seamstresses
           </h1>
-          <SearchBar />
+          <p className="text-xl text-center mb-8 max-w-2xl animate-fade-up opacity-90">
+            Discover talented seamstresses who bring your fashion dreams to life with authentic African craftsmanship
+          </p>
+          <div className="w-full max-w-2xl animate-fade-up">
+            <SearchBar />
+          </div>
+        </div>
+      </div>
+      
+      <main className="container mx-auto px-4 -mt-6 relative z-20">
+        <div className="max-w-4xl mx-auto space-y-8 bg-white rounded-lg shadow-lg p-8">
           <FilterSection onFilterChange={handleFilterChange} seamstresses={demoSeamstresses} />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {filteredSeamstresses.map((seamstress) => (

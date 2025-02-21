@@ -24,27 +24,34 @@ export const Header = () => {
   }, []);
 
   return (
-    <header className="bg-white shadow-sm">
-      <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-        <Link to="/" className="text-xl font-bold text-accent hover:text-accent/90 transition-colors">
+    <header className="absolute w-full z-30">
+      <div className="max-w-6xl mx-auto px-4 py-6 flex justify-between items-center">
+        <Link to="/" className="text-2xl font-bold text-white hover:text-white/90 transition-colors">
           SewConnect
         </Link>
         <div className="flex gap-4">
           <Link to="/forum">
-            <Button variant="outline" className="flex gap-2">
+            <Button variant="outline" className="flex gap-2 bg-white/10 text-white border-white/20 hover:bg-white/20">
               <Users className="w-4 h-4" />
               Community
             </Button>
           </Link>
           {user ? (
-            <Button variant="outline" className="flex gap-2" onClick={signOut}>
+            <Button 
+              variant="outline" 
+              className="flex gap-2 bg-white/10 text-white border-white/20 hover:bg-white/20" 
+              onClick={signOut}
+            >
               <LogOut className="w-4 h-4" />
               Logout
             </Button>
           ) : (
             <>
               <Link to="/login">
-                <Button variant="outline" className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  className="flex gap-2 bg-white/10 text-white border-white/20 hover:bg-white/20"
+                >
                   <LogIn className="w-4 h-4" />
                   Login
                 </Button>
