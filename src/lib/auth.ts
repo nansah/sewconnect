@@ -45,6 +45,46 @@ export async function signIn(email: string, password: string) {
   }
 }
 
+export async function demoSeamstressLogin() {
+  try {
+    const { error } = await supabase.auth.signInWithPassword({
+      email: "demo.seamstress@example.com",
+      password: "demo123456",
+    });
+
+    if (error) {
+      // If demo user doesn't exist, create it
+      const { error: signUpError } = await supabase.auth.signUp({
+        email: "demo.seamstress@example.com",
+        password: "demo123456",
+        options: {
+          data: {
+            first_name: "Demo",
+            last_name: "Seamstress",
+            user_type: "seamstress"
+          }
+        }
+      });
+
+      if (signUpError) throw signUpError;
+
+      // Try logging in again after creating the account
+      const { error: loginError } = await supabase.auth.signInWithPassword({
+        email: "demo.seamstress@example.com",
+        password: "demo123456",
+      });
+
+      if (loginError) throw loginError;
+    }
+
+    toast.success("Logged in as demo seamstress!");
+    return { error: null };
+  } catch (error: any) {
+    toast.error(error.message);
+    return { error };
+  }
+}
+
 export async function signOut() {
   try {
     const { error } = await supabase.auth.signOut();

@@ -1,90 +1,97 @@
 
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { toast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { LogIn, User } from "lucide-react";
+import { signIn, demoSeamstressLogin } from "@/lib/auth";
 
-export const Login = () => {
+const Login = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    const { error } = await signIn(email, password);
+    if (!error) {
+      navigate("/");
+    }
+  };
 
-    try {
-      const { data: { user }, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-
-      if (error) throw error;
-
-      // Check if user is admin
-      const { data: adminData, error: adminError } = await supabase
-        .from('admin_users')
-        .select('user_id')
-        .eq('user_id', user?.id)
-        .single();
-
-      if (adminError || !adminData) {
-        throw new Error('Unauthorized access');
-      }
-
-      toast({
-        title: "Success",
-        description: "Logged in successfully",
-      });
-
-      navigate('/admin');
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
+  const handleDemoLogin = async () => {
+    const { error } = await demoSeamstressLogin();
+    if (!error) {
+      navigate("/seamstress-dashboard");
     }
   };
 
   return (
-    <div className="container mx-auto max-w-md py-12">
-      <div className="bg-white shadow-lg rounded-lg p-6">
-        <h1 className="text-2xl font-bold mb-6">Admin Login</h1>
-        
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div>
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+    <div className="min-h-screen bg-gradient-to-b from-primary/5 to-primary/10 flex items-center justify-center p-4">
+      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-gray-800">Welcome back</h2>
+          <p className="mt-2 text-gray-600">Please sign in to your account</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                Email
+              </label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                required
+              />
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                Password
+              </label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                required
+              />
+            </div>
           </div>
 
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Logging in..." : "Login"}
-          </Button>
+          <div className="space-y-4">
+            <Button type="submit" className="w-full" size="lg">
+              <LogIn className="w-4 h-4 mr-2" />
+              Sign In
+            </Button>
+
+            <Button 
+              type="button"
+              variant="secondary" 
+              className="w-full"
+              size="lg"
+              onClick={handleDemoLogin}
+            >
+              <User className="w-4 h-4 mr-2" />
+              Try Demo Seamstress Account
+            </Button>
+          </div>
         </form>
+
+        <div className="text-center">
+          <p className="text-sm text-gray-600">
+            Don't have an account?{" "}
+            <Link to="/signup" className="font-medium text-primary hover:text-primary/80">
+              Sign up
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
