@@ -1,4 +1,3 @@
-
 import { Card } from "../components/ui/card";
 import { Progress } from "../components/ui/progress";
 import { 
@@ -6,9 +5,14 @@ import {
   Users, 
   ListChecks, 
   Clock,
-  ChevronRight
+  ChevronRight,
+  Ruler,
+  DollarSign,
+  Calendar,
+  Image
 } from "lucide-react";
 import { Button } from "../components/ui/button";
+import { useState } from "react";
 
 const SeamstressDashboard = () => {
   const totalOrders = 11;
@@ -18,16 +22,47 @@ const SeamstressDashboard = () => {
   const queuePercentage = (queueOrders / totalOrders) * 100;
   const progressPercentage = (progressOrders / totalOrders) * 100;
 
-  // Sample progress data for each order
+  // Sample progress data for each order with additional details
   const orderProgress = [
-    { id: 2001, progress: 75, customerName: "Emma Wilson" },
-    { id: 2002, progress: 45, customerName: "James Smith" },
-    { id: 2003, progress: 90, customerName: "Sarah Johnson" },
+    { 
+      id: 2001, 
+      progress: 75, 
+      customerName: "Emma Wilson",
+      measurements: "Bust: 36\nWaist: 28\nHips: 38",
+      price: "$250",
+      timeframe: "2 weeks",
+      inspiration: "https://images.unsplash.com/photo-1618932260643-eee4a2f652a6"
+    },
+    { 
+      id: 2002, 
+      progress: 45, 
+      customerName: "James Smith",
+      measurements: "Bust: 34\nWaist: 26\nHips: 36",
+      price: "$200",
+      timeframe: "10 days",
+      inspiration: "https://images.unsplash.com/photo-1618932260643-eee4a2f652a6"
+    },
+    { 
+      id: 2003, 
+      progress: 90, 
+      customerName: "Sarah Johnson",
+      measurements: "Bust: 38\nWaist: 30\nHips: 40",
+      price: "$300",
+      timeframe: "3 weeks",
+      inspiration: "https://images.unsplash.com/photo-1618932260643-eee4a2f652a6"
+    },
   ];
 
-  // Sample queue data
+  // Sample queue data with additional details
   const queuedOrders = [
-    { id: 1001, customerName: "Michael Brown" },
+    { 
+      id: 1001, 
+      customerName: "Michael Brown",
+      measurements: "Bust: 40\nWaist: 32\nHips: 42",
+      price: "$275",
+      timeframe: "2 weeks",
+      inspiration: "https://images.unsplash.com/photo-1618932260643-eee4a2f652a6"
+    },
     { id: 1002, customerName: "Sophie Taylor" },
     { id: 1003, customerName: "David Miller" },
     { id: 1004, customerName: "Lisa Anderson" },
@@ -36,6 +71,9 @@ const SeamstressDashboard = () => {
     { id: 1007, customerName: "John Davis" },
     { id: 1008, customerName: "Amy Thompson" },
   ];
+
+  // State for showing order details
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
 
   // Calculate total progress
   const totalProgress = orderProgress.reduce((sum, order) => sum + order.progress, 0) / orderProgress.length;
@@ -130,12 +168,42 @@ const SeamstressDashboard = () => {
                     <div>
                       <p className="font-medium text-gray-800">Order #{order.id}</p>
                       <p className="text-sm text-gray-500">{order.customerName}</p>
+                      {selectedOrder?.id === order.id && (
+                        <div className="mt-4 space-y-2 text-sm text-gray-600">
+                          <p className="flex items-center gap-2">
+                            <Ruler className="w-4 h-4" />
+                            <span className="whitespace-pre-line">{order.measurements}</span>
+                          </p>
+                          <p className="flex items-center gap-2">
+                            <DollarSign className="w-4 h-4" />
+                            Price: {order.price}
+                          </p>
+                          <p className="flex items-center gap-2">
+                            <Calendar className="w-4 h-4" />
+                            Timeframe: {order.timeframe}
+                          </p>
+                          {order.inspiration && (
+                            <div className="mt-2">
+                              <p className="flex items-center gap-2 mb-2">
+                                <Image className="w-4 h-4" />
+                                Inspiration:
+                              </p>
+                              <img 
+                                src={order.inspiration} 
+                                alt="Inspiration" 
+                                className="w-32 h-32 object-cover rounded-lg"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                   <Button 
                     variant="ghost" 
                     size="icon"
                     className="hover:bg-primary/10 hover:text-primary"
+                    onClick={() => setSelectedOrder(selectedOrder?.id === order.id ? null : order)}
                   >
                     <ChevronRight className="h-5 w-5" />
                   </Button>
@@ -169,6 +237,35 @@ const SeamstressDashboard = () => {
                     <div>
                       <p className="font-medium text-gray-800">Order #{order.id}</p>
                       <p className="text-sm text-gray-500">{order.customerName}</p>
+                      {selectedOrder?.id === order.id && (
+                        <div className="mt-4 space-y-2 text-sm text-gray-600">
+                          <p className="flex items-center gap-2">
+                            <Ruler className="w-4 h-4" />
+                            <span className="whitespace-pre-line">{order.measurements}</span>
+                          </p>
+                          <p className="flex items-center gap-2">
+                            <DollarSign className="w-4 h-4" />
+                            Price: {order.price}
+                          </p>
+                          <p className="flex items-center gap-2">
+                            <Calendar className="w-4 h-4" />
+                            Timeframe: {order.timeframe}
+                          </p>
+                          {order.inspiration && (
+                            <div className="mt-2">
+                              <p className="flex items-center gap-2 mb-2">
+                                <Image className="w-4 h-4" />
+                                Inspiration:
+                              </p>
+                              <img 
+                                src={order.inspiration} 
+                                alt="Inspiration" 
+                                className="w-32 h-32 object-cover rounded-lg"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-1">

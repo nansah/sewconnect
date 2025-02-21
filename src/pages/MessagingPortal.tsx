@@ -38,6 +38,10 @@ const MessagingPortal = () => {
     {
       text: `Hello! I'm ${seamstress.name}. How can I help you today?`,
       sender: "seamstress"
+    },
+    {
+      text: "Let's discuss your order! The price will be $250 and I can complete it within 2 weeks.",
+      sender: "seamstress"
     }
   ]);
 
@@ -94,7 +98,6 @@ const MessagingPortal = () => {
       }]);
       setShowMeasurements(false);
 
-      // Add demo response after measurements are shared
       setTimeout(() => {
         setMessages(prev => [...prev, {
           text: "Perfect! I've received your measurements. This will help me create the perfect fit for you.",
@@ -106,18 +109,31 @@ const MessagingPortal = () => {
 
   const handleSubmitOrder = async () => {
     try {
-      // Get the last measurement message if it exists
-      const lastMeasurement = messages.find(msg => msg.type === 'measurements');
+      // Get the last measurement message
+      const measurementMsg = messages.find(msg => msg.type === 'measurements');
       
-      // Create the order in the queue with JSON stringified messages
+      // Get the last image as inspiration
+      const inspirationMsg = messages.find(msg => msg.type === 'image');
+
+      // Extract demo price and timeframe from the conversation
+      const orderDetails = {
+        price: "$250",
+        timeframe: "2 weeks",
+        measurements: measurementMsg?.text || '',
+        inspiration: inspirationMsg?.text || '',
+      };
+
       const { error } = await supabase
         .from('orders')
         .insert({
           seamstress_id: seamstress.id,
           customer_name: "Demo Customer",
           status: 'queued',
-          measurements: lastMeasurement?.text || '',
-          conversation: JSON.stringify(messages)
+          measurements: measurementMsg?.text || '',
+          conversation: JSON.stringify({
+            messages,
+            orderDetails
+          })
         })
         .select()
         .single();
@@ -129,7 +145,6 @@ const MessagingPortal = () => {
         description: "Your order has been sent to the seamstress.",
       });
 
-      // Add a system message to show the order was submitted
       setMessages(prev => [...prev, {
         text: "✨ Order has been submitted successfully",
         sender: "seamstress",
@@ -138,7 +153,6 @@ const MessagingPortal = () => {
 
     } catch (error) {
       console.error('Error submitting order:', error);
-      // In demo mode, show success even if database insert fails
       toast({
         title: "Demo Mode: Order Submitted",
         description: "In a real app, this would be sent to the seamstress.",
