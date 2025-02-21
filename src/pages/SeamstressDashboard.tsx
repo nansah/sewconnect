@@ -25,6 +25,18 @@ const SeamstressDashboard = () => {
     { id: 2003, progress: 90, customerName: "Sarah Johnson" },
   ];
 
+  // Sample queue data
+  const queuedOrders = [
+    { id: 1001, customerName: "Michael Brown" },
+    { id: 1002, customerName: "Sophie Taylor" },
+    { id: 1003, customerName: "David Miller" },
+    { id: 1004, customerName: "Lisa Anderson" },
+    { id: 1005, customerName: "Robert Clark" },
+    { id: 1006, customerName: "Emily White" },
+    { id: 1007, customerName: "John Davis" },
+    { id: 1008, customerName: "Amy Thompson" },
+  ];
+
   // Calculate total progress
   const totalProgress = orderProgress.reduce((sum, order) => sum + order.progress, 0) / orderProgress.length;
 
@@ -106,7 +118,7 @@ const SeamstressDashboard = () => {
               <Progress value={(queueOrders / 10) * 100} className="w-32 h-2" />
             </div>
             <div className="space-y-4">
-              {Array.from({ length: queueOrders }).map((_, index) => (
+              {queuedOrders.map((order, index) => (
                 <div 
                   key={index} 
                   className="flex justify-between items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
@@ -116,8 +128,8 @@ const SeamstressDashboard = () => {
                       #{index + 1}
                     </div>
                     <div>
-                      <p className="font-medium text-gray-800">Order #{1000 + index}</p>
-                      <p className="text-sm text-gray-500">Customer Name</p>
+                      <p className="font-medium text-gray-800">Order #{order.id}</p>
+                      <p className="text-sm text-gray-500">{order.customerName}</p>
                     </div>
                   </div>
                   <Button 
