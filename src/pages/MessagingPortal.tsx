@@ -6,8 +6,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Send, Ruler, Paperclip, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Send, Ruler, Paperclip, Calendar, CreditCard } from 'lucide-react';
 import { useConversation } from "@/hooks/useConversation";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 interface LocationState {
   seamstress: {
@@ -54,6 +56,8 @@ const MessagingPortal = () => {
   const [showMeasurements, setShowMeasurements] = useState(false);
   const [measurements, setMeasurements] = useState<Measurements>(DEFAULT_MEASUREMENTS);
   const [showDeliveryTimeframe, setShowDeliveryTimeframe] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   
   const { messages, conversationId, loading, updateConversation } = useConversation(seamstress);
 
@@ -75,6 +79,41 @@ const MessagingPortal = () => {
     }
   }, [conversationId, designToShare, messages, updateConversation]);
 
+  // Simulated seamstress responses
+  const simulateSeamstressResponse = (userMessage: Message) => {
+    setTimeout(() => {
+      let response: Message;
+      
+      if (userMessage.type === "image") {
+        response = {
+          text: "Thank you for sharing the design! Could you please provide your measurements and when you'd like to receive the dress? Also, I'll need a deposit to secure your booking.",
+          sender: "seamstress",
+          created_at: new Date().toISOString()
+        };
+      } else if (userMessage.text.includes("measurements")) {
+        response = {
+          text: "Great, thanks for sharing your measurements! When would you like to have the dress ready?",
+          sender: "seamstress",
+          created_at: new Date().toISOString()
+        };
+      } else if (userMessage.text.includes("delivery") || userMessage.text.includes("timeframe")) {
+        response = {
+          text: "Perfect! For this timeline, I'll need a 50% deposit to begin working on your dress. Would you like to proceed with the booking?",
+          sender: "seamstress",
+          created_at: new Date().toISOString()
+        };
+      } else {
+        response = {
+          text: "Could you please share your measurements and preferred delivery timeframe?",
+          sender: "seamstress",
+          created_at: new Date().toISOString()
+        };
+      }
+      
+      updateConversation([...messages, response]);
+    }, 1000);
+  };
+
   const handleSendMessage = () => {
     if (message.trim() === "") return;
 
@@ -87,6 +126,7 @@ const MessagingPortal = () => {
 
     updateConversation([...messages, newMessage]);
     setMessage("");
+    simulateSeamstressResponse(newMessage);
   };
 
   const handleMeasurementsSubmit = () => {
@@ -99,6 +139,38 @@ const MessagingPortal = () => {
     };
     updateConversation([...messages, newMessage]);
     setShowMeasurements(false);
+    simulateSeamstressResponse(newMessage);
+  };
+
+  const handleDeliveryTimeframeSubmit = () => {
+    if (!selectedDate) return;
+    
+    const deliveryMessage = `Preferred delivery date: ${selectedDate.toLocaleDateString()}`;
+    const newMessage: Message = {
+      text: deliveryMessage,
+      sender: "user",
+      created_at: new Date().toISOString(),
+      type: "text",
+    };
+    updateConversation([...messages, newMessage]);
+    setShowDeliveryTimeframe(false);
+    simulateSeamstressResponse(newMessage);
+  };
+
+  const handlePaymentSubmit = () => {
+    const paymentMessage = "I've submitted the deposit payment.";
+    const newMessage: Message = {
+      text: paymentMessage,
+      sender: "user",
+      created_at: new Date().toISOString(),
+      type: "text",
+    };
+    updateConversation([...messages, newMessage]);
+    setShowPaymentDialog(false);
+    toast({
+      title: "Payment Successful",
+      description: "Your deposit has been processed. The seamstress will begin working on your order.",
+    });
   };
 
   const handleToggleMeasurements = () => {
@@ -178,7 +250,7 @@ const MessagingPortal = () => {
 
         {/* Input and Actions Section */}
         <div className="bg-gray-50 p-4 border-t border-gray-200">
-          {showMeasurements ? (
+          {showMeasurements && (
             <Card className="mb-4">
               <CardContent className="grid gap-4">
                 <div className="grid grid-cols-2 gap-2">
@@ -204,7 +276,27 @@ const MessagingPortal = () => {
                 <Button onClick={handleMeasurementsSubmit} className="bg-primary hover:bg-primary/90">Submit Measurements</Button>
               </CardContent>
             </Card>
-          ) : null}
+          )}
+
+          {showDeliveryTimeframe && (
+            <Card className="mb-4">
+              <CardContent>
+                <CalendarComponent
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={setSelectedDate}
+                  className="rounded-md border"
+                />
+                <Button 
+                  onClick={handleDeliveryTimeframeSubmit}
+                  className="w-full mt-4 bg-primary hover:bg-primary/90"
+                  disabled={!selectedDate}
+                >
+                  Confirm Delivery Date
+                </Button>
+              </CardContent>
+            </Card>
+          )}
 
           <div className="flex items-center space-x-2">
             <Button 
@@ -230,6 +322,22 @@ const MessagingPortal = () => {
                 className="hidden"
               />
             </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowDeliveryTimeframe(!showDeliveryTimeframe)}
+              className="hover:bg-gray-200"
+            >
+              <Calendar className="w-5 h-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowPaymentDialog(true)}
+              className="hover:bg-gray-200"
+            >
+              <CreditCard className="w-5 h-5" />
+            </Button>
             <Input
               type="text"
               placeholder="Type your message here..."
@@ -249,6 +357,37 @@ const MessagingPortal = () => {
           </div>
         </div>
       </div>
+
+      {/* Payment Dialog */}
+      <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Make a Deposit</DialogTitle>
+            <DialogDescription>
+              Please provide your payment details to secure your booking.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="cardNumber" className="text-sm font-medium block mb-1">Card Number</label>
+              <Input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="expiry" className="text-sm font-medium block mb-1">Expiry Date</label>
+                <Input type="text" id="expiry" placeholder="MM/YY" />
+              </div>
+              <div>
+                <label htmlFor="cvc" className="text-sm font-medium block mb-1">CVC</label>
+                <Input type="text" id="cvc" placeholder="123" />
+              </div>
+            </div>
+            <Button onClick={handlePaymentSubmit} className="w-full">
+              Pay Deposit ($250)
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
