@@ -24,6 +24,39 @@ export type Database = {
         }
         Relationships: []
       }
+      forum_posts: {
+        Row: {
+          author: string
+          comments: number | null
+          content: string
+          created_at: string | null
+          id: string
+          likes: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          author: string
+          comments?: number | null
+          content: string
+          created_at?: string | null
+          id?: string
+          likes?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          author?: string
+          comments?: number | null
+          content?: string
+          created_at?: string | null
+          id?: string
+          likes?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           conversation: Json
