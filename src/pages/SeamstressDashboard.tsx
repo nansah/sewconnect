@@ -18,6 +18,16 @@ const SeamstressDashboard = () => {
   const queuePercentage = (queueOrders / totalOrders) * 100;
   const progressPercentage = (progressOrders / totalOrders) * 100;
 
+  // Sample progress data for each order
+  const orderProgress = [
+    { id: 2001, progress: 75, customerName: "Emma Wilson" },
+    { id: 2002, progress: 45, customerName: "James Smith" },
+    { id: 2003, progress: 90, customerName: "Sarah Johnson" },
+  ];
+
+  // Calculate total progress
+  const totalProgress = orderProgress.reduce((sum, order) => sum + order.progress, 0) / orderProgress.length;
+
   return (
     <div className="min-h-screen bg-[#EBE2D3] p-8">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -126,10 +136,16 @@ const SeamstressDashboard = () => {
           <Card className="p-8 bg-white border-none shadow-lg">
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-xl font-semibold text-gray-800">Orders in Progress</h2>
-              <Progress value={(progressOrders / 5) * 100} className="w-32 h-2" />
+              <div className="text-right">
+                <div className="mb-2">
+                  <span className="text-sm font-medium text-gray-600">Total Progress</span>
+                  <span className="ml-2 text-lg font-bold text-primary">{totalProgress.toFixed(0)}%</span>
+                </div>
+                <Progress value={(progressOrders / 5) * 100} className="w-32 h-2" />
+              </div>
             </div>
             <div className="space-y-4">
-              {Array.from({ length: progressOrders }).map((_, index) => (
+              {orderProgress.map((order, index) => (
                 <div 
                   key={index} 
                   className="flex justify-between items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
@@ -139,11 +155,14 @@ const SeamstressDashboard = () => {
                       #{index + 1}
                     </div>
                     <div>
-                      <p className="font-medium text-gray-800">Order #{2000 + index}</p>
-                      <p className="text-sm text-gray-500">Customer Name</p>
+                      <p className="font-medium text-gray-800">Order #{order.id}</p>
+                      <p className="text-sm text-gray-500">{order.customerName}</p>
                     </div>
                   </div>
-                  <Progress value={65} className="w-24 h-2" />
+                  <div className="flex flex-col items-end gap-1">
+                    <Progress value={order.progress} className="w-24 h-2" />
+                    <span className="text-sm font-medium text-primary">{order.progress}%</span>
+                  </div>
                 </div>
               ))}
             </div>
