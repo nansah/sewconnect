@@ -19,7 +19,7 @@ export const MessageList = ({ messages }: MessageListProps) => {
       <div className="space-y-4">
         {messages.map((msg, index) => (
           <div
-            key={msg.id || index}
+            key={index}
             className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
           >
             <div

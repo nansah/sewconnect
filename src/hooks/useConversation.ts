@@ -34,7 +34,14 @@ export const useConversation = (seamstress: Seamstress) => {
 
       if (existingConv) {
         setConversationId(existingConv.id);
-        setMessages(existingConv.messages as Message[] || []);
+        // Convert JSON messages to Message type
+        const convertedMessages = (existingConv.messages || []).map((msg: any) => ({
+          text: msg.text,
+          sender: msg.sender,
+          type: msg.type || 'text',
+          created_at: msg.created_at
+        })) as Message[];
+        setMessages(convertedMessages);
       } else {
         const initialMessage: Message = {
           text: `Hello! I'm ${seamstress.name}. How can I help you today?`,
@@ -47,7 +54,11 @@ export const useConversation = (seamstress: Seamstress) => {
           .insert({
             user_id: session.user.id,
             seamstress_id: seamstress.id,
-            messages: [initialMessage]
+            messages: [{
+              text: initialMessage.text,
+              sender: initialMessage.sender,
+              created_at: initialMessage.created_at
+            }]
           })
           .select()
           .single();
@@ -71,7 +82,14 @@ export const useConversation = (seamstress: Seamstress) => {
           },
           (payload: any) => {
             if (payload.new.messages) {
-              setMessages(payload.new.messages as Message[]);
+              // Convert JSON messages to Message type
+              const convertedMessages = (payload.new.messages || []).map((msg: any) => ({
+                text: msg.text,
+                sender: msg.sender,
+                type: msg.type || 'text',
+                created_at: msg.created_at
+              })) as Message[];
+              setMessages(convertedMessages);
             }
           }
         )
@@ -91,16 +109,17 @@ export const useConversation = (seamstress: Seamstress) => {
   const updateConversation = async (newMessages: Message[]) => {
     if (!conversationId) return;
 
+    // Convert Message type to plain objects for database storage
+    const messagesToStore = newMessages.map(msg => ({
+      text: msg.text,
+      sender: msg.sender,
+      type: msg.type || 'text',
+      created_at: msg.created_at
+    }));
+
     const { error } = await supabase
       .from('conversations')
-      .update({ 
-        messages: newMessages.map(msg => ({
-          text: msg.text,
-          sender: msg.sender,
-          type: msg.type || 'text',
-          created_at: msg.created_at
-        }))
-      })
+      .update({ messages: messagesToStore })
       .eq('id', conversationId);
 
     if (error) {

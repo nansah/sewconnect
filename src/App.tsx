@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import Index from "@/pages/Index";
 import { AdminDashboard } from "@/pages/AdminDashboard";
-import { Login } from "@/pages/Login";
+import Login from "@/pages/Login"; // Changed from { Login }
 import Signup from "@/pages/Signup";
 import SeamstressProfile from "@/pages/SeamstressProfile";
 import SeamstressDashboard from "@/pages/SeamstressDashboard";
