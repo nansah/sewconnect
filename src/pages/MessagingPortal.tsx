@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { LocationState, Message, Measurements } from "@/types/messaging";
@@ -122,6 +123,13 @@ const MessagingPortal = () => {
         inspiration: inspirationMsg?.text || '',
       };
 
+      // Convert messages to a format compatible with Json type
+      const jsonMessages = messages.map(msg => ({
+        text: msg.text,
+        sender: msg.sender,
+        type: msg.type || null
+      }));
+
       const { error } = await supabase
         .from('orders')
         .insert({
@@ -130,7 +138,7 @@ const MessagingPortal = () => {
           status: 'queued',
           measurements: measurementMsg?.text || '',
           conversation: {
-            messages,
+            messages: jsonMessages,
             orderDetails
           }
         });
