@@ -24,23 +24,28 @@ export const SeamstressCard = ({ name, image, specialty, rating, price, location
 
   return (
     <div 
-      className="seamstress-card bg-white rounded-2xl overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-primary/10"
+      className="group bg-white rounded-xl overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300 border border-gray-100"
       onClick={handleClick}
     >
-      <div className="relative">
-        <img src={image} alt={name} className="w-full h-72 object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+      <div className="relative aspect-[4/3] overflow-hidden">
+        <img 
+          src={image} 
+          alt={name} 
+          className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300" 
+        />
       </div>
-      <div className="p-6 space-y-3">
-        <h3 className="text-xl font-semibold text-accent">{name}</h3>
-        <p className="text-accent/80">{specialty}</p>
-        <div className="flex items-center gap-2">
-          <Star className="fill-primary stroke-primary" size={18} />
-          <span className="text-accent/90 font-medium">{rating.toFixed(1)}</span>
+      <div className="p-5 space-y-2">
+        <div className="flex justify-between items-start">
+          <h3 className="text-lg font-medium text-gray-900">{name}</h3>
+          <div className="flex items-center gap-1">
+            <Star className="fill-[#FFB800] stroke-[#FFB800]" size={16} />
+            <span className="text-sm font-medium text-gray-900">{rating.toFixed(1)}</span>
+          </div>
         </div>
-        <p className="text-accent/80">{location}</p>
-        <p className="text-primary font-semibold pt-2 border-t border-primary/10">
-          Starting at {price}
+        <p className="text-sm text-gray-600">{specialty}</p>
+        <p className="text-sm text-gray-500">{location}</p>
+        <p className="text-accent font-semibold pt-2 border-t border-gray-100">
+          Starting at <span className="text-lg">{price}</span>
         </p>
       </div>
     </div>
