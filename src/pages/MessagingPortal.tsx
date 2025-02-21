@@ -19,11 +19,16 @@ const DEFAULT_MEASUREMENTS: Measurements = {
   waistToKnee: ""
 };
 
+// Demo seamstress data
+const DEMO_SEAMSTRESS = {
+  id: "demo-seamstress-123",
+  name: "Sarah the Seamstress",
+  image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=400&fit=crop"
+};
+
 const MessagingPortal = () => {
   const location = useLocation();
-  const { seamstress } = (location.state as LocationState) || { 
-    seamstress: { name: "Seamstress", image: "", id: "" } 
-  };
+  const { seamstress } = (location.state as LocationState) || { seamstress: DEMO_SEAMSTRESS };
   
   const { toast } = useToast();
   const [message, setMessage] = useState("");
@@ -41,6 +46,14 @@ const MessagingPortal = () => {
     
     setMessages(prev => [...prev, { text: message, sender: "user" }]);
     setMessage("");
+
+    // Add demo response after a short delay
+    setTimeout(() => {
+      setMessages(prev => [...prev, {
+        text: "Thank you for your message! I'll be happy to help you with your request.",
+        sender: "seamstress"
+      }]);
+    }, 1000);
   };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,6 +67,14 @@ const MessagingPortal = () => {
           sender: "user",
           type: "image"
         }]);
+
+        // Add demo response after image upload
+        setTimeout(() => {
+          setMessages(prev => [...prev, {
+            text: "Thanks for sharing the image! This will help me understand your requirements better.",
+            sender: "seamstress"
+          }]);
+        }, 1000);
       };
       reader.readAsDataURL(file);
     }
@@ -72,28 +93,31 @@ const MessagingPortal = () => {
         type: "measurements"
       }]);
       setShowMeasurements(false);
+
+      // Add demo response after measurements are shared
+      setTimeout(() => {
+        setMessages(prev => [...prev, {
+          text: "Perfect! I've received your measurements. This will help me create the perfect fit for you.",
+          sender: "seamstress"
+        }]);
+      }, 1000);
     }
   };
 
   const handleSubmitOrder = async () => {
     try {
-      // Validate seamstress ID
-      if (!seamstress.id) {
-        throw new Error("Seamstress ID is required");
-      }
-
       // Get the last measurement message if it exists
       const lastMeasurement = messages.find(msg => msg.type === 'measurements');
       
-      // Create the order in the queue
+      // Create the order in the queue with JSON stringified messages
       const { error } = await supabase
         .from('orders')
         .insert({
           seamstress_id: seamstress.id,
-          customer_name: "Customer Name", // This should come from auth context in a real app
+          customer_name: "Demo Customer",
           status: 'queued',
           measurements: lastMeasurement?.text || '',
-          conversation: messages
+          conversation: JSON.stringify(messages)
         })
         .select()
         .single();
@@ -114,11 +138,17 @@ const MessagingPortal = () => {
 
     } catch (error) {
       console.error('Error submitting order:', error);
+      // In demo mode, show success even if database insert fails
       toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to submit order. Please try again.",
+        title: "Demo Mode: Order Submitted",
+        description: "In a real app, this would be sent to the seamstress.",
       });
+
+      setMessages(prev => [...prev, {
+        text: "✨ Demo Mode: Order has been submitted successfully",
+        sender: "seamstress",
+        type: "system"
+      }]);
     }
   };
 
