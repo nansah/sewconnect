@@ -5,7 +5,7 @@ import { FilterSection } from "../components/FilterSection";
 const SEAMSTRESSES = [
   {
     name: "Amara Okafor",
-    image: "https://images.unsplash.com/photo-1503160865267-3e8aaa5c0077?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1534371262913-78ee95bc3671?auto=format&fit=crop&w=800&q=80",
     specialty: "Traditional African Attire & Wedding Dresses",
     rating: 4.9,
     price: "$120/hr",
@@ -13,7 +13,7 @@ const SEAMSTRESSES = [
   },
   {
     name: "Zainab Mensah",
-    image: "https://images.unsplash.com/photo-1544441892-794166f1e3be?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=800&q=80",
     specialty: "Evening Gowns & Traditional Wear",
     rating: 4.8,
     price: "$95/hr",
@@ -21,7 +21,7 @@ const SEAMSTRESSES = [
   },
   {
     name: "Chioma Adebayo",
-    image: "https://images.unsplash.com/photo-1509319117193-57bab727e09d?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1580651315530-69c8e0026377?auto=format&fit=crop&w=800&q=80",
     specialty: "Contemporary African Fashion",
     rating: 4.7,
     price: "$85/hr",
