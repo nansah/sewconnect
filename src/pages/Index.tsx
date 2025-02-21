@@ -3,6 +3,8 @@ import { SearchBar } from "@/components/SearchBar";
 import { SeamstressCard } from "@/components/SeamstressCard";
 import { FilterSection } from "@/components/FilterSection";
 import { Header } from "@/components/Header";
+import { useState } from "react";
+import { DateRange } from "react-day-picker";
 
 const SEAMSTRESSES = [
   {
@@ -200,6 +202,51 @@ const SEAMSTRESSES = [
 ];
 
 const Index = () => {
+  const [filteredSeamstresses, setFilteredSeamstresses] = useState(SEAMSTRESSES);
+
+  const handleFilterChange = ({
+    priceRange,
+    specialty,
+    location,
+    dateRange,
+  }: {
+    priceRange: string;
+    specialty: string;
+    location: string;
+    dateRange: DateRange | undefined;
+  }) => {
+    let filtered = [...SEAMSTRESSES];
+
+    if (priceRange) {
+      filtered = filtered.filter((seamstress) => {
+        const price = parseInt(seamstress.price.replace(/\D/g, ""));
+        const [min, max] = priceRange.split("-").map(Number);
+        if (priceRange === "101+") {
+          return price > 100;
+        }
+        return price >= min && price <= max;
+      });
+    }
+
+    if (specialty) {
+      filtered = filtered.filter((seamstress) =>
+        seamstress.specialty.toLowerCase().includes(specialty.toLowerCase())
+      );
+    }
+
+    if (location) {
+      filtered = filtered.filter((seamstress) =>
+        seamstress.location.includes(location)
+      );
+    }
+
+    // Date range filtering can be implemented here if needed
+    // This would typically be used for availability checking
+    // which would require backend integration
+
+    setFilteredSeamstresses(filtered);
+  };
+
   return (
     <div className="min-h-screen bg-secondary">
       <Header />
@@ -228,11 +275,11 @@ const Index = () => {
       <div className="max-w-6xl mx-auto px-6 py-24">
         <div className="mb-16">
           <h2 className="text-2xl font-semibold mb-8 text-accent">Filter Seamstresses</h2>
-          <FilterSection />
+          <FilterSection onFilterChange={handleFilterChange} />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {SEAMSTRESSES.map((seamstress) => (
+          {filteredSeamstresses.map((seamstress) => (
             <SeamstressCard key={seamstress.name} {...seamstress} />
           ))}
         </div>
