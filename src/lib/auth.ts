@@ -46,18 +46,22 @@ export async function signIn(email: string, password: string) {
 }
 
 export async function demoSeamstressLogin() {
+  const demoEmail = "demo.seamstress.1@example.com"; // Changed email to avoid validation issues
+  const demoPassword = "demo123456!"; // Added special character for stronger password
+
   try {
     // First try to log in
-    let { data, error } = await supabase.auth.signInWithPassword({
-      email: "demo.seamstress@example.com",
-      password: "demo123456",
+    let { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      email: demoEmail,
+      password: demoPassword,
     });
 
-    // If login fails, try to create the account
-    if (error) {
+    // If login fails, create the account
+    if (signInError) {
+      console.log("Creating new demo account...");
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email: "demo.seamstress@example.com",
-        password: "demo123456",
+        email: demoEmail,
+        password: demoPassword,
         options: {
           data: {
             first_name: "Demo",
@@ -68,18 +72,39 @@ export async function demoSeamstressLogin() {
       });
 
       if (signUpError) {
+        console.error("Sign up error:", signUpError);
         throw signUpError;
       }
 
-      // Try logging in again
-      const { error: retryError } = await supabase.auth.signInWithPassword({
-        email: "demo.seamstress@example.com",
-        password: "demo123456",
+      // Try logging in immediately after creating account
+      const { data: retryData, error: retryError } = await supabase.auth.signInWithPassword({
+        email: demoEmail,
+        password: demoPassword,
       });
 
       if (retryError) {
+        console.error("Retry login error:", retryError);
         throw retryError;
       }
+
+      console.log("Successfully created and logged in demo account");
+    }
+
+    // Create a seamstress profile if it doesn't exist
+    const { error: profileError } = await supabase
+      .from('seamstress_profiles')
+      .upsert({
+        user_id: (await supabase.auth.getSession()).data.session?.user.id,
+        name: "Demo Seamstress",
+        specialty: "General Alterations",
+        location: "Demo City",
+        price: "$50-100"
+      })
+      .select()
+      .single();
+
+    if (profileError) {
+      console.error("Profile creation error:", profileError);
     }
 
     toast.success("Logged in as demo seamstress!");
