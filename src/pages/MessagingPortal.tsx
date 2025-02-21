@@ -170,7 +170,7 @@ const MessagingPortal = () => {
   const hasMeasurements = messages.some(msg => msg.type === 'measurements');
 
   return (
-    <div className="min-h-screen bg-secondary p-4">
+    <div className="min-h-screen bg-[#EBE2D3] p-4">
       <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
         {/* Header */}
         <div className="p-4 bg-primary/10 flex items-center justify-between border-b">
