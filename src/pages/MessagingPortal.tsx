@@ -4,7 +4,11 @@ import { useLocation } from "react-router-dom";
 import { LocationState, Message, Measurements } from "@/types/messaging";
 import { MessageList } from "@/components/messaging/MessageList";
 import { MessageInput } from "@/components/messaging/MessageInput";
-import { MeasurementsForm } from "@/components/messaging/MeasurementsForm";
+import { MeasurementsForm } from "@/components/messaging/MeasurementForm";
+import { Button } from "@/components/ui/button";
+import { Send, FileCheck } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 const DEFAULT_MEASUREMENTS: Measurements = {
   bust: "",
@@ -21,6 +25,7 @@ const MessagingPortal = () => {
     seamstress: { name: "Seamstress", image: "" } 
   };
   
+  const { toast } = useToast();
   const [message, setMessage] = useState("");
   const [showMeasurements, setShowMeasurements] = useState(false);
   const [measurements, setMeasurements] = useState<Measurements>(DEFAULT_MEASUREMENTS);
@@ -70,17 +75,75 @@ const MessagingPortal = () => {
     }
   };
 
+  const handleSubmitOrder = async () => {
+    try {
+      // Get the last measurement message if it exists
+      const lastMeasurement = messages.findLast(msg => msg.type === 'measurements');
+      
+      // Create the order in the queue
+      const { data, error } = await supabase
+        .from('orders')
+        .insert([
+          {
+            seamstress_id: seamstress.id,
+            customer_name: "Customer Name", // This should come from auth context in a real app
+            status: 'queued',
+            measurements: lastMeasurement?.text || '',
+            conversation: messages
+          }
+        ])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast({
+        title: "Order Submitted",
+        description: "Your order has been sent to the seamstress.",
+      });
+
+      // Add a system message to show the order was submitted
+      setMessages(prev => [...prev, {
+        text: "✨ Order has been submitted successfully",
+        sender: "seamstress",
+        type: "system"
+      }]);
+
+    } catch (error) {
+      console.error('Error submitting order:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to submit order. Please try again.",
+      });
+    }
+  };
+
+  // Check if measurements have been shared to enable submit button
+  const hasMeasurements = messages.some(msg => msg.type === 'measurements');
+
   return (
     <div className="min-h-screen bg-secondary p-4">
       <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
         {/* Header */}
-        <div className="p-4 bg-primary/10 flex items-center gap-4 border-b">
-          <img 
-            src={seamstress.image} 
-            alt={seamstress.name}
-            className="w-12 h-12 rounded-full object-cover"
-          />
-          <h2 className="text-xl font-semibold">{seamstress.name}</h2>
+        <div className="p-4 bg-primary/10 flex items-center justify-between border-b">
+          <div className="flex items-center gap-4">
+            <img 
+              src={seamstress.image} 
+              alt={seamstress.name}
+              className="w-12 h-12 rounded-full object-cover"
+            />
+            <h2 className="text-xl font-semibold">{seamstress.name}</h2>
+          </div>
+          {hasMeasurements && (
+            <Button 
+              onClick={handleSubmitOrder}
+              className="bg-accent hover:bg-accent/90"
+            >
+              <FileCheck className="w-4 h-4 mr-2" />
+              Submit Order
+            </Button>
+          )}
         </div>
 
         <MessageList messages={messages} />
