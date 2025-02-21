@@ -28,7 +28,7 @@ export const Header = () => {
   const isIndex = location.pathname === "/";
   const headerClasses = isIndex
     ? "absolute w-full z-30"
-    : "w-full z-30 bg-[#1A1F2C] shadow-md";
+    : "w-full z-30 bg-[#8B4513] shadow-md"; // Changed from navy to saddle brown
 
   const buttonClasses = isIndex
     ? "flex gap-2 bg-white/10 text-white border-white/20 hover:bg-white/20"
@@ -68,7 +68,7 @@ export const Header = () => {
                 </Button>
               </Link>
               <Link to="/signup">
-                <Button className="flex gap-2">
+                <Button className="flex gap-2 bg-[#FEC6A1] text-[#4A3034] hover:bg-[#FEC6A1]/90">
                   <UserPlus className="w-4 h-4" />
                   Sign Up
                 </Button>
