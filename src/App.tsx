@@ -6,6 +6,7 @@ import { AdminDashboard } from "@/pages/AdminDashboard";
 import { Login } from "@/pages/Login";
 import SeamstressProfile from "@/pages/SeamstressProfile";
 import SeamstressDashboard from "@/pages/SeamstressDashboard";
+import MessagingPortal from "@/pages/MessagingPortal";
 
 const App = () => {
   return (
@@ -16,6 +17,7 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/seamstress-profile" element={<SeamstressProfile />} />
         <Route path="/seamstress-dashboard" element={<SeamstressDashboard />} />
+        <Route path="/messaging" element={<MessagingPortal />} />
       </Routes>
       <Toaster />
     </Router>
