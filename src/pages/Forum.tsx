@@ -26,16 +26,85 @@ interface Comment {
   user_id: string;
 }
 
+const demoData: Post[] = [
+  {
+    id: "1",
+    author: "fashion.lover@email.com",
+    content: "Just received my custom-made African print dress and I'm absolutely in love! The seamstress did an amazing job with the fitting. Has anyone else ordered something similar recently?",
+    likes: 15,
+    comments: 2,
+    created_at: new Date(Date.now() - 3600000).toISOString(),
+    user_id: "1"
+  },
+  {
+    id: "2",
+    author: "style.enthusiast@email.com",
+    content: "Looking for recommendations on the best fabric shops in Lagos. Planning to get materials for a wedding outfit!",
+    likes: 8,
+    comments: 3,
+    created_at: new Date(Date.now() - 7200000).toISOString(),
+    user_id: "2"
+  },
+  {
+    id: "3",
+    author: "african.prints@email.com",
+    content: "Check out this amazing Ankara blazer I got made! The craftsmanship is incredible. 🧵✨",
+    likes: 24,
+    comments: 5,
+    created_at: new Date(Date.now() - 86400000).toISOString(),
+    user_id: "3"
+  }
+];
+
+const demoComments: { [key: string]: Comment[] } = {
+  "1": [
+    {
+      id: "c1",
+      author: "seamstress.pro@email.com",
+      content: "So happy you liked it! The fabric choice was perfect for that design.",
+      created_at: new Date(Date.now() - 1800000).toISOString(),
+      post_id: "1",
+      user_id: "4"
+    },
+    {
+      id: "c2",
+      author: "fashion.insider@email.com",
+      content: "Beautiful! Could you share which seamstress you worked with?",
+      created_at: new Date(Date.now() - 900000).toISOString(),
+      post_id: "1",
+      user_id: "5"
+    }
+  ],
+  "2": [
+    {
+      id: "c3",
+      author: "lagos.fashionista@email.com",
+      content: "Try the Balogun Market - they have an amazing selection of fabrics!",
+      created_at: new Date(Date.now() - 3600000).toISOString(),
+      post_id: "2",
+      user_id: "6"
+    },
+    {
+      id: "c4",
+      author: "fabric.expert@email.com",
+      content: "I recommend checking out Lovely Fabrics in Lekki. Great quality!",
+      created_at: new Date(Date.now() - 1800000).toISOString(),
+      post_id: "2",
+      user_id: "7"
+    }
+  ]
+};
+
 const Forum = () => {
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<Post[]>(demoData);
   const [newPost, setNewPost] = useState("");
   const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
   const [showComments, setShowComments] = useState<{ [key: string]: boolean }>({});
-  const [comments, setComments] = useState<{ [key: string]: Comment[] }>({});
+  const [comments, setComments] = useState<{ [key: string]: Comment[]}>(demoComments);
   const [newComments, setNewComments] = useState<{ [key: string]: string }>({});
 
-  // Demo group data
+  // Group info data
   const groupInfo = {
     name: "SewConnect Community",
     members: 856,
@@ -45,208 +114,85 @@ const Forum = () => {
 
   // Fetch initial posts and subscribe to changes
   useEffect(() => {
-    fetchPosts();
-    
-    // Set up realtime subscription for posts
-    const postsChannel = supabase
-      .channel('forum-posts-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'forum_posts'
-        },
-        () => {
-          fetchPosts();
-        }
-      )
-      .subscribe();
-
-    // Set up realtime subscription for comments
-    const commentsChannel = supabase
-      .channel('forum-comments-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'forum_comments'
-        },
-        ({ new: newComment }) => {
-          if (newComment) {
-            setComments(prev => ({
-              ...prev,
-              [newComment.post_id]: [
-                ...(prev[newComment.post_id] || []),
-                newComment as Comment
-              ]
-            }));
-          }
-        }
-      )
-      .subscribe();
-
     // Get current user
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
     });
-
-    return () => {
-      supabase.removeChannel(postsChannel);
-      supabase.removeChannel(commentsChannel);
-    };
   }, []);
 
-  const fetchPosts = async () => {
-    const { data, error } = await supabase
-      .from('forum_posts')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching posts:', error);
-      return;
-    }
-
-    setPosts(data || []);
-  };
-
-  const fetchComments = async (postId: string) => {
-    const { data, error } = await supabase
-      .from('forum_comments')
-      .select('*')
-      .eq('post_id', postId)
-      .order('created_at', { ascending: true });
-
-    if (error) {
-      console.error('Error fetching comments:', error);
-      return;
-    }
-
-    setComments(prev => ({
-      ...prev,
-      [postId]: data
-    }));
-  };
-
   const handleCreatePost = async () => {
-    if (!newPost.trim() || !user) return;
+    if (!newPost.trim()) return;
 
-    try {
-      const { error } = await supabase
-        .from('forum_posts')
-        .insert({
-          content: newPost,
-          user_id: user.id,
-          author: user.email,
-          likes: 0,
-          comments: 0
-        });
+    const newDemoPost: Post = {
+      id: `${Date.now()}`,
+      author: user?.email || "demo.user@email.com",
+      content: newPost,
+      likes: 0,
+      comments: 0,
+      created_at: new Date().toISOString(),
+      user_id: user?.id || "demo"
+    };
 
-      if (error) throw error;
-
-      setNewPost("");
-      toast({
-        title: "Post created",
-        description: "Your post has been published to the forum.",
-      });
-    } catch (error) {
-      console.error('Error creating post:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to create post. Please try again.",
-      });
-    }
+    setPosts(prev => [newDemoPost, ...prev]);
+    setNewPost("");
+    
+    toast({
+      title: "Post created",
+      description: "Your post has been published to the forum.",
+    });
   };
 
   const handleCreateComment = async (postId: string) => {
-    if (!newComments[postId]?.trim() || !user) return;
+    if (!newComments[postId]?.trim()) return;
 
-    try {
-      const { error } = await supabase
-        .from('forum_comments')
-        .insert({
-          content: newComments[postId],
-          post_id: postId,
-          user_id: user.id,
-          author: user.email
-        });
+    const newComment: Comment = {
+      id: `c${Date.now()}`,
+      author: user?.email || "demo.user@email.com",
+      content: newComments[postId],
+      created_at: new Date().toISOString(),
+      post_id: postId,
+      user_id: user?.id || "demo"
+    };
 
-      if (error) throw error;
+    setComments(prev => ({
+      ...prev,
+      [postId]: [...(prev[postId] || []), newComment]
+    }));
 
-      // Update post comment count
-      await supabase
-        .from('forum_posts')
-        .update({ comments: (comments[postId]?.length || 0) + 1 })
-        .eq('id', postId);
+    setPosts(prev => 
+      prev.map(post => 
+        post.id === postId 
+          ? { ...post, comments: (post.comments || 0) + 1 }
+          : post
+      )
+    );
 
-      setNewComments(prev => ({
-        ...prev,
-        [postId]: ''
-      }));
+    setNewComments(prev => ({
+      ...prev,
+      [postId]: ''
+    }));
 
-      toast({
-        title: "Comment added",
-        description: "Your comment has been published.",
-      });
-    } catch (error) {
-      console.error('Error creating comment:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to add comment. Please try again.",
-      });
-    }
+    toast({
+      title: "Comment added",
+      description: "Your comment has been published.",
+    });
   };
 
   const handleLike = async (postId: string, currentLikes: number) => {
-    if (!user) {
-      toast({
-        variant: "destructive",
-        title: "Authentication Required",
-        description: "Please create an account or log in to like posts.",
-      });
-      return;
-    }
-
-    try {
-      const { error } = await supabase
-        .from('forum_posts')
-        .update({ likes: currentLikes + 1 })
-        .eq('id', postId);
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error liking post:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to like post. Please try again.",
-      });
-    }
+    setPosts(prev => 
+      prev.map(post => 
+        post.id === postId 
+          ? { ...post, likes: currentLikes + 1 }
+          : post
+      )
+    );
   };
 
-  const toggleComments = async (postId: string) => {
-    if (!user) {
-      toast({
-        title: "Authentication Required",
-        description: "Create an account or log in to view and participate in discussions.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const newShowComments = !showComments[postId];
+  const toggleComments = (postId: string) => {
     setShowComments(prev => ({
       ...prev,
-      [postId]: newShowComments
+      [postId]: !prev[postId]
     }));
-
-    if (newShowComments && !comments[postId]) {
-      await fetchComments(postId);
-    }
   };
 
   const formatDate = (dateString: string) => {
@@ -299,21 +245,15 @@ const Forum = () => {
         {/* Create Post Section */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
           <h2 className="text-xl font-semibold mb-4">Create a Post</h2>
-          {user ? (
-            <>
-              <Textarea
-                value={newPost}
-                onChange={(e) => setNewPost(e.target.value)}
-                placeholder="Share your thoughts, questions, or experiences..."
-                className="mb-4"
-              />
-              <Button onClick={handleCreatePost} className="bg-accent hover:bg-accent/90">
-                Post
-              </Button>
-            </>
-          ) : (
-            <p className="text-gray-600">Please login to create posts.</p>
-          )}
+          <Textarea
+            value={newPost}
+            onChange={(e) => setNewPost(e.target.value)}
+            placeholder="Share your thoughts, questions, or experiences..."
+            className="mb-4"
+          />
+          <Button onClick={handleCreatePost} className="bg-accent hover:bg-accent/90">
+            Post
+          </Button>
         </div>
 
         {/* Posts List */}
@@ -360,7 +300,7 @@ const Forum = () => {
                     <div key={comment.id} className="mb-3 last:mb-0">
                       <div className="flex items-center gap-2 mb-1">
                         <div className="w-8 h-8 bg-accent/20 rounded-full flex items-center justify-center text-sm">
-                          {comment.author[0]}
+                          {comment.author[0]?.toUpperCase()}
                         </div>
                         <div>
                           <span className="font-medium text-sm">{comment.author}</span>
@@ -372,25 +312,23 @@ const Forum = () => {
                   ))}
 
                   {/* Add Comment */}
-                  {user && (
-                    <div className="mt-4 flex gap-2">
-                      <Textarea
-                        value={newComments[post.id] || ''}
-                        onChange={(e) => setNewComments(prev => ({
-                          ...prev,
-                          [post.id]: e.target.value
-                        }))}
-                        placeholder="Write a comment..."
-                        className="text-sm min-h-[60px]"
-                      />
-                      <Button 
-                        onClick={() => handleCreateComment(post.id)}
-                        className="bg-accent hover:bg-accent/90"
-                      >
-                        Comment
-                      </Button>
-                    </div>
-                  )}
+                  <div className="mt-4 flex gap-2">
+                    <Textarea
+                      value={newComments[post.id] || ''}
+                      onChange={(e) => setNewComments(prev => ({
+                        ...prev,
+                        [post.id]: e.target.value
+                      }))}
+                      placeholder="Write a comment..."
+                      className="text-sm min-h-[60px]"
+                    />
+                    <Button 
+                      onClick={() => handleCreateComment(post.id)}
+                      className="bg-accent hover:bg-accent/90"
+                    >
+                      Comment
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>
