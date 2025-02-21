@@ -14,16 +14,19 @@ interface SeamstressCardProps {
 export const SeamstressCard = ({ name, image, specialty, rating, price, location }: SeamstressCardProps) => {
   const navigate = useNavigate();
 
-  const handleBookAppointment = () => {
-    navigate("/messaging", { 
+  const handleClick = () => {
+    navigate("/seamstress-profile", { 
       state: { 
-        seamstress: { name, image } 
+        seamstress: { name, image, specialty, rating, price, location } 
       } 
     });
   };
 
   return (
-    <div className="seamstress-card bg-white rounded-lg overflow-hidden">
+    <div 
+      className="seamstress-card bg-white rounded-lg overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+      onClick={handleClick}
+    >
       <img src={image} alt={name} className="w-full h-64 object-cover" />
       <div className="p-4">
         <h3 className="text-xl font-semibold mb-2">{name}</h3>
@@ -34,12 +37,6 @@ export const SeamstressCard = ({ name, image, specialty, rating, price, location
         </div>
         <p className="text-gray-600">{location}</p>
         <p className="text-accent font-semibold mt-2">Starting at {price}</p>
-        <button 
-          onClick={handleBookAppointment}
-          className="w-full mt-4 bg-primary text-white py-2 rounded-md hover:bg-opacity-90 transition-colors"
-        >
-          Book Appointment
-        </button>
       </div>
     </div>
   );

@@ -10,6 +10,7 @@ import MessagingPortal from "./pages/MessagingPortal";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import SeamstressDashboard from "./pages/SeamstressDashboard";
+import SeamstressProfile from "./pages/SeamstressProfile";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/dashboard" element={<SeamstressDashboard />} />
+          <Route path="/seamstress-profile" element={<SeamstressProfile />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
