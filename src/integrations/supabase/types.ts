@@ -36,6 +36,42 @@ export type Database = {
         }
         Relationships: []
       }
+      seamstress_profiles: {
+        Row: {
+          created_at: string | null
+          id: string
+          image_url: string | null
+          location: string
+          name: string
+          price: string
+          rating: number
+          specialty: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          location: string
+          name: string
+          price: string
+          rating: number
+          specialty: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          location?: string
+          name?: string
+          price?: string
+          rating?: number
+          specialty?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
