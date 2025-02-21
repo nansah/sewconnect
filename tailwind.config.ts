@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -38,7 +39,7 @@ export default {
         },
       },
       fontFamily: {
-        playfair: ["Playfair Display", "serif"],
+        jakarta: ["Plus Jakarta Sans", "sans-serif"],
         inter: ["Inter", "sans-serif"],
       },
       keyframes: {
