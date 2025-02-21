@@ -58,6 +58,7 @@ export type Database = {
           image_url: string | null
           location: string
           name: string
+          portfolio_images: string[] | null
           price: string
           rating: number
           specialty: string
@@ -69,6 +70,7 @@ export type Database = {
           image_url?: string | null
           location: string
           name: string
+          portfolio_images?: string[] | null
           price: string
           rating: number
           specialty: string
@@ -80,6 +82,7 @@ export type Database = {
           image_url?: string | null
           location?: string
           name?: string
+          portfolio_images?: string[] | null
           price?: string
           rating?: number
           specialty?: string
