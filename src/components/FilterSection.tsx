@@ -122,7 +122,7 @@ export const FilterSection = ({ onFilterChange, seamstresses }: FilterSectionPro
     <div className="space-y-4">
       <div className="flex gap-6 flex-wrap items-center">
         <select
-          className="px-4 py-2 rounded-md border border-primary/20 focus:outline-none focus:border-primary bg-white min-w-[160px]"
+          className="px-4 py-2 rounded-md border-2 border-primary/30 focus:outline-none focus:border-primary bg-secondary/10 min-w-[160px] shadow-sm hover:border-primary/50 transition-colors"
           value={priceRange}
           onChange={(e) => handleFilterChange("priceRange", e.target.value)}
         >
@@ -133,7 +133,7 @@ export const FilterSection = ({ onFilterChange, seamstresses }: FilterSectionPro
         </select>
         
         <select
-          className="px-4 py-2 rounded-md border border-primary/20 focus:outline-none focus:border-primary bg-white min-w-[200px]"
+          className="px-4 py-2 rounded-md border-2 border-primary/30 focus:outline-none focus:border-primary bg-secondary/10 min-w-[200px] shadow-sm hover:border-primary/50 transition-colors"
           value={specialty}
           onChange={(e) => handleFilterChange("specialty", e.target.value)}
         >
@@ -146,7 +146,7 @@ export const FilterSection = ({ onFilterChange, seamstresses }: FilterSectionPro
         </select>
         
         <select
-          className="px-4 py-2 rounded-md border border-primary/20 focus:outline-none focus:border-primary bg-white min-w-[180px]"
+          className="px-4 py-2 rounded-md border-2 border-primary/30 focus:outline-none focus:border-primary bg-secondary/10 min-w-[180px] shadow-sm hover:border-primary/50 transition-colors"
           value={location}
           onChange={(e) => handleFilterChange("location", e.target.value)}
         >
@@ -161,7 +161,7 @@ export const FilterSection = ({ onFilterChange, seamstresses }: FilterSectionPro
         <div className="relative">
           <button
             onClick={() => setShowCalendar(!showCalendar)}
-            className="px-4 py-2 rounded-md border border-primary/20 focus:outline-none focus:border-primary bg-white text-left min-w-[200px]"
+            className="px-4 py-2 rounded-md border-2 border-primary/30 focus:outline-none focus:border-primary bg-secondary/10 min-w-[200px] shadow-sm hover:border-primary/50 transition-colors text-left"
           >
             {formatDateDisplay(date)}
           </button>
