@@ -19,7 +19,22 @@ export interface Measurements {
 }
 
 export interface Message {
+  id?: string;
   text: string;
   sender: "user" | "seamstress";
   type?: "measurements" | "image" | "system";
+  created_at?: string;
+}
+
+export interface Conversation {
+  id?: string;
+  user_id?: string;
+  seamstress_id?: string;
+  messages: Message[];
+  orderDetails?: {
+    price: string;
+    timeframe: string;
+    measurements?: string;
+    inspiration?: string;
+  };
 }

@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { LocationState, Message, Measurements } from "@/types/messaging";
 import { MessageList } from "@/components/messaging/MessageList";
@@ -19,103 +19,271 @@ const DEFAULT_MEASUREMENTS: Measurements = {
   waistToKnee: ""
 };
 
-// Demo seamstress data
-const DEMO_SEAMSTRESS = {
-  id: "demo-seamstress-123",
-  name: "Sarah Johnson",
-  image: "https://images.unsplash.com/photo-1589156191108-c762ff4b96ab?w=400&h=400&fit=crop"
-};
-
 const MessagingPortal = () => {
   const location = useLocation();
-  const { seamstress } = (location.state as LocationState) || { seamstress: DEMO_SEAMSTRESS };
+  const { seamstress } = (location.state as LocationState) || { 
+    seamstress: {
+      id: "demo-seamstress-123",
+      name: "Sarah Johnson",
+      image: "https://images.unsplash.com/photo-1589156191108-c762ff4b96ab?w=400&h=400&fit=crop"
+    }
+  };
   
   const { toast } = useToast();
   const [message, setMessage] = useState("");
   const [showMeasurements, setShowMeasurements] = useState(false);
   const [measurements, setMeasurements] = useState<Measurements>(DEFAULT_MEASUREMENTS);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      text: `Hello! I'm ${seamstress.name}. How can I help you today?`,
-      sender: "seamstress"
-    },
-    {
-      text: "Let's discuss your order! The price will be $250 and I can complete it within 2 weeks.",
-      sender: "seamstress"
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [conversationId, setConversationId] = useState<string | null>(null);
 
-  const handleSend = () => {
-    if (!message.trim()) return;
+  useEffect(() => {
+    initializeConversation();
+    return () => {
+      // Cleanup Supabase realtime subscription
+      supabase.removeAllChannels();
+    };
+  }, []);
+
+  const initializeConversation = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+
+    // Check for existing conversation
+    const { data: existingConv } = await supabase
+      .from('conversations')
+      .select('*')
+      .eq('user_id', session.user.id)
+      .eq('seamstress_id', seamstress.id)
+      .single();
+
+    if (existingConv) {
+      setConversationId(existingConv.id);
+      setMessages(existingConv.messages || []);
+    } else {
+      // Create new conversation
+      const { data: newConv, error } = await supabase
+        .from('conversations')
+        .insert({
+          user_id: session.user.id,
+          seamstress_id: seamstress.id,
+          messages: [{
+            text: `Hello! I'm ${seamstress.name}. How can I help you today?`,
+            sender: "seamstress",
+            created_at: new Date().toISOString()
+          }]
+        })
+        .select()
+        .single();
+
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to create conversation.",
+        });
+        return;
+      }
+
+      setConversationId(newConv.id);
+      setMessages(newConv.messages || []);
+    }
+
+    // Subscribe to real-time updates
+    const channel = supabase
+      .channel(`conversation-${existingConv?.id || 'new'}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'conversations',
+          filter: `id=eq.${existingConv?.id}`
+        },
+        (payload) => {
+          if (payload.new.messages) {
+            setMessages(payload.new.messages);
+          }
+        }
+      )
+      .subscribe();
+  };
+
+  const handleSend = async () => {
+    if (!message.trim() || !conversationId) return;
     
-    setMessages(prev => [...prev, { text: message, sender: "user" }]);
+    const newMessage: Message = {
+      text: message,
+      sender: "user",
+      created_at: new Date().toISOString()
+    };
+
+    const updatedMessages = [...messages, newMessage];
+    
+    const { error } = await supabase
+      .from('conversations')
+      .update({ messages: updatedMessages })
+      .eq('id', conversationId);
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to send message.",
+      });
+      return;
+    }
+
     setMessage("");
 
-    // Add demo response after a short delay
-    setTimeout(() => {
-      setMessages(prev => [...prev, {
+    // Simulate seamstress response
+    setTimeout(async () => {
+      const responseMessage: Message = {
         text: "Thank you for your message! I'll be happy to help you with your request.",
-        sender: "seamstress"
-      }]);
+        sender: "seamstress",
+        created_at: new Date().toISOString()
+      };
+
+      const { error } = await supabase
+        .from('conversations')
+        .update({ 
+          messages: [...updatedMessages, responseMessage]
+        })
+        .eq('id', conversationId);
+
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to update conversation.",
+        });
+      }
     }, 1000);
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const imageUrl = e.target?.result as string;
-        setMessages(prev => [...prev, { 
-          text: imageUrl,
-          sender: "user",
-          type: "image"
-        }]);
+    if (!file || !conversationId) return;
 
-        // Add demo response after image upload
-        setTimeout(() => {
-          setMessages(prev => [...prev, {
-            text: "Thanks for sharing the image! This will help me understand your requirements better.",
-            sender: "seamstress"
-          }]);
-        }, 1000);
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const imageUrl = e.target?.result as string;
+      const newMessage: Message = {
+        text: imageUrl,
+        sender: "user",
+        type: "image",
+        created_at: new Date().toISOString()
       };
-      reader.readAsDataURL(file);
-    }
+
+      const updatedMessages = [...messages, newMessage];
+      
+      const { error } = await supabase
+        .from('conversations')
+        .update({ messages: updatedMessages })
+        .eq('id', conversationId);
+
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to send image.",
+        });
+        return;
+      }
+
+      // Simulate seamstress response
+      setTimeout(async () => {
+        const responseMessage: Message = {
+          text: "Thanks for sharing the image! This will help me understand your requirements better.",
+          sender: "seamstress",
+          created_at: new Date().toISOString()
+        };
+
+        const { error } = await supabase
+          .from('conversations')
+          .update({ 
+            messages: [...updatedMessages, responseMessage]
+          })
+          .eq('id', conversationId);
+
+        if (error) {
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to update conversation.",
+          });
+        }
+      }, 1000);
+    };
+    reader.readAsDataURL(file);
   };
 
-  const handleShareMeasurements = () => {
+  const handleShareMeasurements = async () => {
+    if (!conversationId) return;
+
     const measurementText = Object.entries(measurements)
       .filter(([_, value]) => value)
       .map(([key, value]) => `${key}: ${value}`)
       .join('\n');
     
     if (measurementText) {
-      setMessages(prev => [...prev, {
+      const newMessage: Message = {
         text: measurementText,
         sender: "user",
-        type: "measurements"
-      }]);
+        type: "measurements",
+        created_at: new Date().toISOString()
+      };
+
+      const updatedMessages = [...messages, newMessage];
+      
+      const { error } = await supabase
+        .from('conversations')
+        .update({ messages: updatedMessages })
+        .eq('id', conversationId);
+
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to share measurements.",
+        });
+        return;
+      }
+
       setShowMeasurements(false);
 
-      setTimeout(() => {
-        setMessages(prev => [...prev, {
+      // Simulate seamstress response
+      setTimeout(async () => {
+        const responseMessage: Message = {
           text: "Perfect! I've received your measurements. This will help me create the perfect fit for you.",
-          sender: "seamstress"
-        }]);
+          sender: "seamstress",
+          created_at: new Date().toISOString()
+        };
+
+        const { error } = await supabase
+          .from('conversations')
+          .update({ 
+            messages: [...updatedMessages, responseMessage]
+          })
+          .eq('id', conversationId);
+
+        if (error) {
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to update conversation.",
+          });
+        }
       }, 1000);
     }
   };
 
   const handleSubmitOrder = async () => {
     try {
-      // Get the last measurement message
+      if (!conversationId) return;
+
       const measurementMsg = messages.find(msg => msg.type === 'measurements');
-      
-      // Get the last image as inspiration
       const inspirationMsg = messages.find(msg => msg.type === 'image');
 
-      // Extract demo price and timeframe from the conversation
       const orderDetails = {
         price: "$250",
         timeframe: "2 weeks",
@@ -123,12 +291,12 @@ const MessagingPortal = () => {
         inspiration: inspirationMsg?.text || '',
       };
 
-      // Convert messages to a format compatible with Json type
       const conversationData = {
         messages: messages.map(msg => ({
           text: msg.text,
           sender: msg.sender,
-          type: msg.type || null
+          type: msg.type || null,
+          created_at: msg.created_at
         })),
         orderDetails
       };
@@ -136,6 +304,7 @@ const MessagingPortal = () => {
       const { error } = await supabase
         .from('orders')
         .insert({
+          conversation_id: conversationId,
           seamstress_id: seamstress.id,
           customer_name: "Demo Customer",
           status: 'queued',
@@ -150,11 +319,20 @@ const MessagingPortal = () => {
         description: "Your order has been sent to the seamstress.",
       });
 
-      setMessages(prev => [...prev, {
+      const orderConfirmMessage: Message = {
         text: "✨ Order has been submitted successfully",
         sender: "seamstress",
-        type: "system"
-      }]);
+        type: "system",
+        created_at: new Date().toISOString()
+      };
+
+      await supabase
+        .from('conversations')
+        .update({ 
+          messages: [...messages, orderConfirmMessage],
+          status: 'ordered'
+        })
+        .eq('id', conversationId);
 
     } catch (error) {
       console.error('Error submitting order:', error);
@@ -166,7 +344,6 @@ const MessagingPortal = () => {
     }
   };
 
-  // Check if measurements have been shared to enable submit button
   const hasMeasurements = messages.some(msg => msg.type === 'measurements');
 
   return (

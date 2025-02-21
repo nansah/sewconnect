@@ -1,18 +1,25 @@
 
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Message } from "@/types/messaging";
+import { useEffect, useRef } from "react";
 
 interface MessageListProps {
   messages: Message[];
 }
 
 export const MessageList = ({ messages }: MessageListProps) => {
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
   return (
     <ScrollArea className="h-[500px] p-4">
       <div className="space-y-4">
         {messages.map((msg, index) => (
           <div
-            key={index}
+            key={msg.id || index}
             className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
           >
             <div
@@ -27,11 +34,12 @@ export const MessageList = ({ messages }: MessageListProps) => {
               ) : msg.type === "measurements" ? (
                 <pre className="whitespace-pre-wrap font-sans">{msg.text}</pre>
               ) : (
-                msg.text
+                <div className="break-words">{msg.text}</div>
               )}
             </div>
           </div>
         ))}
+        <div ref={bottomRef} />
       </div>
     </ScrollArea>
   );
