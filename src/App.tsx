@@ -10,12 +10,14 @@ import SeamstressDashboard from "@/pages/SeamstressDashboard";
 import MessagingPortal from "@/pages/MessagingPortal";
 import Forum from "@/pages/Forum";
 import DesignInspiration from "@/pages/DesignInspiration";
+import Landing from "@/pages/Landing";
 
 const App = () => {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Index />} />
+        <Route path="/landing" element={<Landing />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
