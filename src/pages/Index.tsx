@@ -3,6 +3,8 @@ import { Header } from "@/components/Header";
 import { SearchBar } from "@/components/SearchBar";
 import { FilterSection } from "@/components/FilterSection";
 import { SeamstressCard } from "@/components/SeamstressCard";
+import { useState } from "react";
+import { DateRange } from "react-day-picker";
 
 const Index = () => {
   // Demo seamstresses data with proper IDs for database operations
@@ -45,6 +47,42 @@ const Index = () => {
     }
   ];
 
+  const [filteredSeamstresses, setFilteredSeamstresses] = useState(demoSeamstresses);
+
+  const handleFilterChange = (filters: {
+    priceRange: string;
+    specialty: string;
+    location: string;
+    dateRange: DateRange | undefined;
+  }) => {
+    let filtered = [...demoSeamstresses];
+
+    if (filters.priceRange) {
+      filtered = filtered.filter(seamstress => {
+        const price = parseInt(seamstress.price.replace(/\D/g, ""));
+        const [min, max] = filters.priceRange.split("-").map(Number);
+        if (filters.priceRange === "101+") {
+          return price > 100;
+        }
+        return price >= min && price <= max;
+      });
+    }
+
+    if (filters.specialty) {
+      filtered = filtered.filter(seamstress =>
+        seamstress.specialty.toLowerCase().includes(filters.specialty.toLowerCase())
+      );
+    }
+
+    if (filters.location) {
+      filtered = filtered.filter(seamstress =>
+        seamstress.location.includes(filters.location)
+      );
+    }
+
+    setFilteredSeamstresses(filtered);
+  };
+
   return (
     <div className="min-h-screen bg-[#EBE2D3]">
       <Header />
@@ -54,8 +92,9 @@ const Index = () => {
             Find Your Perfect Seamstress
           </h1>
           <SearchBar />
+          <FilterSection onFilterChange={handleFilterChange} seamstresses={demoSeamstresses} />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {demoSeamstresses.map((seamstress) => (
+            {filteredSeamstresses.map((seamstress) => (
               <SeamstressCard key={seamstress.id} {...seamstress} />
             ))}
           </div>
