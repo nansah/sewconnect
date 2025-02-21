@@ -1,3 +1,4 @@
+
 import { Card } from "../components/ui/card";
 import { Progress } from "../components/ui/progress";
 import { 
@@ -63,13 +64,62 @@ const SeamstressDashboard = () => {
       timeframe: "2 weeks",
       inspiration: "https://images.unsplash.com/photo-1618932260643-eee4a2f652a6"
     },
-    { id: 1002, customerName: "Sophie Taylor" },
-    { id: 1003, customerName: "David Miller" },
-    { id: 1004, customerName: "Lisa Anderson" },
-    { id: 1005, customerName: "Robert Clark" },
-    { id: 1006, customerName: "Emily White" },
-    { id: 1007, customerName: "John Davis" },
-    { id: 1008, customerName: "Amy Thompson" },
+    { 
+      id: 1002, 
+      customerName: "Sophie Taylor",
+      measurements: "Bust: 35\nWaist: 27\nHips: 37",
+      price: "$225",
+      timeframe: "1 week",
+      inspiration: "https://images.unsplash.com/photo-1618932260643-eee4a2f652a6"
+    },
+    { 
+      id: 1003, 
+      customerName: "David Miller",
+      measurements: "Bust: 42\nWaist: 34\nHips: 44",
+      price: "$300",
+      timeframe: "3 weeks",
+      inspiration: "https://images.unsplash.com/photo-1618932260643-eee4a2f652a6"
+    },
+    { 
+      id: 1004, 
+      customerName: "Lisa Anderson",
+      measurements: "Bust: 37\nWaist: 29\nHips: 39",
+      price: "$250",
+      timeframe: "2 weeks",
+      inspiration: "https://images.unsplash.com/photo-1618932260643-eee4a2f652a6"
+    },
+    { 
+      id: 1005, 
+      customerName: "Robert Clark",
+      measurements: "Bust: 39\nWaist: 31\nHips: 41",
+      price: "$275",
+      timeframe: "2 weeks",
+      inspiration: "https://images.unsplash.com/photo-1618932260643-eee4a2f652a6"
+    },
+    { 
+      id: 1006, 
+      customerName: "Emily White",
+      measurements: "Bust: 36\nWaist: 28\nHips: 38",
+      price: "$225",
+      timeframe: "10 days",
+      inspiration: "https://images.unsplash.com/photo-1618932260643-eee4a2f652a6"
+    },
+    { 
+      id: 1007, 
+      customerName: "John Davis",
+      measurements: "Bust: 41\nWaist: 33\nHips: 43",
+      price: "$290",
+      timeframe: "3 weeks",
+      inspiration: "https://images.unsplash.com/photo-1618932260643-eee4a2f652a6"
+    },
+    { 
+      id: 1008, 
+      customerName: "Amy Thompson",
+      measurements: "Bust: 38\nWaist: 30\nHips: 40",
+      price: "$260",
+      timeframe: "2 weeks",
+      inspiration: "https://images.unsplash.com/photo-1618932260643-eee4a2f652a6"
+    },
   ];
 
   // State for showing order details
@@ -159,7 +209,8 @@ const SeamstressDashboard = () => {
               {queuedOrders.map((order, index) => (
                 <div 
                   key={index} 
-                  className="flex justify-between items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+                  className="flex justify-between items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
+                  onClick={() => setSelectedOrder(selectedOrder?.id === order.id ? null : order)}
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-medium">
@@ -199,14 +250,7 @@ const SeamstressDashboard = () => {
                       )}
                     </div>
                   </div>
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    className="hover:bg-primary/10 hover:text-primary"
-                    onClick={() => setSelectedOrder(selectedOrder?.id === order.id ? null : order)}
-                  >
-                    <ChevronRight className="h-5 w-5" />
-                  </Button>
+                  <ChevronRight className={`h-5 w-5 text-gray-400 transition-transform duration-200 ${selectedOrder?.id === order.id ? 'rotate-90' : ''}`} />
                 </div>
               ))}
             </div>
@@ -228,7 +272,8 @@ const SeamstressDashboard = () => {
               {orderProgress.map((order, index) => (
                 <div 
                   key={index} 
-                  className="flex justify-between items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+                  className="flex justify-between items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
+                  onClick={() => setSelectedOrder(selectedOrder?.id === order.id ? null : order)}
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-medium">
@@ -268,9 +313,12 @@ const SeamstressDashboard = () => {
                       )}
                     </div>
                   </div>
-                  <div className="flex flex-col items-end gap-1">
-                    <Progress value={order.progress} className="w-24 h-2" />
-                    <span className="text-sm font-medium text-primary">{order.progress}%</span>
+                  <div className="flex items-center gap-4">
+                    <div className="flex flex-col items-end gap-1">
+                      <Progress value={order.progress} className="w-24 h-2" />
+                      <span className="text-sm font-medium text-primary">{order.progress}%</span>
+                    </div>
+                    <ChevronRight className={`h-5 w-5 text-gray-400 transition-transform duration-200 ${selectedOrder?.id === order.id ? 'rotate-90' : ''}`} />
                   </div>
                 </div>
               ))}
