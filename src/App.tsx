@@ -2,6 +2,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import Index from "@/pages/Index";
+import Landing from "@/pages/Landing";
 import { AdminDashboard } from "@/pages/AdminDashboard";
 import Login from "@/pages/Login";
 import Signup from "@/pages/Signup";
@@ -16,6 +17,7 @@ const App = () => {
     <Router>
       <Routes>
         <Route path="/" element={<Index />} />
+        <Route path="/landing" element={<Landing />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
