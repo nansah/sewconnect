@@ -1,5 +1,6 @@
 
 export interface Seamstress {
+  id?: string;
   name: string;
   image: string;
 }
@@ -20,5 +21,5 @@ export interface Measurements {
 export interface Message {
   text: string;
   sender: "user" | "seamstress";
-  type?: "measurements" | "image";
+  type?: "measurements" | "image" | "system";
 }

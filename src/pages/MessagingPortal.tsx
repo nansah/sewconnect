@@ -4,7 +4,7 @@ import { useLocation } from "react-router-dom";
 import { LocationState, Message, Measurements } from "@/types/messaging";
 import { MessageList } from "@/components/messaging/MessageList";
 import { MessageInput } from "@/components/messaging/MessageInput";
-import { MeasurementsForm } from "@/components/messaging/MeasurementForm";
+import { MeasurementsForm } from "@/components/messaging/MeasurementsForm";
 import { Button } from "@/components/ui/button";
 import { Send, FileCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -78,14 +78,14 @@ const MessagingPortal = () => {
   const handleSubmitOrder = async () => {
     try {
       // Get the last measurement message if it exists
-      const lastMeasurement = messages.findLast(msg => msg.type === 'measurements');
+      const lastMeasurement = messages.find(msg => msg.type === 'measurements');
       
       // Create the order in the queue
       const { data, error } = await supabase
         .from('orders')
         .insert([
           {
-            seamstress_id: seamstress.id,
+            seamstress_id: seamstress.id || '',
             customer_name: "Customer Name", // This should come from auth context in a real app
             status: 'queued',
             measurements: lastMeasurement?.text || '',
@@ -107,7 +107,7 @@ const MessagingPortal = () => {
         text: "✨ Order has been submitted successfully",
         sender: "seamstress",
         type: "system"
-      }]);
+      } as Message]);
 
     } catch (error) {
       console.error('Error submitting order:', error);
