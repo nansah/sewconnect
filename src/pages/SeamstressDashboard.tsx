@@ -7,10 +7,6 @@ import {
   ListChecks, 
   Clock,
   ChevronRight,
-  Ruler,
-  DollarSign,
-  Calendar,
-  Image,
   Edit
 } from "lucide-react";
 import { Button } from "../components/ui/button";
@@ -18,12 +14,11 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 const SeamstressDashboard = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [profile, setProfile] = useState(null);
+  const [profile, setProfile] = useState<any>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
     name: '',
@@ -57,91 +52,129 @@ const SeamstressDashboard = () => {
     if (profile?.user_type !== 'seamstress') {
       navigate('/');
       toast({
-        variant: "destructive",
         title: "Access Denied",
         description: "This area is only for seamstresses.",
+        variant: "destructive"
       });
     }
   };
 
   const fetchProfile = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
 
-    const { data, error } = await supabase
-      .from('seamstress_profiles')
-      .select('*')
-      .eq('user_id', session.user.id)
-      .single();
+      const { data, error } = await supabase
+        .from('seamstress_profiles')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .single();
 
-    if (error) {
+      if (error) {
+        console.error('Error fetching profile:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch profile: " + error.message,
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (data) {
+        setProfile(data);
+        setEditForm({
+          name: data.name || '',
+          specialty: data.specialty || '',
+          location: data.location || '',
+          price: data.price || ''
+        });
+      }
+    } catch (error: any) {
+      console.error('Error in fetchProfile:', error);
       toast({
-        variant: "destructive",
         title: "Error",
-        description: "Failed to fetch profile.",
-      });
-      return;
-    }
-
-    if (data) {
-      setProfile(data);
-      setEditForm({
-        name: data.name,
-        specialty: data.specialty,
-        location: data.location,
-        price: data.price
+        description: "An unexpected error occurred while fetching your profile.",
+        variant: "destructive"
       });
     }
   };
 
   const fetchOrders = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
 
-    const { data, error } = await supabase
-      .from('orders')
-      .select('*')
-      .eq('seamstress_id', session.user.id)
-      .order('created_at', { ascending: false });
+      const { data, error } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('seamstress_id', session.user.id)
+        .order('created_at', { ascending: false });
 
-    if (error) {
+      if (error) {
+        console.error('Error fetching orders:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch orders: " + error.message,
+          variant: "destructive"
+        });
+        return;
+      }
+
+      setOrders(data || []);
+    } catch (error: any) {
+      console.error('Error in fetchOrders:', error);
       toast({
-        variant: "destructive",
         title: "Error",
-        description: "Failed to fetch orders.",
+        description: "An unexpected error occurred while fetching orders.",
+        variant: "destructive"
       });
-      return;
+    } finally {
+      setLoading(false);
     }
-
-    setOrders(data || []);
-    setLoading(false);
   };
 
   const handleUpdateProfile = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to update your profile.",
+          variant: "destructive"
+        });
+        return;
+      }
 
-    const { error } = await supabase
-      .from('seamstress_profiles')
-      .update(editForm)
-      .eq('user_id', session.user.id);
+      const { error } = await supabase
+        .from('seamstress_profiles')
+        .update(editForm)
+        .eq('user_id', session.user.id);
 
-    if (error) {
+      if (error) {
+        console.error('Error updating profile:', error);
+        toast({
+          title: "Error",
+          description: "Failed to update profile: " + error.message,
+          variant: "destructive"
+        });
+        return;
+      }
+
       toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to update profile.",
+        title: "Success",
+        description: "Profile updated successfully.",
       });
-      return;
+      
+      setIsEditing(false);
+      await fetchProfile(); // Refresh profile data
+    } catch (error: any) {
+      console.error('Error in handleUpdateProfile:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred while updating your profile.",
+        variant: "destructive"
+      });
     }
-
-    toast({
-      title: "Success",
-      description: "Profile updated successfully.",
-    });
-    
-    setIsEditing(false);
-    fetchProfile();
   };
 
   if (loading) {
