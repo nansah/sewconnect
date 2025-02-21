@@ -1,7 +1,8 @@
-import { SearchBar } from "../components/SearchBar";
-import { SeamstressCard } from "../components/SeamstressCard";
-import { FilterSection } from "../components/FilterSection";
-import { Header } from "../components/Header";
+
+import { SearchBar } from "@/components/SearchBar";
+import { SeamstressCard } from "@/components/SeamstressCard";
+import { FilterSection } from "@/components/FilterSection";
+import { Header } from "@/components/Header";
 
 const SEAMSTRESSES = [
   {

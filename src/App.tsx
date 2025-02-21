@@ -1,9 +1,9 @@
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
-import Index from "./pages/Index";
-import { AdminDashboard } from "./pages/AdminDashboard";
-import { Login } from "./pages/Login";
+import Index from "@/pages/Index";
+import { AdminDashboard } from "@/pages/AdminDashboard";
+import { Login } from "@/pages/Login";
 
 const App = () => {
   return (
