@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,28 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  // Check if user is already logged in
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('user_type')
+          .eq('id', session.user.id)
+          .single();
+
+        if (profile?.user_type === 'seamstress') {
+          navigate('/seamstress-dashboard');
+        } else {
+          navigate('/');
+        }
+      }
+    };
+    
+    checkSession();
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,7 +48,10 @@ const Login = () => {
     try {
       const { error } = await demoSeamstressLogin();
       if (!error) {
-        navigate("/seamstress-dashboard");
+        // Add a small delay to ensure the session is properly set
+        setTimeout(() => {
+          navigate("/seamstress-dashboard");
+        }, 500);
       }
     } finally {
       setIsLoading(false);
