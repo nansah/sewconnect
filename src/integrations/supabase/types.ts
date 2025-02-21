@@ -24,6 +24,44 @@ export type Database = {
         }
         Relationships: []
       }
+      forum_comments: {
+        Row: {
+          author: string
+          content: string
+          created_at: string | null
+          id: string
+          post_id: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          author: string
+          content: string
+          created_at?: string | null
+          id?: string
+          post_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          author?: string
+          content?: string
+          created_at?: string | null
+          id?: string
+          post_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forum_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "forum_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       forum_posts: {
         Row: {
           author: string

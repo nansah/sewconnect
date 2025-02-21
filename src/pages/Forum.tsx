@@ -17,16 +17,14 @@ interface Post {
   user_id: string;
 }
 
-// Example comments data
-const EXAMPLE_COMMENTS = {
-  "demo-1": [
-    { author: "Maria Chen", content: "Just got my traditional dress altered - it fits perfectly now!", time: "2h ago" },
-    { author: "James Wilson", content: "Could you share the seamstress contact? Looking to get some work done too.", time: "1h ago" }
-  ],
-  "demo-2": [
-    { author: "Sarah Johnson", content: "The attention to detail on my attire was amazing. Highly recommend!", time: "30m ago" }
-  ]
-};
+interface Comment {
+  id: string;
+  author: string;
+  content: string;
+  created_at: string;
+  post_id: string;
+  user_id: string;
+}
 
 const Forum = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -34,6 +32,8 @@ const Forum = () => {
   const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
   const [showComments, setShowComments] = useState<{ [key: string]: boolean }>({});
+  const [comments, setComments] = useState<{ [key: string]: Comment[] }>({});
+  const [newComments, setNewComments] = useState<{ [key: string]: string }>({});
 
   // Demo group data
   const groupInfo = {
@@ -47,9 +47,9 @@ const Forum = () => {
   useEffect(() => {
     fetchPosts();
     
-    // Set up realtime subscription
-    const channel = supabase
-      .channel('forum-changes')
+    // Set up realtime subscription for posts
+    const postsChannel = supabase
+      .channel('forum-posts-changes')
       .on(
         'postgres_changes',
         {
@@ -63,13 +63,38 @@ const Forum = () => {
       )
       .subscribe();
 
+    // Set up realtime subscription for comments
+    const commentsChannel = supabase
+      .channel('forum-comments-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'forum_comments'
+        },
+        ({ new: newComment }) => {
+          if (newComment) {
+            setComments(prev => ({
+              ...prev,
+              [newComment.post_id]: [
+                ...(prev[newComment.post_id] || []),
+                newComment as Comment
+              ]
+            }));
+          }
+        }
+      )
+      .subscribe();
+
     // Get current user
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
     });
 
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(postsChannel);
+      supabase.removeChannel(commentsChannel);
     };
   }, []);
 
@@ -85,6 +110,24 @@ const Forum = () => {
     }
 
     setPosts(data || []);
+  };
+
+  const fetchComments = async (postId: string) => {
+    const { data, error } = await supabase
+      .from('forum_comments')
+      .select('*')
+      .eq('post_id', postId)
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching comments:', error);
+      return;
+    }
+
+    setComments(prev => ({
+      ...prev,
+      [postId]: data
+    }));
   };
 
   const handleCreatePost = async () => {
@@ -118,6 +161,46 @@ const Forum = () => {
     }
   };
 
+  const handleCreateComment = async (postId: string) => {
+    if (!newComments[postId]?.trim() || !user) return;
+
+    try {
+      const { error } = await supabase
+        .from('forum_comments')
+        .insert({
+          content: newComments[postId],
+          post_id: postId,
+          user_id: user.id,
+          author: user.email
+        });
+
+      if (error) throw error;
+
+      // Update post comment count
+      await supabase
+        .from('forum_posts')
+        .update({ comments: (comments[postId]?.length || 0) + 1 })
+        .eq('id', postId);
+
+      setNewComments(prev => ({
+        ...prev,
+        [postId]: ''
+      }));
+
+      toast({
+        title: "Comment added",
+        description: "Your comment has been published.",
+      });
+    } catch (error) {
+      console.error('Error creating comment:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to add comment. Please try again.",
+      });
+    }
+  };
+
   const handleLike = async (postId: string, currentLikes: number) => {
     if (!user) {
       toast({
@@ -145,7 +228,7 @@ const Forum = () => {
     }
   };
 
-  const toggleComments = (postId: string) => {
+  const toggleComments = async (postId: string) => {
     if (!user) {
       toast({
         title: "Authentication Required",
@@ -154,10 +237,16 @@ const Forum = () => {
       });
       return;
     }
+
+    const newShowComments = !showComments[postId];
     setShowComments(prev => ({
       ...prev,
-      [postId]: !prev[postId]
+      [postId]: newShowComments
     }));
+
+    if (newShowComments && !comments[postId]) {
+      await fetchComments(postId);
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -255,7 +344,7 @@ const Forum = () => {
                     onClick={() => toggleComments(post.id)}
                   >
                     <MessageCircle className="w-4 h-4" />
-                    {EXAMPLE_COMMENTS[post.id]?.length || 0}
+                    {post.comments}
                   </button>
                   <button className="flex items-center gap-1 hover:text-accent">
                     <Share2 className="w-4 h-4" />
@@ -265,22 +354,43 @@ const Forum = () => {
               </div>
 
               {/* Comments Section */}
-              {showComments[post.id] && EXAMPLE_COMMENTS[post.id] && (
+              {showComments[post.id] && (
                 <div className="border-t bg-gray-50 p-4">
-                  {EXAMPLE_COMMENTS[post.id].map((comment, index) => (
-                    <div key={index} className="mb-3 last:mb-0">
+                  {comments[post.id]?.map((comment) => (
+                    <div key={comment.id} className="mb-3 last:mb-0">
                       <div className="flex items-center gap-2 mb-1">
                         <div className="w-8 h-8 bg-accent/20 rounded-full flex items-center justify-center text-sm">
                           {comment.author[0]}
                         </div>
                         <div>
                           <span className="font-medium text-sm">{comment.author}</span>
-                          <span className="text-xs text-gray-500 ml-2">{comment.time}</span>
+                          <span className="text-xs text-gray-500 ml-2">{formatDate(comment.created_at)}</span>
                         </div>
                       </div>
                       <p className="text-sm text-gray-700 ml-10">{comment.content}</p>
                     </div>
                   ))}
+
+                  {/* Add Comment */}
+                  {user && (
+                    <div className="mt-4 flex gap-2">
+                      <Textarea
+                        value={newComments[post.id] || ''}
+                        onChange={(e) => setNewComments(prev => ({
+                          ...prev,
+                          [post.id]: e.target.value
+                        }))}
+                        placeholder="Write a comment..."
+                        className="text-sm min-h-[60px]"
+                      />
+                      <Button 
+                        onClick={() => handleCreateComment(post.id)}
+                        className="bg-accent hover:bg-accent/90"
+                      >
+                        Comment
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
