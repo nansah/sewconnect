@@ -1,3 +1,4 @@
+
 import { SearchBar } from "@/components/SearchBar";
 import { SeamstressCard } from "@/components/SeamstressCard";
 import { FilterSection } from "@/components/FilterSection";
@@ -243,15 +244,15 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-secondary">
+    <div className="min-h-screen bg-[#FDE1D3]">
       <Header />
       {/* Hero Section with brand color background */}
-      <div className="bg-[#9b87f5] py-32 px-4">
+      <div className="bg-[#E97451] py-32 px-4">
         <div className="max-w-6xl mx-auto text-center space-y-8">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-up text-white">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-up text-[#FDE1D3]">
             Find Your Perfect Seamstress
           </h1>
-          <p className="text-lg md:text-xl mb-12 text-white/90 animate-fade-up max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl mb-12 text-[#FDE1D3]/90 animate-fade-up max-w-2xl mx-auto">
             Connect with talented seamstresses specializing in African and contemporary fashion
           </p>
           <div className="flex justify-center animate-fade-up">
@@ -263,7 +264,7 @@ const Index = () => {
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-6 py-24">
         <div className="mb-16">
-          <h2 className="text-2xl font-semibold mb-8 text-accent">Filter Seamstresses</h2>
+          <h2 className="text-2xl font-semibold mb-8 text-[#8B4513]">Filter Seamstresses</h2>
           <FilterSection 
             onFilterChange={handleFilterChange} 
             seamstresses={SEAMSTRESSES}
