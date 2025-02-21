@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { LocationState, Message, Measurements } from "@/types/messaging";
@@ -22,7 +21,7 @@ const DEFAULT_MEASUREMENTS: Measurements = {
 // Demo seamstress data
 const DEMO_SEAMSTRESS = {
   id: "demo-seamstress-123",
-  name: "Sarah the Seamstress",
+  name: "Sarah Johnson",
   image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=400&fit=crop"
 };
 
@@ -130,13 +129,11 @@ const MessagingPortal = () => {
           customer_name: "Demo Customer",
           status: 'queued',
           measurements: measurementMsg?.text || '',
-          conversation: JSON.stringify({
+          conversation: {
             messages,
             orderDetails
-          })
-        })
-        .select()
-        .single();
+          }
+        });
 
       if (error) throw error;
 
@@ -154,15 +151,10 @@ const MessagingPortal = () => {
     } catch (error) {
       console.error('Error submitting order:', error);
       toast({
-        title: "Demo Mode: Order Submitted",
-        description: "In a real app, this would be sent to the seamstress.",
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to submit order. Please try again.",
       });
-
-      setMessages(prev => [...prev, {
-        text: "✨ Demo Mode: Order has been submitted successfully",
-        sender: "seamstress",
-        type: "system"
-      }]);
     }
   };
 

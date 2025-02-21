@@ -3,6 +3,7 @@ import { Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface SeamstressCardProps {
+  id: string;
   name: string;
   image: string;
   specialty: string;
@@ -11,13 +12,13 @@ interface SeamstressCardProps {
   location: string;
 }
 
-export const SeamstressCard = ({ name, image, specialty, rating, price, location }: SeamstressCardProps) => {
+export const SeamstressCard = ({ id, name, image, specialty, rating, price, location }: SeamstressCardProps) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
     navigate("/seamstress-profile", { 
       state: { 
-        seamstress: { name, image, specialty, rating, price, location } 
+        seamstress: { id, name, image, specialty, rating, price, location } 
       } 
     });
   };

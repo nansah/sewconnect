@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 interface LocationState {
   seamstress: {
+    id: string;
     name: string;
     image: string;
     specialty: string;
@@ -21,6 +22,7 @@ const SeamstressProfile = () => {
   const navigate = useNavigate();
   const { seamstress } = (location.state as LocationState) || {
     seamstress: {
+      id: "",
       name: "Seamstress",
       image: "",
       specialty: "",
@@ -32,7 +34,7 @@ const SeamstressProfile = () => {
 
   const handleMessageClick = () => {
     navigate("/messaging", {
-      state: { seamstress: { name: seamstress.name, image: seamstress.image } }
+      state: { seamstress: { id: seamstress.id, name: seamstress.name, image: seamstress.image } }
     });
   };
 
