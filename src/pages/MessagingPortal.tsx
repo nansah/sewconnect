@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { LocationState, Message, Measurements } from "@/types/messaging";
@@ -135,7 +136,7 @@ const MessagingPortal = () => {
           {hasMeasurements && (
             <Button 
               onClick={handleSubmitOrder}
-              className="bg-accent hover:bg-accent/90"
+              className="bg-accent hover:bg-accent/90 text-white"
             >
               <FileCheck className="w-4 h-4 mr-2" />
               Submit Order
