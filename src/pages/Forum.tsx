@@ -68,7 +68,7 @@ const Forum = () => {
 
   // Demo group data
   const groupInfo = {
-    name: "African Fashion Community",
+    name: "SewConnect Community",
     members: 856,
     description: "A welcoming space for customers to connect, share experiences, and discuss their African fashion journey. Find recommendations, share success stories, and get advice from fellow fashion enthusiasts.",
     bannerImage: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=1200&fit=crop" // Note: This needs to be replaced with an appropriate African attire image
