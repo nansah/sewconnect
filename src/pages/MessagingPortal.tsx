@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -6,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Send, Paperclip, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Send, Ruler, CheckCircle, AlertTriangle } from 'lucide-react';
 import { useConversation } from "@/hooks/useConversation";
 
 interface LocationState {
@@ -198,7 +199,7 @@ const MessagingPortal = () => {
               onClick={handleToggleMeasurements}
               className="hover:bg-gray-200"
             >
-              <Paperclip className="w-5 h-5" />
+              <Ruler className="w-5 h-5" />
             </Button>
             <Input
               type="text"
