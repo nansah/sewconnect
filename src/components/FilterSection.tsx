@@ -1,12 +1,19 @@
 
 import { Calendar } from "./ui/calendar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { DateRange } from "react-day-picker";
+
+interface Seamstress {
+  name: string;
+  specialty: string;
+  location: string;
+  price: string;
+}
 
 interface FilterSectionProps {
   onFilterChange: (filters: {
@@ -15,9 +22,10 @@ interface FilterSectionProps {
     location: string;
     dateRange: DateRange | undefined;
   }) => void;
+  seamstresses: Seamstress[];
 }
 
-export const FilterSection = ({ onFilterChange }: FilterSectionProps) => {
+export const FilterSection = ({ onFilterChange, seamstresses }: FilterSectionProps) => {
   const [date, setDate] = useState<DateRange | undefined>({
     from: undefined,
     to: undefined,
@@ -25,6 +33,51 @@ export const FilterSection = ({ onFilterChange }: FilterSectionProps) => {
   const [priceRange, setPriceRange] = useState("");
   const [specialty, setSpecialty] = useState("");
   const [location, setLocation] = useState("");
+
+  // Get available options based on current filters
+  const getFilteredOptions = () => {
+    let filteredSeamstresses = [...seamstresses];
+
+    // Apply existing filters
+    if (location) {
+      filteredSeamstresses = filteredSeamstresses.filter(
+        (s) => s.location.includes(location)
+      );
+    }
+
+    if (specialty) {
+      filteredSeamstresses = filteredSeamstresses.filter(
+        (s) => s.specialty.toLowerCase().includes(specialty.toLowerCase())
+      );
+    }
+
+    if (priceRange) {
+      filteredSeamstresses = filteredSeamstresses.filter((seamstress) => {
+        const price = parseInt(seamstress.price.replace(/\D/g, ""));
+        const [min, max] = priceRange.split("-").map(Number);
+        if (priceRange === "101+") {
+          return price > 100;
+        }
+        return price >= min && price <= max;
+      });
+    }
+
+    // Get unique locations and specialties from filtered results
+    const availableLocations = Array.from(
+      new Set(seamstresses.map((s) => s.location))
+    ).sort();
+
+    const availableSpecialties = Array.from(
+      new Set(filteredSeamstresses.map((s) => s.specialty))
+    ).sort();
+
+    return {
+      locations: availableLocations,
+      specialties: availableSpecialties,
+    };
+  };
+
+  const { locations, specialties } = getFilteredOptions();
 
   const handleFilterChange = (
     type: "priceRange" | "specialty" | "location" | "dateRange",
@@ -42,7 +95,17 @@ export const FilterSection = ({ onFilterChange }: FilterSectionProps) => {
         break;
       case "location":
         setLocation(value);
-        newFilters = { priceRange, specialty, location: value, dateRange: date };
+        // Reset specialty if the selected location doesn't have the current specialty
+        const locationSeamstresses = seamstresses.filter(s => s.location.includes(value));
+        const hasSpecialty = locationSeamstresses.some(s => 
+          s.specialty.toLowerCase().includes(specialty.toLowerCase())
+        );
+        if (!hasSpecialty) {
+          setSpecialty("");
+          newFilters = { priceRange, specialty: "", location: value, dateRange: date };
+        } else {
+          newFilters = { priceRange, specialty, location: value, dateRange: date };
+        }
         break;
       case "dateRange":
         setDate(value);
@@ -71,13 +134,11 @@ export const FilterSection = ({ onFilterChange }: FilterSectionProps) => {
           onChange={(e) => handleFilterChange("specialty", e.target.value)}
         >
           <option value="">Specialty</option>
-          <option value="Wedding Dresses">Wedding Dresses</option>
-          <option value="Evening Gowns">Evening Gowns</option>
-          <option value="Casual Wear">Casual Wear</option>
-          <option value="Traditional Attire">Traditional Attire</option>
-          <option value="Kids Fashion">Kids Fashion</option>
-          <option value="Bridal Wear">Bridal Wear</option>
-          <option value="Modern Fashion">Modern Fashion</option>
+          {specialties.map((s) => (
+            <option key={s} value={s}>
+              {s}
+            </option>
+          ))}
         </select>
         <select
           className="px-4 py-2 rounded-md border border-primary/20 focus:outline-none focus:border-primary bg-white"
@@ -85,16 +146,11 @@ export const FilterSection = ({ onFilterChange }: FilterSectionProps) => {
           onChange={(e) => handleFilterChange("location", e.target.value)}
         >
           <option value="">Location</option>
-          <option value="New York">New York</option>
-          <option value="Los Angeles">Los Angeles</option>
-          <option value="Chicago">Chicago</option>
-          <option value="Miami">Miami</option>
-          <option value="Houston">Houston</option>
-          <option value="San Francisco">San Francisco</option>
-          <option value="Boston">Boston</option>
-          <option value="Seattle">Seattle</option>
-          <option value="Detroit">Detroit</option>
-          <option value="Atlanta">Atlanta</option>
+          {locations.map((loc) => (
+            <option key={loc} value={loc}>
+              {loc}
+            </option>
+          ))}
         </select>
         
         <Popover>
