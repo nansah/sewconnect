@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { LocationState, Message, Measurements } from "@/types/messaging";
@@ -9,6 +8,8 @@ import { ConversationHeader } from "@/components/messaging/ConversationHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useConversation } from "@/hooks/useConversation";
+import { DeliveryTimeframe } from "@/components/inspiration/DeliveryTimeframe";
+import { DeliveryTimeframe as DeliveryTimeframeType } from "@/types/inspiration";
 
 const DEFAULT_MEASUREMENTS: Measurements = {
   bust: "",
@@ -34,6 +35,7 @@ const MessagingPortal = () => {
   const [message, setMessage] = useState("");
   const [showMeasurements, setShowMeasurements] = useState(false);
   const [measurements, setMeasurements] = useState<Measurements>(DEFAULT_MEASUREMENTS);
+  const [showDeliveryTimeframe, setShowDeliveryTimeframe] = useState(false);
   
   const { messages, conversationId, loading, updateConversation } = useConversation(seamstress);
 
@@ -188,6 +190,32 @@ const MessagingPortal = () => {
     }
   };
 
+  const handleTimeframeSelect = async (timeframe: DeliveryTimeframeType) => {
+    if (!conversationId) return;
+
+    const newMessage: Message = {
+      text: `Preferred delivery date: ${timeframe.date.toLocaleDateString()}\nDelivery speed: ${timeframe.urgency}`,
+      sender: "user",
+      type: "delivery",
+      created_at: new Date().toISOString()
+    };
+
+    const updatedMessages = [...messages, newMessage];
+    const success = await updateConversation(updatedMessages);
+    
+    if (success) {
+      setShowDeliveryTimeframe(false);
+      setTimeout(async () => {
+        const responseMessage: Message = {
+          text: "Thank you for selecting your delivery timeframe. I'll make sure to accommodate your schedule.",
+          sender: "seamstress",
+          created_at: new Date().toISOString()
+        };
+        updateConversation([...updatedMessages, responseMessage]);
+      }, 1000);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#EBE2D3] p-4 flex items-center justify-center">
@@ -218,12 +246,19 @@ const MessagingPortal = () => {
           />
         )}
 
+        {showDeliveryTimeframe && (
+          <DeliveryTimeframe
+            onTimeframeSelect={handleTimeframeSelect}
+          />
+        )}
+
         <MessageInput
           message={message}
           setMessage={setMessage}
           onSend={handleSend}
           onImageUpload={handleImageUpload}
           onMeasurementsClick={() => setShowMeasurements(true)}
+          onDeliveryTimeframeClick={() => setShowDeliveryTimeframe(true)}
         />
       </div>
     </div>

@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send, Image, Ruler } from "lucide-react";
+import { Send, Image, Ruler, Calendar } from "lucide-react";
 
 interface MessageInputProps {
   message: string;
@@ -9,6 +9,7 @@ interface MessageInputProps {
   onSend: () => void;
   onImageUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onMeasurementsClick: () => void;
+  onDeliveryTimeframeClick: () => void;
 }
 
 export const MessageInput = ({
@@ -17,6 +18,7 @@ export const MessageInput = ({
   onSend,
   onImageUpload,
   onMeasurementsClick,
+  onDeliveryTimeframeClick,
 }: MessageInputProps) => {
   return (
     <div className="p-4 border-t">
@@ -41,6 +43,13 @@ export const MessageInput = ({
             className="hidden"
             onChange={onImageUpload}
           />
+        </Button>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={onDeliveryTimeframeClick}
+        >
+          <Calendar className="h-4 w-4" />
         </Button>
       </div>
       <div className="flex gap-2">

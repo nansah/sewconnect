@@ -1,8 +1,7 @@
-
 export interface Message {
   text: string;
   sender: "user" | "seamstress" | "system";
-  type?: "text" | "image" | "measurements" | "system";
+  type?: "text" | "image" | "measurements";
   created_at: string;
 }
 
@@ -10,9 +9,10 @@ export interface Seamstress {
   id: string;
   name: string;
   image: string;
-  specialty?: string;
-  location?: string;
-  price?: string;
+}
+
+export interface LocationState {
+  seamstress: Seamstress;
 }
 
 export interface Measurements {
@@ -24,6 +24,14 @@ export interface Measurements {
   waistToKnee: string;
 }
 
-export interface LocationState {
-  seamstress: Seamstress;
+export interface DeliveryTimeframe {
+  date: Date;
+  urgency: "standard" | "rush" | "express";
+}
+
+export interface Message {
+  text: string;
+  sender: "user" | "seamstress" | "system";
+  type?: "text" | "image" | "measurements" | "delivery" | "system";
+  created_at: string;
 }
