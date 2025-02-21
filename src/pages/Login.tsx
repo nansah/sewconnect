@@ -37,22 +37,28 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { error } = await signIn(email, password);
-    if (!error) {
-      navigate("/");
+    setIsLoading(true);
+    try {
+      const { error } = await signIn(email, password);
+      if (!error) {
+        navigate("/");
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleDemoLogin = async () => {
     setIsLoading(true);
     try {
+      console.log("Attempting demo login...");
       const { error } = await demoSeamstressLogin();
       if (!error) {
-        // Add a small delay to ensure the session is properly set
-        setTimeout(() => {
-          navigate("/seamstress-dashboard");
-        }, 500);
+        console.log("Demo login successful, navigating...");
+        navigate("/seamstress-dashboard");
       }
+    } catch (error) {
+      console.error("Error in demo login:", error);
     } finally {
       setIsLoading(false);
     }
@@ -98,7 +104,12 @@ const Login = () => {
           </div>
 
           <div className="space-y-4">
-            <Button type="submit" className="w-full" size="lg">
+            <Button 
+              type="submit" 
+              className="w-full" 
+              size="lg"
+              disabled={isLoading}
+            >
               <LogIn className="w-4 h-4 mr-2" />
               Sign In
             </Button>

@@ -30,7 +30,7 @@ export async function signUp(email: string, password: string, firstName: string,
 
 export async function signIn(email: string, password: string) {
   try {
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -38,7 +38,7 @@ export async function signIn(email: string, password: string) {
     if (error) throw error;
     
     toast.success("Logged in successfully!");
-    return { error: null };
+    return { data, error: null };
   } catch (error: any) {
     toast.error(error.message);
     return { error };
@@ -46,21 +46,21 @@ export async function signIn(email: string, password: string) {
 }
 
 export async function demoSeamstressLogin() {
-  const demoEmail = "demo.seamstress.1@example.com";
-  const demoPassword = "demo123456!";
-
+  console.log("Starting demo seamstress login...");
   try {
-    const { error } = await supabase.auth.signInWithPassword({
-      email: demoEmail,
-      password: demoPassword,
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: "demo.seamstress.1@example.com",
+      password: "demo123456!",
     });
 
     if (error) {
+      console.error("Demo login error:", error);
       throw error;
     }
 
+    console.log("Demo login successful:", data);
     toast.success("Logged in as demo seamstress!");
-    return { error: null };
+    return { data, error: null };
   } catch (error: any) {
     console.error("Demo login error:", error);
     toast.error(error.message);
