@@ -107,9 +107,9 @@ const Index = () => {
       </div>
       
       <main className="container mx-auto px-4 -mt-6 relative z-20">
-        <div className="max-w-4xl mx-auto space-y-8 bg-white rounded-lg shadow-lg p-8">
+        <div className="max-w-6xl mx-auto space-y-8 bg-white rounded-lg shadow-lg p-8">
           <FilterSection onFilterChange={handleFilterChange} seamstresses={demoSeamstresses} />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredSeamstresses.map((seamstress) => (
               <SeamstressCard key={seamstress.id} {...seamstress} />
             ))}
