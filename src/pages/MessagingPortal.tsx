@@ -10,6 +10,8 @@ import { Send, Ruler, Paperclip, Calendar, CreditCard } from 'lucide-react';
 import { useConversation } from "@/hooks/useConversation";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { v4 as uuidv4 } from 'uuid';
+import { supabase } from "@/integrations/supabase/client";
 
 interface LocationState {
   seamstress: {
@@ -195,16 +197,56 @@ const MessagingPortal = () => {
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      // For now, we'll just create a temporary URL for the image
-      const imageUrl = URL.createObjectURL(file);
+    if (!file) return;
+
+    try {
+      // Show loading state
+      toast({
+        title: "Uploading image...",
+        description: "Please wait while we upload your image.",
+      });
+
+      // Create a unique file name
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${uuidv4()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      // Upload file to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('message-attachments')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      // Get the public URL for the uploaded file
+      const { data: { publicUrl } } = supabase.storage
+        .from('message-attachments')
+        .getPublicUrl(filePath);
+
+      // Create and send the message with the image
       const newMessage: Message = {
-        text: imageUrl,
+        text: publicUrl,
         sender: "user",
         created_at: new Date().toISOString(),
         type: "image"
       };
+
       updateConversation([...messages, newMessage]);
+      simulateSeamstressResponse(newMessage);
+
+      toast({
+        title: "Image uploaded successfully",
+        description: "Your image has been shared in the conversation.",
+      });
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast({
+        variant: "destructive",
+        title: "Upload failed",
+        description: "There was an error uploading your image. Please try again.",
+      });
     }
   };
 
