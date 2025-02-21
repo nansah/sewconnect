@@ -6,7 +6,9 @@ export const demoSeamstresses = [
     specialty: "Traditional Nigerian Attire",
     rating: 4.9,
     price: "$85/hr",
-    location: "Lagos, Nigeria"
+    location: "Lagos, Nigeria",
+    yearsOfExperience: 8,
+    activeOrders: 3
   },
   {
     id: "demo-seamstress-124",
@@ -15,7 +17,9 @@ export const demoSeamstresses = [
     specialty: "Modern African Fusion",
     rating: 4.8,
     price: "$90/hr",
-    location: "Accra, Ghana"
+    location: "Accra, Ghana",
+    yearsOfExperience: 12,
+    activeOrders: 5
   },
   {
     id: "demo-seamstress-125",
@@ -24,7 +28,9 @@ export const demoSeamstresses = [
     specialty: "Traditional Wedding Attire",
     rating: 4.9,
     price: "$95/hr",
-    location: "Dakar, Senegal"
+    location: "Dakar, Senegal",
+    yearsOfExperience: 15,
+    activeOrders: 2
   },
   {
     id: "demo-seamstress-126",
@@ -33,7 +39,9 @@ export const demoSeamstresses = [
     specialty: "Contemporary African Fashion",
     rating: 4.7,
     price: "$80/hr",
-    location: "Nairobi, Kenya"
+    location: "Nairobi, Kenya",
+    yearsOfExperience: 7,
+    activeOrders: 4
   },
   {
     id: "demo-seamstress-127",
@@ -42,7 +50,9 @@ export const demoSeamstresses = [
     specialty: "Ankara Print Design",
     rating: 4.9,
     price: "$88/hr",
-    location: "Abuja, Nigeria"
+    location: "Abuja, Nigeria",
+    yearsOfExperience: 9,
+    activeOrders: 1
   },
   {
     id: "demo-seamstress-128",
@@ -51,7 +61,9 @@ export const demoSeamstresses = [
     specialty: "East African Traditional Wear",
     rating: 4.8,
     price: "$92/hr",
-    location: "Addis Ababa, Ethiopia"
+    location: "Addis Ababa, Ethiopia",
+    yearsOfExperience: 11,
+    activeOrders: 6
   },
   {
     id: "demo-seamstress-129",
@@ -60,7 +72,9 @@ export const demoSeamstresses = [
     specialty: "Kente Cloth Designs",
     rating: 4.7,
     price: "$87/hr",
-    location: "Kumasi, Ghana"
+    location: "Kumasi, Ghana",
+    yearsOfExperience: 6,
+    activeOrders: 0
   },
   {
     id: "demo-seamstress-130",
@@ -69,7 +83,9 @@ export const demoSeamstresses = [
     specialty: "Southern African Fashion",
     rating: 4.8,
     price: "$83/hr",
-    location: "Harare, Zimbabwe"
+    location: "Harare, Zimbabwe",
+    yearsOfExperience: 10,
+    activeOrders: 2
   },
   {
     id: "demo-seamstress-131",
@@ -78,7 +94,9 @@ export const demoSeamstresses = [
     specialty: "West African Formal Wear",
     rating: 4.9,
     price: "$94/hr",
-    location: "Bamako, Mali"
+    location: "Bamako, Mali",
+    yearsOfExperience: 13,
+    activeOrders: 3
   },
   {
     id: "demo-seamstress-132",
@@ -87,7 +105,9 @@ export const demoSeamstresses = [
     specialty: "Modern Fusion & Alterations",
     rating: 4.8,
     price: "$95/hr",
-    location: "New York, USA"
+    location: "New York, USA",
+    yearsOfExperience: 9,
+    activeOrders: 1
   },
   {
     id: "demo-seamstress-133",
@@ -96,7 +116,9 @@ export const demoSeamstresses = [
     specialty: "Haute Couture & Evening Wear",
     rating: 4.9,
     price: "$98/hr",
-    location: "Los Angeles, USA"
+    location: "Los Angeles, USA",
+    yearsOfExperience: 14,
+    activeOrders: 4
   },
   {
     id: "demo-seamstress-134",
@@ -105,6 +127,8 @@ export const demoSeamstresses = [
     specialty: "Professional Attire & Tailoring",
     rating: 4.8,
     price: "$92/hr",
-    location: "Washington DC, USA"
+    location: "Washington DC, USA",
+    yearsOfExperience: 11,
+    activeOrders: 2
   }
 ];

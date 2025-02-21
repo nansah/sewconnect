@@ -38,9 +38,16 @@ export const useSeamstressFilter = () => {
 
       if (ordersError) throw ordersError;
 
-      // Combine the data
-      const combinedData = seamstressData.map(seamstress => ({
-        ...seamstress,
+      // Map the database fields to our Seamstress interface
+      const combinedData: Seamstress[] = seamstressData.map(seamstress => ({
+        id: seamstress.id,
+        name: seamstress.name,
+        image: seamstress.image_url || 'https://images.unsplash.com/photo-1589156191108-c762ff4b96ab?w=400&h=400&fit=crop',
+        specialty: seamstress.specialty,
+        rating: seamstress.rating,
+        price: seamstress.price,
+        location: seamstress.location,
+        yearsOfExperience: seamstress.years_of_experience || 1,
         activeOrders: ordersData?.find(order => order.seamstress_id === seamstress.id)?.active_orders || 0
       }));
 
