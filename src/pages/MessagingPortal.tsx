@@ -32,6 +32,7 @@ interface Measurements {
   bust: string;
   waist: string;
   hips: string;
+  height: string;
   length: string;
 }
 
@@ -116,19 +117,60 @@ const MessagingPortal = () => {
     }, 1000);
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (message.trim() === "") return;
 
     const newMessage: Message = {
       text: message,
       sender: "user",
       created_at: new Date().toISOString(),
-      type: "text",
     };
 
-    updateConversation([...messages, newMessage]);
-    setMessage("");
-    simulateSeamstressResponse(newMessage);
+    const updatedMessages = [...messages, newMessage];
+    const success = await updateConversation(updatedMessages);
+    
+    if (success) {
+      setMessage("");
+      // Generate seamstress response based on message content
+      setTimeout(() => {
+        let response: Message;
+        const lowerCaseMsg = message.toLowerCase();
+        
+        if (lowerCaseMsg.includes('measurement') || lowerCaseMsg.includes('size')) {
+          response = {
+            text: "Great! Please click the ruler icon below to share your measurements. I need them to ensure a perfect fit.",
+            sender: "seamstress",
+            created_at: new Date().toISOString()
+          };
+        } else if (lowerCaseMsg.includes('delivery') || lowerCaseMsg.includes('when') || lowerCaseMsg.includes('time')) {
+          response = {
+            text: "Please click the calendar icon below to select your preferred delivery date. This will help me plan the work accordingly.",
+            sender: "seamstress",
+            created_at: new Date().toISOString()
+          };
+        } else if (lowerCaseMsg.includes('price') || lowerCaseMsg.includes('cost') || lowerCaseMsg.includes('payment')) {
+          response = {
+            text: "The total cost will be $500. I require a 50% deposit ($250) to begin working on your order. Would you like to proceed with the booking?",
+            sender: "seamstress",
+            created_at: new Date().toISOString()
+          };
+        } else if (lowerCaseMsg.includes('hello') || lowerCaseMsg.includes('hi')) {
+          response = {
+            text: "Hello! I'd be happy to help you with your clothing alterations. Could you please share your measurements and preferred delivery timeframe?",
+            sender: "seamstress",
+            created_at: new Date().toISOString()
+          };
+        } else {
+          response = {
+            text: "Thank you for your message. To proceed with your order, I'll need your measurements and preferred delivery timeframe. You can use the ruler and calendar icons below to provide these details.",
+            sender: "seamstress",
+            created_at: new Date().toISOString()
+          };
+        }
+        
+        updateConversation([...updatedMessages, response]);
+      }, 1000);
+    }
   };
 
   const handleMeasurementsSubmit = () => {
@@ -264,6 +306,15 @@ const MessagingPortal = () => {
     return <div className="flex justify-center items-center h-screen">Loading messages...</div>;
   }
 
+  // Update the measurements form to use "height" instead of "length"
+  const [measurements, setMeasurements] = useState<Measurements>({
+    bust: "",
+    waist: "",
+    hips: "",
+    height: "", // Changed from length to height
+    length: "",
+  });
+
   return (
     <div className="min-h-screen bg-[#EBE2D3] py-6">
       <div className="max-w-4xl mx-auto px-4 shadow-lg rounded-lg overflow-hidden">
@@ -301,15 +352,26 @@ const MessagingPortal = () => {
         {/* Chat Messages Section */}
         <div className="bg-white h-[500px] overflow-y-auto p-4">
           {messages.map((msg, index) => (
-            <div key={index} className={`mb-2 flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
-              <div className={`max-w-xs rounded-xl p-3 text-sm ${msg.sender === 'user' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-800'}`}>
+            <div 
+              key={index} 
+              className={`mb-4 flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}
+            >
+              <div 
+                className={`max-w-xs rounded-xl p-3 text-sm ${
+                  msg.sender === 'user' 
+                    ? 'bg-primary text-white' 
+                    : 'bg-gray-100 text-gray-800'
+                }`}
+              >
                 {msg.type === "image" ? (
                   <img src={msg.text} alt="Shared Design" className="max-w-full h-auto rounded-md" />
                 ) : (
                   msg.text
                 )}
               </div>
-              <span className="text-xs text-gray-500 mt-1">{new Date(msg.created_at).toLocaleTimeString()}</span>
+              <span className="text-xs text-gray-500 mt-1">
+                {new Date(msg.created_at).toLocaleTimeString()}
+              </span>
             </div>
           ))}
         </div>
@@ -336,8 +398,8 @@ const MessagingPortal = () => {
                     <Input type="text" id="hips" name="hips" value={measurements.hips} onChange={handleInputChange} />
                   </div>
                   <div>
-                    <label htmlFor="length" className="text-sm font-medium block mb-1">Length</label>
-                    <Input type="text" id="length" name="length" value={measurements.length} onChange={handleInputChange} />
+                    <label htmlFor="height" className="text-sm font-medium block mb-1">Height</label>
+                    <Input type="text" id="height" name="height" value={measurements.height} onChange={handleInputChange} />
                   </div>
                 </div>
                 <Button onClick={handleMeasurementsSubmit} className="bg-primary hover:bg-primary/90">Submit Measurements</Button>
@@ -393,7 +455,7 @@ const MessagingPortal = () => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setShowDeliveryTimeframe(!showDeliveryTimeframe)}
+              onClick={()={() => setShowDeliveryTimeframe(!showDeliveryTimeframe)}
               className="hover:bg-gray-200"
             >
               <Calendar className="w-5 h-5" />

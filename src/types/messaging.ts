@@ -24,7 +24,7 @@ export interface Measurements {
   bust: string;
   waist: string;
   hips: string;
-  height: string;
+  height: string; // Changed from length to height
   shoulderToWaist: string;
   waistToKnee: string;
 }
