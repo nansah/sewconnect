@@ -7,13 +7,9 @@ import {
   ListChecks, 
   Clock,
   ChevronRight,
-  Ruler,
-  DollarSign,
-  Calendar,
-  Image,
   Edit
 } from "lucide-react";
-import { Button } from "../components/ui/button";
+import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -75,6 +71,7 @@ const SeamstressDashboard = () => {
       .single();
 
     if (error) {
+      console.error("Error fetching profile:", error);
       toast({
         variant: "destructive",
         title: "Error",
@@ -86,10 +83,10 @@ const SeamstressDashboard = () => {
     if (data) {
       setProfile(data);
       setEditForm({
-        name: data.name,
-        specialty: data.specialty,
-        location: data.location,
-        price: data.price
+        name: data.name || '',
+        specialty: data.specialty || '',
+        location: data.location || '',
+        price: data.price || ''
       });
     }
   };
@@ -105,6 +102,7 @@ const SeamstressDashboard = () => {
       .order('created_at', { ascending: false });
 
     if (error) {
+      console.error("Error fetching orders:", error);
       toast({
         variant: "destructive",
         title: "Error",
@@ -123,14 +121,20 @@ const SeamstressDashboard = () => {
 
     const { error } = await supabase
       .from('seamstress_profiles')
-      .update(editForm)
+      .update({
+        name: editForm.name,
+        specialty: editForm.specialty,
+        location: editForm.location,
+        price: editForm.price,
+      })
       .eq('user_id', session.user.id);
 
     if (error) {
+      console.error("Error updating profile:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to update profile.",
+        description: "Failed to update profile: " + error.message,
       });
       return;
     }
@@ -141,7 +145,7 @@ const SeamstressDashboard = () => {
     });
     
     setIsEditing(false);
-    fetchProfile();
+    await fetchProfile();  // Refresh profile data after update
   };
 
   if (loading) {
@@ -212,7 +216,7 @@ const SeamstressDashboard = () => {
                   onChange={(e) => setEditForm(prev => ({ ...prev, price: e.target.value }))}
                 />
               </div>
-              <Button onClick={handleUpdateProfile}>Save Changes</Button>
+              <Button onClick={handleUpdateProfile} className="w-full">Save Changes</Button>
             </div>
           </Card>
         )}
