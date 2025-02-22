@@ -437,7 +437,7 @@ const MessagingPortal = () => {
                 onClick={() => setShowPaymentDialog(true)}
                 className="bg-white text-accent hover:bg-white/90"
               >
-                Book Appointment
+                Submit Order
               </Button>
               <Button 
                 size="sm" 
