@@ -8,11 +8,11 @@ import { useSeamstressStore } from "@/data/seamstressData";
 
 const Index = () => {
   const seamstresses = useSeamstressStore((state) => state.seamstresses);
-  const { filteredSeamstresses, handleFilterChange, handleSearch } = useSeamstressFilter(seamstresses);
+  const { filteredSeamstresses, handleFilterChange } = useSeamstressFilter(seamstresses);
 
   return (
     <div className="min-h-screen bg-[#EBE2D3]">
-      <Header onSearch={handleSearch} />
+      <Header />
       <HeroSection onSearch={(term) => handleFilterChange({ priceRange: "", specialty: term, location: "" })} />
       <SeamstressGrid 
         seamstresses={filteredSeamstresses} 
