@@ -76,48 +76,16 @@ const MessagingPortal = () => {
     setMessages(updatedMessages);
     setMessage("");
 
-    // Generate seamstress response for demo profiles
     if (seamstress.id === "demo-seamstress-123") {
       setTimeout(() => {
-        let response: Message;
-        const lowerCaseMsg = message.toLowerCase();
-        
-        if (lowerCaseMsg.includes('measurement') || lowerCaseMsg.includes('size')) {
-          response = {
-            text: "Great! Please click the ruler icon below to share your measurements. I need them to ensure a perfect fit.",
-            sender: "seamstress",
-            created_at: new Date().toISOString()
-          };
-        } else if (lowerCaseMsg.includes('delivery') || lowerCaseMsg.includes('when') || lowerCaseMsg.includes('time')) {
-          response = {
-            text: "Please click the calendar icon below to select your preferred delivery date. This will help me plan the work accordingly.",
-            sender: "seamstress",
-            created_at: new Date().toISOString()
-          };
-        } else if (lowerCaseMsg.includes('price') || lowerCaseMsg.includes('cost') || lowerCaseMsg.includes('payment')) {
-          response = {
-            text: "The total cost will be $500. I require a 50% deposit ($250) to begin working on your order. Would you like to proceed with the booking?",
-            sender: "seamstress",
-            created_at: new Date().toISOString()
-          };
-        } else if (lowerCaseMsg.includes('hello') || lowerCaseMsg.includes('hi')) {
-          response = {
-            text: "Hello! I'd be happy to help you with your clothing alterations. Could you please share your measurements and preferred delivery timeframe?",
-            sender: "seamstress",
-            created_at: new Date().toISOString()
-          };
-        } else {
-          response = {
-            text: "Thank you for your message. To proceed with your order, I'll need your measurements and preferred delivery timeframe. You can use the ruler and calendar icons below to provide these details.",
-            sender: "seamstress",
-            created_at: new Date().toISOString()
-          };
-        }
-        
+        const response: Message = {
+          text: "Hello! I'd be happy to help you with your clothing alterations. Could you please share your measurements and preferred delivery timeframe?",
+          sender: "seamstress",
+          created_at: new Date().toISOString()
+        };
         setMessages(prev => [...prev, response]);
       }, 1000);
     } else {
-      // For real seamstresses, use the updateConversation function
       await updateConversation(updatedMessages);
     }
   };
@@ -333,6 +301,47 @@ const MessagingPortal = () => {
   if (loading) {
     return <div className="flex justify-center items-center h-screen">Loading messages...</div>;
   }
+
+  const simulateSeamstressResponse = (userMessage: Message) => {
+    setTimeout(() => {
+      let response: Message;
+      const lowerCaseMsg = userMessage.text.toLowerCase();
+      
+      if (lowerCaseMsg.includes('measurement') || lowerCaseMsg.includes('size')) {
+        response = {
+          text: "Great! Please click the ruler icon below to share your measurements. I need them to ensure a perfect fit.",
+          sender: "seamstress",
+          created_at: new Date().toISOString()
+        };
+      } else if (lowerCaseMsg.includes('delivery') || lowerCaseMsg.includes('when') || lowerCaseMsg.includes('time')) {
+        response = {
+          text: "Please click the calendar icon below to select your preferred delivery date. This will help me plan the work accordingly.",
+          sender: "seamstress",
+          created_at: new Date().toISOString()
+        };
+      } else if (lowerCaseMsg.includes('price') || lowerCaseMsg.includes('cost') || lowerCaseMsg.includes('payment')) {
+        response = {
+          text: "The total cost will be $500. I require a 50% deposit ($250) to begin working on your order. Would you like to proceed with the booking?",
+          sender: "seamstress",
+          created_at: new Date().toISOString()
+        };
+      } else if (lowerCaseMsg.includes('hello') || lowerCaseMsg.includes('hi')) {
+        response = {
+          text: "Hello! I'd be happy to help you with your clothing alterations. Could you please share your measurements and preferred delivery timeframe?",
+          sender: "seamstress",
+          created_at: new Date().toISOString()
+        };
+      } else {
+        response = {
+          text: "Thank you for your message. To proceed with your order, I'll need your measurements and preferred delivery timeframe. You can use the ruler and calendar icons below to provide these details.",
+          sender: "seamstress",
+          created_at: new Date().toISOString()
+        };
+      }
+      
+      updateConversation([...messages, response]);
+    }, 1000);
+  };
 
   return (
     <div className="min-h-screen bg-[#EBE2D3] py-6">
