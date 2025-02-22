@@ -15,7 +15,7 @@ import Forum from "@/pages/Forum";
 import DesignInspiration from "@/pages/DesignInspiration";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import Contact from "@/pages/Contact";
-import { OrderTracking } from "@/components/tracking/OrderTracking";
+import OrderTracking from "@/components/tracking/OrderTracking";
 
 const App = () => {
   return (

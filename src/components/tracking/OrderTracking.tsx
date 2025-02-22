@@ -7,6 +7,10 @@ import { Card } from "@/components/ui/card";
 import { format } from 'date-fns';
 import { useToast } from '@/components/ui/use-toast';
 
+interface SeamstressProfile {
+  name: string;
+}
+
 interface OrderWithSeamstress {
   id: string;
   status: string;
@@ -17,9 +21,7 @@ interface OrderWithSeamstress {
   updated_at: string;
   customer_name: string;
   measurements: string;
-  seamstress: {
-    name: string;
-  };
+  seamstress: SeamstressProfile;
 }
 
 const OrderTracking = () => {
@@ -51,11 +53,11 @@ const OrderTracking = () => {
           return;
         }
 
-        if (data && data.seamstress) {
+        if (data) {
           setOrder({
             ...data,
             seamstress: {
-              name: data.seamstress.name
+              name: data.seamstress?.name || 'Unknown Seamstress'
             }
           });
         }
