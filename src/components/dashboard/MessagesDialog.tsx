@@ -1,10 +1,9 @@
 
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { formatDistanceToNow } from 'date-fns';
-import { MessageCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { ConversationMessage, Message } from "@/types/messaging";
@@ -85,49 +84,68 @@ export const MessagesDialog = ({ open, onOpenChange }: MessagesDialogProps) => {
   }, [open]);
 
   const fetchConversations = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
 
-    const { data, error } = await supabase
-      .from('conversations')
-      .select(`
-        id,
-        messages,
-        created_at,
-        updated_at,
-        status,
-        user_id
-      `)
-      .eq('seamstress_id', session.user.id);
+      const { data: conversationsData, error: conversationsError } = await supabase
+        .from('conversations')
+        .select(`
+          id,
+          messages,
+          created_at,
+          updated_at,
+          status,
+          user_id
+        `)
+        .eq('seamstress_id', session.user.id);
 
-    if (!error && data) {
-      const formattedConversations: ConversationMessage[] = await Promise.all(
-        data.map(async (conv) => {
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('first_name, last_name')
-            .eq('id', conv.user_id)
-            .single();
+      if (conversationsError) {
+        console.error('Error fetching conversations:', conversationsError);
+        return;
+      }
 
-          return {
-            conversation_id: conv.id,
-            messages: (conv.messages as any[] || []).map(msg => ({
-              text: msg.text || '',
-              sender: msg.sender || 'user',
-              type: msg.type || 'text',
-              created_at: msg.created_at || new Date().toISOString()
-            })),
-            created_at: conv.created_at,
-            updated_at: conv.updated_at,
-            status: conv.status,
-            customer_name: profileData 
-              ? `${profileData.first_name} ${profileData.last_name}` 
-              : 'Unknown Customer'
-          };
-        })
-      );
-      
-      setConversations(formattedConversations);
+      if (conversationsData) {
+        const formattedConversations: ConversationMessage[] = await Promise.all(
+          conversationsData.map(async (conv) => {
+            try {
+              const { data: profileData } = await supabase
+                .from('profiles')
+                .select('first_name, last_name')
+                .eq('id', conv.user_id)
+                .maybeSingle();
+
+              const messages = Array.isArray(conv.messages) 
+                ? conv.messages.map((msg: any) => ({
+                    text: msg.text || '',
+                    sender: msg.sender || 'user',
+                    type: msg.type || 'text',
+                    created_at: msg.created_at || new Date().toISOString()
+                  }))
+                : [];
+
+              return {
+                conversation_id: conv.id,
+                messages,
+                created_at: conv.created_at,
+                updated_at: conv.updated_at,
+                status: conv.status || 'active',
+                customer_name: profileData 
+                  ? `${profileData.first_name} ${profileData.last_name}` 
+                  : 'Unknown Customer'
+              };
+            } catch (error) {
+              console.error('Error processing conversation:', error);
+              return null;
+            }
+          })
+        );
+
+        const validConversations = formattedConversations.filter((conv): conv is ConversationMessage => conv !== null);
+        setConversations([...validConversations, ...DEMO_CONVERSATIONS]);
+      }
+    } catch (error) {
+      console.error('Error in fetchConversations:', error);
     }
   };
 
@@ -162,10 +180,12 @@ export const MessagesDialog = ({ open, onOpenChange }: MessagesDialogProps) => {
       created_at: new Date().toISOString()
     };
 
-    // Update the local state first for immediate feedback
+    const updatedMessages = [...selectedConversation.messages, message];
+
+    // Update local state first
     const updatedConversation = {
       ...selectedConversation,
-      messages: [...selectedConversation.messages, message],
+      messages: updatedMessages,
       updated_at: new Date().toISOString()
     };
 
@@ -179,16 +199,25 @@ export const MessagesDialog = ({ open, onOpenChange }: MessagesDialogProps) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
 
-    const { error } = await supabase
-      .from('conversations')
-      .update({
-        messages: updatedConversation.messages,
-        updated_at: updatedConversation.updated_at
-      })
-      .eq('id', selectedConversation.conversation_id);
+    try {
+      const { error } = await supabase
+        .from('conversations')
+        .update({
+          messages: updatedMessages.map(msg => ({
+            text: msg.text,
+            sender: msg.sender,
+            type: msg.type || 'text',
+            created_at: msg.created_at
+          })),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', selectedConversation.conversation_id);
 
-    if (error) {
-      console.error('Error sending message:', error);
+      if (error) {
+        console.error('Error sending message:', error);
+      }
+    } catch (error) {
+      console.error('Error in handleSendMessage:', error);
     }
   };
 
@@ -207,6 +236,9 @@ export const MessagesDialog = ({ open, onOpenChange }: MessagesDialogProps) => {
           <DialogTitle>
             {selectedConversation ? selectedConversation.customer_name : "Messages"}
           </DialogTitle>
+          <DialogDescription>
+            Chat with your customers
+          </DialogDescription>
         </DialogHeader>
         
         {selectedConversation ? (
