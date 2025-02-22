@@ -331,14 +331,6 @@ const SeamstressDashboard = () => {
               <Edit className="w-4 h-4 mr-2" />
               {isEditing ? "Cancel Editing" : "Edit Profile"}
             </Button>
-            <Button 
-              onClick={() => setIsMessagesOpen(true)}
-              className="bg-primary hover:bg-primary/90"
-              variant="default"
-            >
-              <MessageCircle className="w-4 h-4 mr-2" />
-              Messages
-            </Button>
           </div>
         </div>
 
@@ -365,6 +357,7 @@ const SeamstressDashboard = () => {
           <TabsList className="mb-8">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="orders">Orders</TabsTrigger>
+            <TabsTrigger value="messages" onClick={() => setIsMessagesOpen(true)}>Messages</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview">
