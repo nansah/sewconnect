@@ -102,13 +102,11 @@ const SeamstressDashboard = () => {
   });
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [dateFilter, setDateFilter] = useState('month'); // 'year', 'month', 'week'
+  const [dateFilter, setDateFilter] = useState('month');
   const [salesData, setSalesData] = useState([]);
 
   useEffect(() => {
     checkAuth();
-    fetchProfile();
-    fetchOrders();
   }, []);
 
   useEffect(() => {
@@ -116,71 +114,6 @@ const SeamstressDashboard = () => {
       processOrdersData();
     }
   }, [orders, dateFilter]);
-
-  const processOrdersData = () => {
-    let filteredOrders = [...orders];
-    let data = [];
-
-    switch (dateFilter) {
-      case 'year':
-        // Group by month for the current year
-        const startDate = startOfYear(new Date());
-        const endDate = endOfYear(new Date());
-        filteredOrders = orders.filter(order => {
-          const orderDate = parseISO(order.created_at);
-          return orderDate >= startDate && orderDate <= endDate;
-        });
-
-        // Create monthly data points
-        for (let i = 0; i < 12; i++) {
-          const monthOrders = filteredOrders.filter(order => 
-            parseISO(order.created_at).getMonth() === i
-          );
-          const totalSales = monthOrders.reduce((sum, order) => {
-            const price = order.conversation?.orderDetails?.price || "0";
-            return sum + parseInt(price.replace(/\D/g, ''));
-          }, 0);
-
-          data.push({
-            name: format(new Date(2024, i), 'MMM'),
-            sales: totalSales
-          });
-        }
-        break;
-
-      case 'month':
-        // Group by week for the current month
-        const lastMonth = subMonths(new Date(), 1);
-        filteredOrders = orders.filter(order => 
-          parseISO(order.created_at) >= lastMonth
-        );
-
-        // Create weekly data points
-        for (let i = 0; i < 4; i++) {
-          const weekOrders = filteredOrders.filter(order => {
-            const orderDate = parseISO(order.created_at);
-            const weekOfMonth = Math.floor((orderDate.getDate() - 1) / 7);
-            return weekOfMonth === i;
-          });
-
-          const totalSales = weekOrders.reduce((sum, order) => {
-            const price = order.conversation?.orderDetails?.price || "0";
-            return sum + parseInt(price.replace(/\D/g, ''));
-          }, 0);
-
-          data.push({
-            name: `Week ${i + 1}`,
-            sales: totalSales
-          });
-        }
-        break;
-
-      default:
-        break;
-    }
-
-    setSalesData(data);
-  };
 
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -203,7 +136,12 @@ const SeamstressDashboard = () => {
         title: "Access Denied",
         description: "This area is only for seamstresses.",
       });
+      return;
     }
+
+    // If auth check passes, fetch profile and orders
+    fetchProfile();
+    fetchOrders();
   };
 
   const fetchProfile = async () => {
@@ -292,7 +230,72 @@ const SeamstressDashboard = () => {
     });
     
     setIsEditing(false);
-    await fetchProfile();  // Refresh profile data after update
+    await fetchProfile();
+  };
+
+  const processOrdersData = () => {
+    let filteredOrders = [...orders];
+    let data = [];
+
+    switch (dateFilter) {
+      case 'year':
+        // Group by month for the current year
+        const startDate = startOfYear(new Date());
+        const endDate = endOfYear(new Date());
+        filteredOrders = orders.filter(order => {
+          const orderDate = parseISO(order.created_at);
+          return orderDate >= startDate && orderDate <= endDate;
+        });
+
+        // Create monthly data points
+        for (let i = 0; i < 12; i++) {
+          const monthOrders = filteredOrders.filter(order => 
+            parseISO(order.created_at).getMonth() === i
+          );
+          const totalSales = monthOrders.reduce((sum, order) => {
+            const price = order.conversation?.orderDetails?.price || "0";
+            return sum + parseInt(price.replace(/\D/g, ''));
+          }, 0);
+
+          data.push({
+            name: format(new Date(2024, i), 'MMM'),
+            sales: totalSales
+          });
+        }
+        break;
+
+      case 'month':
+        // Group by week for the current month
+        const lastMonth = subMonths(new Date(), 1);
+        filteredOrders = orders.filter(order => 
+          parseISO(order.created_at) >= lastMonth
+        );
+
+        // Create weekly data points
+        for (let i = 0; i < 4; i++) {
+          const weekOrders = filteredOrders.filter(order => {
+            const orderDate = parseISO(order.created_at);
+            const weekOfMonth = Math.floor((orderDate.getDate() - 1) / 7);
+            return weekOfMonth === i;
+          });
+
+          const totalSales = weekOrders.reduce((sum, order) => {
+            const price = order.conversation?.orderDetails?.price || "0";
+            return sum + parseInt(price.replace(/\D/g, ''));
+          }, 0);
+
+          data.push({
+            name: `Week ${i + 1}`,
+            sales: totalSales
+          });
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    setSalesData(data);
   };
 
   if (loading) {
