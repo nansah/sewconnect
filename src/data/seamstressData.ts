@@ -1,5 +1,20 @@
 
-export const demoSeamstresses = [
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+
+interface Seamstress {
+  id: string;
+  name: string;
+  image: string;
+  specialty: string;
+  rating: number;
+  price: string;
+  location: string;
+  yearsOfExperience: number;
+  activeOrders: number;
+}
+
+export const initialDemoSeamstresses: Seamstress[] = [
   {
     id: "demo-seamstress-123",
     name: "Amara Okafor",
@@ -46,3 +61,26 @@ export const demoSeamstresses = [
   }
 ];
 
+interface SeamstressStore {
+  seamstresses: Seamstress[];
+  updateSeamstress: (id: string, data: Partial<Seamstress>) => void;
+}
+
+export const useSeamstressStore = create<SeamstressStore>()(
+  persist(
+    (set) => ({
+      seamstresses: initialDemoSeamstresses,
+      updateSeamstress: (id, data) =>
+        set((state) => ({
+          seamstresses: state.seamstresses.map((s) =>
+            s.id === id ? { ...s, ...data } : s
+          ),
+        })),
+    }),
+    {
+      name: 'seamstress-store',
+    }
+  )
+);
+
+export const demoSeamstresses = useSeamstressStore.getState().seamstresses;

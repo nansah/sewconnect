@@ -1,11 +1,10 @@
 
-import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Scissors, ShieldCheck, Users2, Sparkles, Star } from "lucide-react";
+import { Scissors, ShieldCheck, Users2 } from "lucide-react";
 
 const Landing = () => {
   const [email, setEmail] = useState("");
@@ -55,9 +54,7 @@ const Landing = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
+    <div className="min-h-screen bg-background">      
       {/* Hero Section */}
       <section className="pt-32 pb-24 px-4">
         <div className="max-w-6xl mx-auto text-center">
@@ -120,13 +117,6 @@ const Landing = () => {
           </div>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="py-12 px-4 bg-muted/50">
-        <div className="max-w-6xl mx-auto text-center text-sm text-muted-foreground">
-          <p>© 2024 SewConnect. All rights reserved.</p>
-        </div>
-      </footer>
     </div>
   );
 };

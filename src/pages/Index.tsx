@@ -4,19 +4,20 @@ import { HeroSection } from "@/components/HeroSection";
 import { SeamstressGrid } from "@/components/SeamstressGrid";
 import { Footer } from "@/components/Footer";
 import { useSeamstressFilter } from "@/hooks/useSeamstressFilter";
-import { demoSeamstresses } from "@/data/seamstressData";
+import { useSeamstressStore } from "@/data/seamstressData";
 
 const Index = () => {
-  const { filteredSeamstresses, handleFilterChange } = useSeamstressFilter(demoSeamstresses);
+  const seamstresses = useSeamstressStore((state) => state.seamstresses);
+  const { filteredSeamstresses, handleFilterChange } = useSeamstressFilter(seamstresses);
 
   return (
-    <div className="min-h-screen bg-[#EBE2D3] flex flex-col">
+    <div className="min-h-screen bg-[#EBE2D3]">
       <Header />
       <HeroSection onSearch={(term) => handleFilterChange({ priceRange: "", specialty: term, location: "" })} />
       <SeamstressGrid 
         seamstresses={filteredSeamstresses} 
         onFilterChange={handleFilterChange}
-        allSeamstresses={demoSeamstresses}
+        allSeamstresses={seamstresses}
       />
       <Footer />
     </div>
