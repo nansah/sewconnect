@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Send, Ruler, Paperclip, Calendar, CreditCard } from 'lucide-react';
+import { Send, Ruler, Paperclip, Calendar } from 'lucide-react';
 import { useConversation } from "@/hooks/useConversation";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -316,6 +316,7 @@ const MessagingPortal = () => {
 
         {/* Input and Actions Section */}
         <div className="bg-gray-50 p-4 border-t border-gray-200">
+          {/* Measurements Form */}
           {showMeasurements && (
             <Card className="mb-4">
               <CardContent className="grid gap-4">
@@ -344,6 +345,7 @@ const MessagingPortal = () => {
             </Card>
           )}
 
+          {/* Delivery Timeframe */}
           {showDeliveryTimeframe && (
             <Card className="mb-4">
               <CardContent>
@@ -396,14 +398,6 @@ const MessagingPortal = () => {
             >
               <Calendar className="w-5 h-5" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setShowPaymentDialog(true)}
-              className="hover:bg-gray-200"
-            >
-              <CreditCard className="w-5 h-5" />
-            </Button>
             <Input
               type="text"
               placeholder="Type your message here..."
@@ -428,25 +422,25 @@ const MessagingPortal = () => {
       <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Book Your Appointment</DialogTitle>
+            <DialogTitle className="text-2xl font-semibold mb-2">Book Your Appointment</DialogTitle>
             <DialogDescription>
               Please provide your payment details to secure your booking. A 50% deposit is required.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="cardNumber" className="text-sm font-medium block mb-1">Card Number</label>
+          <div className="space-y-6 py-4">
+            <div className="space-y-2">
+              <label htmlFor="cardNumber" className="text-sm font-medium text-gray-700">Card Number</label>
               <Input 
                 type="text" 
                 id="cardNumber" 
                 placeholder="1234 5678 9012 3456" 
-                className="font-mono"
+                className="font-mono text-lg tracking-wider"
                 maxLength={16}
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="expiry" className="text-sm font-medium block mb-1">Expiry Date</label>
+              <div className="space-y-2">
+                <label htmlFor="expiry" className="text-sm font-medium text-gray-700">Expiry Date</label>
                 <Input 
                   type="text" 
                   id="expiry" 
@@ -455,8 +449,8 @@ const MessagingPortal = () => {
                   className="font-mono"
                 />
               </div>
-              <div>
-                <label htmlFor="cvc" className="text-sm font-medium block mb-1">CVC</label>
+              <div className="space-y-2">
+                <label htmlFor="cvc" className="text-sm font-medium text-gray-700">Security Code</label>
                 <Input 
                   type="text" 
                   id="cvc" 
@@ -466,16 +460,31 @@ const MessagingPortal = () => {
                 />
               </div>
             </div>
-            <div className="border-t pt-4 mt-4">
-              <div className="flex justify-between mb-2">
-                <span className="text-sm text-gray-600">Deposit Amount (50%)</span>
-                <span className="font-semibold">$250.00</span>
+            <div className="space-y-2">
+              <label htmlFor="name" className="text-sm font-medium text-gray-700">Name on Card</label>
+              <Input 
+                type="text" 
+                id="name" 
+                placeholder="John Smith"
+                className="font-sans"
+              />
+            </div>
+            <div className="border-t pt-4 mt-6">
+              <div className="bg-gray-50 p-4 rounded-lg mb-4">
+                <div className="flex justify-between mb-2">
+                  <span className="text-sm text-gray-600">Service Total</span>
+                  <span className="font-semibold">$500.00</span>
+                </div>
+                <div className="flex justify-between text-primary font-medium">
+                  <span>Deposit Required (50%)</span>
+                  <span>$250.00</span>
+                </div>
               </div>
               <Button 
                 onClick={handlePaymentSubmit} 
-                className="w-full bg-primary hover:bg-primary/90"
+                className="w-full bg-primary hover:bg-primary/90 text-white py-3"
               >
-                Confirm Booking & Pay Deposit
+                Pay Deposit & Confirm Booking
               </Button>
             </div>
           </div>
