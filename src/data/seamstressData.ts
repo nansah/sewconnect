@@ -1,8 +1,8 @@
 
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
-interface Seamstress {
+export interface Seamstress {
   id: string;
   name: string;
   image: string;
@@ -79,8 +79,7 @@ export const useSeamstressStore = create<SeamstressStore>()(
     }),
     {
       name: 'seamstress-store',
+      storage: createJSONStorage(() => localStorage),
     }
   )
 );
-
-export const demoSeamstresses = useSeamstressStore.getState().seamstresses;
