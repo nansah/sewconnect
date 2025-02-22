@@ -35,13 +35,16 @@ const MessagingPortal = () => {
 
   const { toast } = useToast();
   const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const [showMeasurements, setShowMeasurements] = useState(false);
   const [measurements, setMeasurements] = useState<Measurements>(DEFAULT_MEASUREMENTS);
   const [showDeliveryTimeframe, setShowDeliveryTimeframe] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   
-  const { messages, conversationId, loading, updateConversation } = useConversation(seamstress);
+  const { updateConversation } = useConversation(seamstress);
 
   useEffect(() => {
     if (designToShare && conversationId) {
@@ -390,6 +393,10 @@ const MessagingPortal = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    initializeConversation();
+  }, [seamstress]);
 
   if (loading) {
     return <div className="flex justify-center items-center h-screen">Loading messages...</div>;
