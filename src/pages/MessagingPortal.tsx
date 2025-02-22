@@ -61,58 +61,23 @@ const MessagingPortal = () => {
       };
       updateConversation([...messages, designMessage, descriptionMessage]);
     }
-  }, [conversationId, designToShare, messages, updateConversation]);
-
-  // Simulated seamstress responses
-  const simulateSeamstressResponse = (userMessage: Message) => {
-    setTimeout(() => {
-      let response: Message;
-      
-      if (userMessage.type === "image") {
-        response = {
-          text: "Thank you for sharing the design! Could you please provide your measurements and when you'd like to receive the dress? Also, I'll need a deposit to secure your booking.",
-          sender: "seamstress",
-          created_at: new Date().toISOString()
-        };
-      } else if (userMessage.text.includes("measurements")) {
-        response = {
-          text: "Great, thanks for sharing your measurements! When would you like to have the dress ready?",
-          sender: "seamstress",
-          created_at: new Date().toISOString()
-        };
-      } else if (userMessage.text.includes("delivery") || userMessage.text.includes("timeframe")) {
-        response = {
-          text: "Perfect! For this timeline, I'll need a 50% deposit to begin working on your dress. Would you like to proceed with the booking?",
-          sender: "seamstress",
-          created_at: new Date().toISOString()
-        };
-      } else {
-        response = {
-          text: "Could you please share your measurements and preferred delivery timeframe?",
-          sender: "seamstress",
-          created_at: new Date().toISOString()
-        };
-      }
-      
-      updateConversation([...messages, response]);
-    }, 1000);
-  };
+  }, [conversationId, designToShare]);
 
   const handleSendMessage = async () => {
     if (message.trim() === "") return;
 
     const newMessage: Message = {
-      text: message,
+      text: message.trim(),
       sender: "user",
-      created_at: new Date().toISOString(),
+      created_at: new Date().toISOString()
     };
 
     const updatedMessages = [...messages, newMessage];
-    const success = await updateConversation(updatedMessages);
-    
-    if (success) {
-      setMessage("");
-      // Generate seamstress response based on message content
+    setMessages(updatedMessages);
+    setMessage("");
+
+    // Generate seamstress response for demo profiles
+    if (seamstress.id === "demo-seamstress-123") {
       setTimeout(() => {
         let response: Message;
         const lowerCaseMsg = message.toLowerCase();
@@ -149,8 +114,11 @@ const MessagingPortal = () => {
           };
         }
         
-        updateConversation([...updatedMessages, response]);
+        setMessages(prev => [...prev, response]);
       }, 1000);
+    } else {
+      // For real seamstresses, use the updateConversation function
+      await updateConversation(updatedMessages);
     }
   };
 
@@ -285,57 +253,49 @@ const MessagingPortal = () => {
 
   const initializeConversation = async () => {
     console.log("Initializing conversation with seamstress:", seamstress);
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      console.log("No active session found");
-      setLoading(false);
-      return;
-    }
-
     try {
-      // For demo purposes, create a conversation with demo data
-      const isDemoSeamstress = seamstress.id === 'demo-seamstress-123';
-      
-      console.log("Fetching existing conversation...");
-      let existingConv;
-      
-      if (!isDemoSeamstress) {
-        const { data: convData, error: fetchError } = await supabase
+      if (seamstress.id === "demo-seamstress-123") {
+        // Initialize demo conversation
+        const initialMessage: Message = {
+          text: `Hello! I'm ${seamstress.name}. How can I help you today?`,
+          sender: "seamstress",
+          created_at: new Date().toISOString()
+        };
+        setConversationId('demo-conversation');
+        setMessages([initialMessage]);
+      } else {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          console.log("No active session found");
+          setLoading(false);
+          return;
+        }
+
+        // Handle real seamstress conversation
+        const { data: existingConv, error: fetchError } = await supabase
           .from('conversations')
           .select('*')
           .eq('user_id', session.user.id)
           .eq('seamstress_id', seamstress.id)
           .single();
+
+        if (!fetchError) {
+          setConversationId(existingConv.id);
+          const convertedMessages = existingConv.messages.map((msg: any) => ({
+            text: msg.text,
+            sender: msg.sender as "user" | "seamstress" | "system",
+            type: msg.type || 'text',
+            created_at: msg.created_at
+          }));
+          setMessages(convertedMessages);
+        } else if (fetchError.code === 'PGRST116') {
+          // Create new conversation
+          const initialMessage: Message = {
+            text: `Hello! I'm ${seamstress.name}. How can I help you today?`,
+            sender: "seamstress",
+            created_at: new Date().toISOString()
+          };
           
-        if (fetchError && fetchError.code !== 'PGRST116') {
-          throw fetchError;
-        }
-        existingConv = convData;
-      }
-
-      if (existingConv) {
-        console.log("Found existing conversation:", existingConv);
-        setConversationId(existingConv.id);
-        const convertedMessages = (existingConv.messages || []).map((msg: any) => ({
-          text: msg.text,
-          sender: msg.sender,
-          type: msg.type || 'text',
-          created_at: msg.created_at
-        }));
-        setMessages(convertedMessages);
-      } else {
-        console.log("Creating new conversation...");
-        const initialMessage = {
-          text: `Hello! I'm ${seamstress.name}. How can I help you today?`,
-          sender: "seamstress",
-          created_at: new Date().toISOString()
-        };
-
-        if (isDemoSeamstress) {
-          // For demo seamstress, just set the message without database interaction
-          setConversationId('demo-conversation');
-          setMessages([initialMessage]);
-        } else {
           const { data: newConv, error: createError } = await supabase
             .from('conversations')
             .insert({
@@ -348,40 +308,12 @@ const MessagingPortal = () => {
 
           if (createError) throw createError;
 
-          console.log("New conversation created:", newConv);
           setConversationId(newConv.id);
           setMessages([initialMessage]);
+        } else {
+          throw fetchError;
         }
       }
-
-      // Set up real-time updates for non-demo conversations
-      if (!isDemoSeamstress && existingConv?.id) {
-        const channel = supabase
-          .channel(`conversation-${existingConv.id}`)
-          .on(
-            'postgres_changes',
-            {
-              event: 'UPDATE',
-              schema: 'public',
-              table: 'conversations',
-              filter: `id=eq.${existingConv.id}`
-            },
-            (payload: any) => {
-              console.log("Received real-time update:", payload);
-              if (payload.new.messages) {
-                const convertedMessages = payload.new.messages.map((msg: any) => ({
-                  text: msg.text,
-                  sender: msg.sender,
-                  type: msg.type || 'text',
-                  created_at: msg.created_at
-                }));
-                setMessages(convertedMessages);
-              }
-            }
-          )
-          .subscribe();
-      }
-
     } catch (error: any) {
       console.error("Error in initializeConversation:", error);
       toast({
@@ -553,13 +485,17 @@ const MessagingPortal = () => {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter") {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
                   handleSendMessage();
                 }
               }}
               className="flex-grow rounded-full py-2 px-4 bg-gray-100 border-none focus:outline-none focus:ring-2 focus:ring-primary"
             />
-            <Button onClick={handleSendMessage} className="bg-primary hover:bg-primary/90 rounded-full">
+            <Button 
+              onClick={handleSendMessage} 
+              className="bg-primary hover:bg-primary/90 rounded-full"
+            >
               <Send className="w-5 h-5" />
               <span className="sr-only">Send</span>
             </Button>
