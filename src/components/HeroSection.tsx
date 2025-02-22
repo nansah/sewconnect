@@ -26,7 +26,7 @@ export const HeroSection = ({ onSearch }: HeroSectionProps) => {
         return currentWord.slice(0, prev.length + 1);
       });
 
-      let timeout = shouldDelete ? 50 : 150; // Delete faster than type
+      let timeout = shouldDelete ? 100 : 200; // Slower typing and deleting speeds
 
       if (!shouldDelete && displayText === currentWord) {
         timeout = 6000; // 6 seconds pause at the end of word
