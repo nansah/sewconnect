@@ -18,7 +18,10 @@ export const CreatePost = ({ newPost, onPostChange, onPostSubmit }: CreatePostPr
         placeholder="Share your thoughts, questions, or experiences..."
         className="mb-4"
       />
-      <Button onClick={onPostSubmit} className="bg-accent hover:bg-accent/90">
+      <Button 
+        onClick={onPostSubmit} 
+        className="bg-[#8B5CF6] hover:bg-[#7C3AED] text-white"
+      >
         Post
       </Button>
     </div>
