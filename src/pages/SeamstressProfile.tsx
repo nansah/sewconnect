@@ -24,6 +24,9 @@ const DEMO_REVIEWS: Review[] = [
   {
     id: "1",
     customer_name: "Emily Watson",
+    customer_id: "demo-customer-1",
+    seamstress_id: "demo-seamstress-1",
+    order_id: "demo-order-1",
     rating: 5,
     review_text: "Amazing work on my wedding dress alterations! Professional, timely, and exceeded my expectations.",
     created_at: "2024-02-15T10:00:00Z"
@@ -31,6 +34,9 @@ const DEMO_REVIEWS: Review[] = [
   {
     id: "2",
     customer_name: "Sarah Chen",
+    customer_id: "demo-customer-2",
+    seamstress_id: "demo-seamstress-1",
+    order_id: "demo-order-2",
     rating: 5,
     review_text: "Incredible attention to detail. Made my dream dress come true!",
     created_at: "2024-02-10T15:30:00Z"
@@ -38,6 +44,9 @@ const DEMO_REVIEWS: Review[] = [
   {
     id: "3",
     customer_name: "Maria Garcia",
+    customer_id: "demo-customer-3",
+    seamstress_id: "demo-seamstress-1",
+    order_id: "demo-order-3",
     rating: 4,
     review_text: "Very professional and skilled. Would definitely recommend!",
     created_at: "2024-02-05T09:15:00Z"

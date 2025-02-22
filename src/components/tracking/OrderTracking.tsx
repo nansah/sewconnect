@@ -18,10 +18,14 @@ interface StatusUpdate {
   created_at: string;
 }
 
+interface OrderWithSeamstress extends Order {
+  seamstress_name?: string;
+}
+
 export const OrderTracking = () => {
   const { orderId } = useParams();
   const [statusUpdates, setStatusUpdates] = useState<StatusUpdate[]>([]);
-  const [order, setOrder] = useState<Order | null>(null);
+  const [order, setOrder] = useState<OrderWithSeamstress | null>(null);
   const [hasReviewed, setHasReviewed] = useState(false);
   const [canReview, setCanReview] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -57,7 +61,10 @@ export const OrderTracking = () => {
       .single();
 
     if (!error && data) {
-      setOrder(data as Order);
+      setOrder({
+        ...data,
+        seamstress_name: data.seamstress_profile?.name
+      });
       if (data.delivered_at) {
         const reviewDate = addDays(new Date(data.delivered_at), 3);
         setCanReview(isPast(reviewDate));

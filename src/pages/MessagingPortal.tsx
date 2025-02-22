@@ -173,7 +173,14 @@ const MessagingPortal = () => {
     }
 
     if (data?.messages) {
-      setMessages(data.messages as Message[]);
+      // Cast the JSON array to Message[] type after validating the structure
+      const validatedMessages = (data.messages as any[]).map(msg => ({
+        text: msg.text || '',
+        sender: msg.sender || 'system',
+        type: msg.type || 'text',
+        created_at: msg.created_at || new Date().toISOString()
+      })) as Message[];
+      setMessages(validatedMessages);
     } else {
       setMessages([]);
     }
@@ -205,13 +212,22 @@ const MessagingPortal = () => {
         created_at: msg.created_at
       }));
 
-      supabase
+      const { error } = await supabase
         .from('conversations')
         .update({
           messages: messagesToStore,
           updated_at: new Date().toISOString()
         })
         .eq('id', conversationId);
+
+      if (error) {
+        console.error("Error updating messages:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to send message.",
+        });
+      }
     }
   };
 
