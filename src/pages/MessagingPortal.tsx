@@ -89,102 +89,152 @@ const MessagingPortal = () => {
   }, [messages]);
 
   const checkExistingConversation = async (seamstressId: string) => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-
-    const { data, error } = await supabase
-      .from('conversations')
-      .select('id')
-      .eq('user_id', session.user.id)
-      .eq('seamstress_id', seamstressId)
-      .single();
-
-    if (error) {
-      console.error("Error checking for existing conversation:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to check for existing conversation.",
-      });
+    // For demo seamstress, just set up demo conversation
+    if (seamstressId === "demo-seamstress-123") {
+      setConversationId("demo-conversation-123");
+      setMessages([{
+        text: "Hello! How can I help you today?",
+        sender: "seamstress",
+        created_at: new Date().toISOString()
+      }]);
       setIsLoading(false);
       return;
     }
 
-    if (data) {
-      // Existing conversation found
-      setConversationId(data.id);
-      fetchMessages(data.id);
-    } else {
-      // No existing conversation, create a new one
-      startNewConversation(seamstressId);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('conversations')
+        .select('id')
+        .eq('user_id', session.user.id)
+        .eq('seamstress_id', seamstressId)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error checking for existing conversation:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to check for existing conversation.",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      if (data) {
+        // Existing conversation found
+        setConversationId(data.id);
+        fetchMessages(data.id);
+      } else {
+        // No existing conversation, create a new one
+        startNewConversation(seamstressId);
+      }
+    } catch (error) {
+      console.error("Error in checkExistingConversation:", error);
+      setIsLoading(false);
     }
   };
 
   const startNewConversation = async (seamstressId: string) => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-
-    const { data, error } = await supabase
-      .from('conversations')
-      .insert([
-        {
-          user_id: session.user.id,
-          seamstress_id: seamstressId,
-          messages: [],
-          status: 'active',
-          updated_at: new Date().toISOString()
-        }
-      ])
-      .select('id')
-      .single();
-
-    if (error) {
-      console.error("Error starting new conversation:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to start a new conversation.",
-      });
+    // For demo seamstress, don't create actual conversation
+    if (seamstressId === "demo-seamstress-123") {
+      setConversationId("demo-conversation-123");
+      setMessages([{
+        text: "Hello! How can I help you today?",
+        sender: "seamstress",
+        created_at: new Date().toISOString()
+      }]);
       setIsLoading(false);
       return;
     }
 
-    setConversationId(data.id);
-    setMessages([]); // Initialize with an empty array
-    setIsLoading(false);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('conversations')
+        .insert([
+          {
+            user_id: session.user.id,
+            seamstress_id: seamstressId,
+            messages: [],
+            status: 'active',
+            updated_at: new Date().toISOString()
+          }
+        ])
+        .select('id')
+        .single();
+
+      if (error) {
+        console.error("Error starting new conversation:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to start a new conversation.",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      setConversationId(data.id);
+      setMessages([]); // Initialize with an empty array
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error in startNewConversation:", error);
+      setIsLoading(false);
+    }
   };
 
   const fetchMessages = async (conversationId: string) => {
-    const { data, error } = await supabase
-      .from('conversations')
-      .select('messages')
-      .eq('id', conversationId)
-      .single();
-
-    if (error) {
-      console.error("Error fetching messages:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to fetch messages.",
-      });
+    // For demo conversation, keep existing messages
+    if (conversationId === "demo-conversation-123") {
       setIsLoading(false);
       return;
     }
 
-    if (data?.messages) {
-      // Cast the JSON array to Message[] type after validating the structure
-      const validatedMessages = (data.messages as any[]).map(msg => ({
-        text: msg.text || '',
-        sender: msg.sender || 'system',
-        type: msg.type || 'text',
-        created_at: msg.created_at || new Date().toISOString()
-      })) as Message[];
-      setMessages(validatedMessages);
-    } else {
-      setMessages([]);
+    try {
+      const { data, error } = await supabase
+        .from('conversations')
+        .select('messages')
+        .eq('id', conversationId)
+        .single();
+
+      if (error) {
+        console.error("Error fetching messages:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to fetch messages.",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      if (data?.messages) {
+        const validatedMessages = (data.messages as any[]).map(msg => ({
+          text: msg.text || '',
+          sender: msg.sender || 'system',
+          type: msg.type || 'text',
+          created_at: msg.created_at || new Date().toISOString()
+        })) as Message[];
+        setMessages(validatedMessages);
+      } else {
+        setMessages([]);
+      }
+    } catch (error) {
+      console.error("Error in fetchMessages:", error);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
