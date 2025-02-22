@@ -28,7 +28,7 @@ export const Header = () => {
   const isIndex = location.pathname === "/";
   const headerClasses = isIndex
     ? "absolute w-full z-30"
-    : "w-full z-30 bg-[#8B4513] shadow-md"; // Changed from navy to saddle brown
+    : "w-full z-30 bg-[#8B4513] shadow-md";
 
   const buttonClasses = isIndex
     ? "flex gap-2 bg-white/10 text-white border-white/20 hover:bg-white/20"
