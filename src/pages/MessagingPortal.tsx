@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -12,41 +11,21 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { v4 as uuidv4 } from 'uuid';
 import { supabase } from "@/integrations/supabase/client";
-
-interface LocationState {
-  seamstress: {
-    id: string;
-    name: string;
-    image: string;
-  };
-}
-
-interface Message {
-  text: string;
-  sender: "user" | "seamstress";
-  created_at: string;
-  type?: "text" | "image";
-}
-
-interface Measurements {
-  bust: string;
-  waist: string;
-  hips: string;
-  height: string;
-  length: string;
-}
+import { Message, Measurements } from '@/types/messaging';
 
 const DEFAULT_MEASUREMENTS: Measurements = {
   bust: "",
   waist: "",
   hips: "",
-  length: "",
+  height: "",
+  shoulderToWaist: "",
+  waistToKnee: ""
 };
 
 const MessagingPortal = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { seamstress, designToShare } = (location.state as LocationState & { designToShare?: { imageUrl: string; description: string } }) || { 
+  const { seamstress, designToShare } = (location.state as any) || { 
     seamstress: {
       id: "demo-seamstress-123",
       name: "Sarah Johnson",
@@ -64,7 +43,6 @@ const MessagingPortal = () => {
   
   const { messages, conversationId, loading, updateConversation } = useConversation(seamstress);
 
-  // Handle shared design when component mounts
   useEffect(() => {
     if (designToShare && conversationId) {
       const designMessage: Message = {
@@ -174,7 +152,7 @@ const MessagingPortal = () => {
   };
 
   const handleMeasurementsSubmit = () => {
-    const measurementsMessage = `Measurements: Bust - ${measurements.bust}, Waist - ${measurements.waist}, Hips - ${measurements.hips}, Length - ${measurements.length}`;
+    const measurementsMessage = `Measurements: Bust - ${measurements.bust}, Waist - ${measurements.waist}, Hips - ${measurements.hips}, Length - ${measurements.height}`;
     const newMessage: Message = {
       text: measurementsMessage,
       sender: "user",
@@ -305,15 +283,6 @@ const MessagingPortal = () => {
   if (loading) {
     return <div className="flex justify-center items-center h-screen">Loading messages...</div>;
   }
-
-  // Update the measurements form to use "height" instead of "length"
-  const [measurements, setMeasurements] = useState<Measurements>({
-    bust: "",
-    waist: "",
-    hips: "",
-    height: "", // Changed from length to height
-    length: "",
-  });
 
   return (
     <div className="min-h-screen bg-[#EBE2D3] py-6">
@@ -455,7 +424,7 @@ const MessagingPortal = () => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={()={() => setShowDeliveryTimeframe(!showDeliveryTimeframe)}
+              onClick={() => setShowDeliveryTimeframe(!showDeliveryTimeframe)}
               className="hover:bg-gray-200"
             >
               <Calendar className="w-5 h-5" />
