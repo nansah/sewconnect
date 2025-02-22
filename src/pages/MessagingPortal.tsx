@@ -9,7 +9,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { CalendarIcon, Paperclip, Image, Ruler, Send } from "lucide-react";
+import { CalendarIcon, Paperclip, Image, Ruler, Send, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Textarea } from "@/components/ui/textarea";
@@ -364,6 +364,14 @@ const MessagingPortal = () => {
     }
   };
 
+  const handleBookOrder = () => {
+    toast({
+      title: "Order Confirmation",
+      description: "Your order has been booked successfully!",
+    });
+    // Add your order booking logic here
+  };
+
   if (isLoading) {
     return <div className="flex justify-center items-center h-screen">Loading chat...</div>;
   }
@@ -373,14 +381,23 @@ const MessagingPortal = () => {
       <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
         {/* Header Section */}
         <div className="bg-accent p-4">
-          <div className="flex items-center space-x-4">
-            <Avatar>
-              <AvatarFallback>{seamstress.name[0]}</AvatarFallback>
-            </Avatar>
-            <div>
-              <h2 className="text-lg font-semibold text-white">{seamstress.name}</h2>
-              <p className="text-sm text-gray-200">Online</p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Avatar>
+                <AvatarFallback>{seamstress.name[0]}</AvatarFallback>
+              </Avatar>
+              <div>
+                <h2 className="text-lg font-semibold text-white">{seamstress.name}</h2>
+                <p className="text-sm text-gray-200">Online</p>
+              </div>
             </div>
+            <Button 
+              onClick={handleBookOrder}
+              className="bg-primary hover:bg-primary/90 text-white"
+            >
+              <BookOpen className="h-5 w-5 mr-2" />
+              Book Order
+            </Button>
           </div>
         </div>
 
