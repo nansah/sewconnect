@@ -420,21 +420,21 @@ const MessagingPortal = () => {
 
       {/* Payment Dialog */}
       <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md bg-white">
           <DialogHeader>
             <DialogTitle className="text-2xl font-semibold mb-2">Book Your Appointment</DialogTitle>
             <DialogDescription>
               Please provide your payment details to secure your booking. A 50% deposit is required.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-6 py-4">
+          <div className="space-y-6 py-4 bg-white">
             <div className="space-y-2">
               <label htmlFor="cardNumber" className="text-sm font-medium text-gray-700">Card Number</label>
               <Input 
                 type="text" 
                 id="cardNumber" 
                 placeholder="1234 5678 9012 3456" 
-                className="font-mono text-lg tracking-wider"
+                className="font-mono text-lg tracking-wider bg-white"
                 maxLength={16}
               />
             </div>
@@ -446,7 +446,7 @@ const MessagingPortal = () => {
                   id="expiry" 
                   placeholder="MM/YY"
                   maxLength={5}
-                  className="font-mono"
+                  className="font-mono bg-white"
                 />
               </div>
               <div className="space-y-2">
@@ -456,7 +456,7 @@ const MessagingPortal = () => {
                   id="cvc" 
                   placeholder="123"
                   maxLength={3}
-                  className="font-mono"
+                  className="font-mono bg-white"
                 />
               </div>
             </div>
@@ -466,7 +466,7 @@ const MessagingPortal = () => {
                 type="text" 
                 id="name" 
                 placeholder="John Smith"
-                className="font-sans"
+                className="font-sans bg-white"
               />
             </div>
             <div className="border-t pt-4 mt-6">
