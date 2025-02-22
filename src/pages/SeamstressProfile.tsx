@@ -1,12 +1,12 @@
 import { useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
-import { Star } from "lucide-react";
+import { Review } from "@/types/messaging";
 
 interface LocationState {
   seamstress: {
@@ -18,14 +18,6 @@ interface LocationState {
     price: string;
     location: string;
   };
-}
-
-interface Review {
-  id: string;
-  customer_name: string;
-  rating: number;
-  review_text: string;
-  created_at: string;
 }
 
 const SeamstressProfile = () => {
@@ -49,14 +41,26 @@ const SeamstressProfile = () => {
   }, [seamstress.id]);
 
   const fetchReviews = async () => {
-    const { data, error } = await supabase
-      .from('seamstress_reviews')
-      .select('*')
-      .eq('seamstress_id', seamstress.id)
-      .order('created_at', { ascending: false });
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
 
-    if (!error && data) {
-      setReviews(data);
+    const { data, error } = await supabase
+      .from('seamstress_profiles')
+      .select(`
+        id,
+        reviews:seamstress_reviews(
+          id,
+          customer_name,
+          rating,
+          review_text,
+          created_at
+        )
+      `)
+      .eq('id', seamstress.id)
+      .single();
+
+    if (!error && data?.reviews) {
+      setReviews(data.reviews as Review[]);
     }
   };
 

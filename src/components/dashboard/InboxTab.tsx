@@ -3,22 +3,14 @@ import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { formatDistanceToNow } from 'date-fns';
 import { MessageCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-
-interface Message {
-  conversation_id: string;
-  messages: any[];
-  created_at: string;
-  updated_at: string;
-  status: string;
-  customer_name: string;
-}
+import { ConversationMessage } from "@/types/messaging";
 
 export const InboxTab = () => {
-  const [conversations, setConversations] = useState<Message[]>([]);
+  const [conversations, setConversations] = useState<ConversationMessage[]>([]);
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -31,12 +23,25 @@ export const InboxTab = () => {
     if (!session) return;
 
     const { data, error } = await supabase
-      .from('seamstress_messages')
-      .select('*')
-      .order('updated_at', { ascending: false });
+      .from('conversations')
+      .select(`
+        id as conversation_id,
+        messages,
+        created_at,
+        updated_at,
+        status,
+        user_id,
+        profiles!inner(first_name, last_name)
+      `)
+      .eq('seamstress_id', session.user.id);
 
     if (!error && data) {
-      setConversations(data);
+      const formattedConversations = data.map(conv => ({
+        ...conv,
+        customer_name: `${conv.profiles.first_name} ${conv.profiles.last_name}`,
+      })) as ConversationMessage[];
+      
+      setConversations(formattedConversations);
     }
   };
 
