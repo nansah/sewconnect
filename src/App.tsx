@@ -9,6 +9,7 @@ import Login from "@/pages/Login";
 import Signup from "@/pages/Signup";
 import SeamstressProfile from "@/pages/SeamstressProfile";
 import SeamstressDashboard from "@/pages/SeamstressDashboard";
+import CustomerDashboard from "@/pages/CustomerDashboard";
 import MessagingPortal from "@/pages/MessagingPortal";
 import Forum from "@/pages/Forum";
 import DesignInspiration from "@/pages/DesignInspiration";
@@ -27,6 +28,7 @@ const App = () => {
           <Route path="/signup" element={<Signup />} />
           <Route path="/seamstress-profile" element={<SeamstressProfile />} />
           <Route path="/seamstress-dashboard" element={<SeamstressDashboard />} />
+          <Route path="/customer-dashboard" element={<CustomerDashboard />} />
           <Route path="/messaging" element={<MessagingPortal />} />
           <Route path="/forum" element={<Forum />} />
           <Route path="/inspiration" element={<DesignInspiration />} />
