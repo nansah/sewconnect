@@ -4,7 +4,8 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Scissors, ShieldCheck, Users2 } from "lucide-react";
+import { Scissors, ShieldCheck, Users2, ArrowRight } from "lucide-react";
+import { HeroSection } from "@/components/HeroSection";
 
 const Landing = () => {
   const [email, setEmail] = useState("");
@@ -54,18 +55,60 @@ const Landing = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">      
+    <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="pt-32 pb-24 px-4">
-        <div className="max-w-6xl mx-auto text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            Connect with Expert Seamstresses
-          </h1>
-          <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto">
-            Find the perfect seamstress for your clothing alterations and custom designs. Join our waitlist to be notified when we launch!
+      <HeroSection onSearch={() => {}} />
+
+      {/* Features Section */}
+      <section className="py-24 px-4 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Choose SewConnect?</h2>
+            <div className="w-24 h-1 bg-primary mx-auto"></div>
+          </div>
+          <div className="grid md:grid-cols-3 gap-12">
+            {features.map((feature, index) => (
+              <div key={index} className="bg-secondary/20 p-8 rounded-lg hover:shadow-lg transition-all">
+                <div className="mb-6 flex justify-center">{feature.icon}</div>
+                <h3 className="text-xl font-semibold mb-4 text-center">{feature.title}</h3>
+                <p className="text-muted-foreground text-center">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="py-24 px-4 bg-[#4A3034] text-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Our Growing Community</h2>
+            <div className="w-24 h-1 bg-primary mx-auto"></div>
+          </div>
+          <div className="grid md:grid-cols-3 gap-12">
+            <div className="text-center">
+              <div className="text-5xl font-bold text-primary mb-4">500+</div>
+              <div className="text-xl">Active Seamstresses</div>
+            </div>
+            <div className="text-center">
+              <div className="text-5xl font-bold text-primary mb-4">10k+</div>
+              <div className="text-xl">Satisfied Customers</div>
+            </div>
+            <div className="text-center">
+              <div className="text-5xl font-bold text-primary mb-4">4.8</div>
+              <div className="text-xl">Average Rating</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-24 px-4 bg-secondary/20">
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Transform Your Fashion Journey?</h2>
+          <p className="text-xl text-muted-foreground mb-12">
+            Join our waitlist to be notified when we launch and get early access to our platform.
           </p>
-          
-          {/* Waitlist Form */}
           <form onSubmit={handleSubmit} className="max-w-md mx-auto flex gap-4">
             <Input
               type="email"
@@ -76,45 +119,10 @@ const Landing = () => {
               className="flex-1"
             />
             <Button type="submit" disabled={isSubmitting}>
-              Join Waitlist
+              Join Waitlist 
+              <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </form>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-24 px-4 bg-muted/50">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-16">Why Choose SewConnect?</h2>
-          <div className="grid md:grid-cols-3 gap-12">
-            {features.map((feature, index) => (
-              <div key={index} className="text-center">
-                <div className="mb-6 flex justify-center">{feature.icon}</div>
-                <h3 className="text-xl font-semibold mb-4">{feature.title}</h3>
-                <p className="text-muted-foreground">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="py-24 px-4">
-        <div className="max-w-6xl mx-auto text-center">
-          <div className="grid md:grid-cols-3 gap-12">
-            <div>
-              <div className="text-4xl font-bold text-primary mb-2">500+</div>
-              <div className="text-muted-foreground">Active Seamstresses</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold text-primary mb-2">10k+</div>
-              <div className="text-muted-foreground">Satisfied Customers</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold text-primary mb-2">4.8</div>
-              <div className="text-muted-foreground">Average Rating</div>
-            </div>
-          </div>
         </div>
       </section>
     </div>
