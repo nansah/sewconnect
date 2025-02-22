@@ -19,6 +19,8 @@ import { ProfileEditForm } from "@/components/dashboard/ProfileEditForm";
 import { AnalyticsCards } from "@/components/dashboard/AnalyticsCards";
 import { SalesChart } from "@/components/dashboard/SalesChart";
 import { OrdersTables } from "@/components/dashboard/OrdersTables";
+import { InboxTab } from "@/components/dashboard/InboxTab";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const DEMO_ORDERS = [
   {
@@ -351,15 +353,39 @@ const SeamstressDashboard = () => {
           progressPercentage={progressPercentage}
         />
 
-        {/* Sales Chart */}
-        <SalesChart salesData={salesData} />
+        <Tabs defaultValue="overview" className="w-full">
+          <TabsList className="mb-8">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="inbox">Inbox</TabsTrigger>
+            <TabsTrigger value="orders">Orders</TabsTrigger>
+          </TabsList>
 
-        {/* Orders Tables */}
-        <OrdersTables
-          queueOrders={queueOrders}
-          progressOrders={progressOrders}
-          totalProgressPercentage={totalProgressPercentage}
-        />
+          <TabsContent value="overview">
+            <div className="space-y-8">
+              {/* Sales Chart */}
+              <SalesChart salesData={salesData} />
+
+              {/* Orders Tables */}
+              <OrdersTables
+                queueOrders={queueOrders}
+                progressOrders={progressOrders}
+                totalProgressPercentage={totalProgressPercentage}
+              />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="inbox">
+            <InboxTab />
+          </TabsContent>
+
+          <TabsContent value="orders">
+            <OrdersTables
+              queueOrders={queueOrders}
+              progressOrders={progressOrders}
+              totalProgressPercentage={totalProgressPercentage}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

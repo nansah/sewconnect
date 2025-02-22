@@ -1,9 +1,12 @@
-
 import { useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Card } from "@/components/ui/card";
+import { Star } from "lucide-react";
 
 interface LocationState {
   seamstress: {
@@ -17,9 +20,18 @@ interface LocationState {
   };
 }
 
+interface Review {
+  id: string;
+  customer_name: string;
+  rating: number;
+  review_text: string;
+  created_at: string;
+}
+
 const SeamstressProfile = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [reviews, setReviews] = useState<Review[]>([]);
   const { seamstress } = (location.state as LocationState) || {
     seamstress: {
       id: "",
@@ -29,6 +41,22 @@ const SeamstressProfile = () => {
       rating: 0,
       price: "",
       location: ""
+    }
+  };
+
+  useEffect(() => {
+    fetchReviews();
+  }, [seamstress.id]);
+
+  const fetchReviews = async () => {
+    const { data, error } = await supabase
+      .from('seamstress_reviews')
+      .select('*')
+      .eq('seamstress_id', seamstress.id)
+      .order('created_at', { ascending: false });
+
+    if (!error && data) {
+      setReviews(data);
     }
   };
 
@@ -101,6 +129,12 @@ const SeamstressProfile = () => {
                 >
                   Gallery
                 </TabsTrigger>
+                <TabsTrigger 
+                  value="reviews" 
+                  className="flex-1 data-[state=active]:bg-[#FEC6A1] transition-all duration-300 rounded-lg"
+                >
+                  Reviews
+                </TabsTrigger>
               </TabsList>
               
               <TabsContent value="about" className="mt-6 bg-white rounded-xl p-8 shadow-lg transition-all duration-300 hover:shadow-xl">
@@ -143,6 +177,31 @@ const SeamstressProfile = () => {
                         className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
                       />
                     </div>
+                  ))}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="reviews" className="mt-6">
+                <div className="space-y-6">
+                  {reviews.map((review) => (
+                    <Card key={review.id} className="p-6 hover:shadow-lg transition-shadow">
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-1">
+                          <div className="flex items-center space-x-2">
+                            <h3 className="font-semibold text-lg">{review.customer_name}</h3>
+                            <div className="flex items-center text-yellow-500">
+                              {Array.from({ length: review.rating }).map((_, i) => (
+                                <Star key={i} className="w-4 h-4 fill-current" />
+                              ))}
+                            </div>
+                          </div>
+                          <p className="text-gray-600">{review.review_text}</p>
+                          <p className="text-sm text-gray-500">
+                            {new Date(review.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                    </Card>
                   ))}
                 </div>
               </TabsContent>
