@@ -1,7 +1,7 @@
 
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "./ui/button";
-import { LogIn, LogOut, UserPlus, Users2 } from "lucide-react";
+import { LogIn, LogOut, UserPlus, Users2, MessageSquare } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
@@ -41,6 +41,12 @@ export const Header = () => {
           SewConnect
         </Link>
         <div className="flex gap-4">
+          <Link to="/contact">
+            <Button variant="outline" className={buttonClasses}>
+              <MessageSquare className="w-4 h-4" />
+              Contact
+            </Button>
+          </Link>
           <Link to="/forum">
             <Button variant="outline" className={buttonClasses}>
               <Users2 className="w-4 h-4" />

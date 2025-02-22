@@ -13,6 +13,7 @@ import MessagingPortal from "@/pages/MessagingPortal";
 import Forum from "@/pages/Forum";
 import DesignInspiration from "@/pages/DesignInspiration";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import Contact from "@/pages/Contact";
 
 const App = () => {
   return (
@@ -30,6 +31,7 @@ const App = () => {
           <Route path="/forum" element={<Forum />} />
           <Route path="/inspiration" element={<DesignInspiration />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/contact" element={<Contact />} />
         </Routes>
       </Layout>
       <Toaster />
