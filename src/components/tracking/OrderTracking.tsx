@@ -1,10 +1,10 @@
-
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Package, Truck, Clock, CheckCircle, AlertCircle } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { ReviewForm } from "@/components/reviews/ReviewForm";
 
 interface StatusUpdate {
   id: string;
@@ -16,15 +16,46 @@ interface StatusUpdate {
   created_at: string;
 }
 
+interface Order {
+  id: string;
+  status: string;
+  seamstress_id: string;
+  seamstress_profile?: {
+    name: string;
+  }
+}
+
 export const OrderTracking = () => {
   const { orderId } = useParams();
   const [statusUpdates, setStatusUpdates] = useState<StatusUpdate[]>([]);
+  const [order, setOrder] = useState<Order | null>(null);
+  const [hasReviewed, setHasReviewed] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!orderId) {
       setLoading(false);
       return;
+    }
+
+    fetchOrderDetails();
+    checkReviewStatus();
+  }, [orderId]);
+
+  const fetchOrderDetails = async () => {
+    if (!orderId) return;
+
+    const { data, error } = await supabase
+      .from('orders')
+      .select(`
+        *,
+        seamstress_profile:seamstress_profiles(name)
+      `)
+      .eq('id', orderId)
+      .single();
+
+    if (!error && data) {
+      setOrder(data);
     }
 
     // For demo purposes, we'll create sample status updates
@@ -60,7 +91,21 @@ export const OrderTracking = () => {
 
     setStatusUpdates(demoUpdates);
     setLoading(false);
-  }, [orderId]);
+  };
+
+  const checkReviewStatus = async () => {
+    if (!orderId) return;
+
+    const { data, error } = await supabase
+      .from('seamstress_reviews')
+      .select('id')
+      .eq('order_id', orderId)
+      .maybeSingle();
+
+    if (!error) {
+      setHasReviewed(!!data);
+    }
+  };
 
   const renderStatusIcon = (status: string) => {
     switch (status) {
@@ -80,6 +125,8 @@ export const OrderTracking = () => {
   if (loading) {
     return <div>Loading...</div>;
   }
+
+  const isCompleted = order?.status === 'completed';
 
   return (
     <div className="max-w-4xl mx-auto py-8 px-4">
@@ -114,6 +161,26 @@ export const OrderTracking = () => {
             </div>
           ))}
         </div>
+
+        {isCompleted && !hasReviewed && order && (
+          <div className="mt-8 border-t pt-8">
+            <h3 className="text-xl font-semibold mb-4">Leave a Review</h3>
+            <ReviewForm
+              orderId={order.id}
+              seamstressId={order.seamstress_id}
+              seamstressName={order.seamstress_profile?.name || "Seamstress"}
+              onReviewSubmitted={() => setHasReviewed(true)}
+            />
+          </div>
+        )}
+
+        {isCompleted && hasReviewed && (
+          <div className="mt-8 border-t pt-8">
+            <p className="text-green-600 font-medium">
+              Thank you for your review!
+            </p>
+          </div>
+        )}
       </Card>
     </div>
   );
