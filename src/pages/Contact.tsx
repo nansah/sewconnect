@@ -23,7 +23,7 @@ const Contact = () => {
     e.preventDefault();
     
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('contact_messages')
         .insert([
           {

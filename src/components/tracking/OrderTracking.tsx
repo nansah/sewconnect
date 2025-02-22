@@ -7,11 +7,13 @@ import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
 interface StatusUpdate {
+  id: string;
+  order_id: string;
   status: string;
   notes: string;
-  photo_url: string;
-  created_at: string;
+  photo_url: string | null;
   created_by: string;
+  created_at: string;
 }
 
 export const OrderTracking = () => {
@@ -20,22 +22,44 @@ export const OrderTracking = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchStatusUpdates = async () => {
-      const { data, error } = await supabase
-        .from('order_status_updates')
-        .select('*')
-        .eq('order_id', orderId)
-        .order('created_at', { ascending: true });
-
-      if (!error && data) {
-        setStatusUpdates(data);
-      }
+    if (!orderId) {
       setLoading(false);
-    };
-
-    if (orderId) {
-      fetchStatusUpdates();
+      return;
     }
+
+    // For demo purposes, we'll create sample status updates
+    const demoUpdates: StatusUpdate[] = [
+      {
+        id: "1",
+        order_id: orderId,
+        status: "accepted",
+        notes: "Order accepted and initial review completed",
+        photo_url: null,
+        created_by: "seamstress-1",
+        created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: "2",
+        order_id: orderId,
+        status: "fabric_sourced",
+        notes: "Premium fabric selected and purchased",
+        photo_url: null,
+        created_by: "seamstress-1",
+        created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: "3",
+        order_id: orderId,
+        status: "in_production",
+        notes: "Working on final details and embellishments",
+        photo_url: null,
+        created_by: "seamstress-1",
+        created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+      }
+    ];
+
+    setStatusUpdates(demoUpdates);
+    setLoading(false);
   }, [orderId]);
 
   const renderStatusIcon = (status: string) => {
@@ -62,7 +86,7 @@ export const OrderTracking = () => {
       <Card className="p-6">
         <div className="space-y-8">
           {statusUpdates.map((update, index) => (
-            <div key={index} className="relative">
+            <div key={update.id} className="relative">
               {index !== statusUpdates.length - 1 && (
                 <div className="absolute top-8 left-3 w-0.5 h-full bg-gray-200" />
               )}
