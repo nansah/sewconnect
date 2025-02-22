@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { DollarSign, MapPin, Ruler } from "lucide-react";
 
 interface Seamstress {
   name: string;
@@ -64,8 +65,6 @@ export const FilterSection = ({ onFilterChange, seamstresses }: FilterSectionPro
     };
   };
 
-  const { locations, specialties } = getFilteredOptions();
-
   const handleFilterChange = (
     type: "priceRange" | "specialty" | "location",
     value: string
@@ -97,45 +96,71 @@ export const FilterSection = ({ onFilterChange, seamstresses }: FilterSectionPro
     onFilterChange(newFilters);
   };
 
+  const { locations, specialties } = getFilteredOptions();
+
   return (
     <div className="space-y-4 w-full">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
-        <select
-          className="px-4 py-2 rounded-md border-2 border-primary/30 focus:outline-none focus:border-primary bg-secondary/10 w-full shadow-sm hover:border-primary/50 transition-colors"
-          value={priceRange}
-          onChange={(e) => handleFilterChange("priceRange", e.target.value)}
-        >
-          <option value="">Price Range</option>
-          <option value="0-50">$0 - $50</option>
-          <option value="51-100">$51 - $100</option>
-          <option value="101+">$101+</option>
-        </select>
+        <div className="relative">
+          <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-accent" />
+          <select
+            className="pl-10 pr-8 py-2 rounded-md border-2 border-primary/30 focus:outline-none focus:border-primary bg-secondary/10 w-full shadow-sm hover:border-primary/50 transition-colors appearance-none"
+            value={priceRange}
+            onChange={(e) => handleFilterChange("priceRange", e.target.value)}
+          >
+            <option value="">Price Range</option>
+            <option value="0-50">$0 - $50</option>
+            <option value="51-100">$51 - $100</option>
+            <option value="101+">$101+</option>
+          </select>
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+            <svg className="h-4 w-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
         
-        <select
-          className="px-4 py-2 rounded-md border-2 border-primary/30 focus:outline-none focus:border-primary bg-secondary/10 w-full shadow-sm hover:border-primary/50 transition-colors"
-          value={specialty}
-          onChange={(e) => handleFilterChange("specialty", e.target.value)}
-        >
-          <option value="">Specialty</option>
-          {specialties.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
-          ))}
-        </select>
+        <div className="relative">
+          <Ruler className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-accent" />
+          <select
+            className="pl-10 pr-8 py-2 rounded-md border-2 border-primary/30 focus:outline-none focus:border-primary bg-secondary/10 w-full shadow-sm hover:border-primary/50 transition-colors appearance-none"
+            value={specialty}
+            onChange={(e) => handleFilterChange("specialty", e.target.value)}
+          >
+            <option value="">Specialty</option>
+            {specialties.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+            <svg className="h-4 w-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
         
-        <select
-          className="px-4 py-2 rounded-md border-2 border-primary/30 focus:outline-none focus:border-primary bg-secondary/10 w-full shadow-sm hover:border-primary/50 transition-colors"
-          value={location}
-          onChange={(e) => handleFilterChange("location", e.target.value)}
-        >
-          <option value="">Location</option>
-          {locations.map((loc) => (
-            <option key={loc} value={loc}>
-              {loc}
-            </option>
-          ))}
-        </select>
+        <div className="relative">
+          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-accent" />
+          <select
+            className="pl-10 pr-8 py-2 rounded-md border-2 border-primary/30 focus:outline-none focus:border-primary bg-secondary/10 w-full shadow-sm hover:border-primary/50 transition-colors appearance-none"
+            value={location}
+            onChange={(e) => handleFilterChange("location", e.target.value)}
+          >
+            <option value="">Location</option>
+            {locations.map((loc) => (
+              <option key={loc} value={loc}>
+                {loc}
+              </option>
+            ))}
+          </select>
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+            <svg className="h-4 w-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
       </div>
     </div>
   );
