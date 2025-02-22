@@ -49,4 +49,20 @@ export interface Review {
   rating: number;
   review_text: string;
   created_at: string;
+  photo_url?: string;
+  customer_id: string;
+  seamstress_id: string;
+  order_id: string;
+}
+
+export interface Order {
+  id: string;
+  seamstress_id: string;
+  conversation: any;
+  created_at: string;
+  updated_at: string;
+  customer_name: string;
+  measurements?: string;
+  status: string;
+  delivered_at?: string;
 }

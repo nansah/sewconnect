@@ -1,12 +1,12 @@
-
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Package, Truck, Clock, CheckCircle, AlertCircle } from "lucide-react";
+import { ChevronRight, Clock, Package, Truck, CheckCircle, AlertCircle } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { ReviewForm } from "@/components/reviews/ReviewForm";
 import { addDays, isPast } from "date-fns";
+import { Order, Review } from "@/types/messaging";
 
 interface StatusUpdate {
   id: string;
@@ -16,16 +16,6 @@ interface StatusUpdate {
   photo_url: string | null;
   created_by: string;
   created_at: string;
-}
-
-interface Order {
-  id: string;
-  status: string;
-  seamstress_id: string;
-  delivered_at: string | null;
-  seamstress_profile?: {
-    name: string;
-  }
 }
 
 export const OrderTracking = () => {
@@ -56,14 +46,18 @@ export const OrderTracking = () => {
         status,
         seamstress_id,
         delivered_at,
+        conversation,
+        created_at,
+        updated_at,
+        customer_name,
+        measurements,
         seamstress_profile:seamstress_profiles(name)
       `)
       .eq('id', orderId)
       .single();
 
     if (!error && data) {
-      setOrder(data);
-      // Check if 3 days have passed since delivery
+      setOrder(data as Order);
       if (data.delivered_at) {
         const reviewDate = addDays(new Date(data.delivered_at), 3);
         setCanReview(isPast(reviewDate));
@@ -108,14 +102,14 @@ export const OrderTracking = () => {
   const checkReviewStatus = async () => {
     if (!orderId) return;
 
-    const { data, error } = await supabase
+    const { data: reviewData, error } = await supabase
       .from('seamstress_reviews')
       .select('id')
       .eq('order_id', orderId)
       .maybeSingle();
 
     if (!error) {
-      setHasReviewed(!!data);
+      setHasReviewed(!!reviewData);
     }
   };
 
@@ -205,4 +199,3 @@ const renderStatusIcon = (status: string) => {
       return <Clock className="w-6 h-6 text-gray-500" />;
   }
 };
-

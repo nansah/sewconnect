@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { formatDistanceToNow } from 'date-fns';
 import { MessageCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { ConversationMessage } from "@/types/messaging";
+import { ConversationMessage, Message } from "@/types/messaging";
 
 const DEMO_CONVERSATIONS: ConversationMessage[] = [
   {
@@ -57,17 +57,27 @@ export const InboxTab = () => {
 
     const { data, error } = await supabase
       .from('conversations')
-      .select('*, profiles:profiles(*)')
+      .select(`
+        id,
+        messages,
+        created_at,
+        updated_at,
+        status,
+        profiles:user_id (
+          first_name,
+          last_name
+        )
+      `)
       .eq('seamstress_id', session.user.id);
 
     if (!error && data) {
       const formattedConversations: ConversationMessage[] = data.map(conv => ({
         conversation_id: conv.id,
-        messages: conv.messages || [],
+        messages: (conv.messages || []) as Message[],
         created_at: conv.created_at,
         updated_at: conv.updated_at,
         status: conv.status,
-        customer_name: `${conv.profiles.first_name} ${conv.profiles.last_name}`
+        customer_name: conv.profiles ? `${conv.profiles.first_name} ${conv.profiles.last_name}` : 'Unknown Customer'
       }));
       
       setConversations(formattedConversations);

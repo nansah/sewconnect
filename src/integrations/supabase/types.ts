@@ -187,6 +187,7 @@ export type Database = {
           conversation: Json
           created_at: string | null
           customer_name: string
+          delivered_at: string | null
           id: string
           measurements: string | null
           seamstress_id: string
@@ -197,6 +198,7 @@ export type Database = {
           conversation: Json
           created_at?: string | null
           customer_name: string
+          delivered_at?: string | null
           id?: string
           measurements?: string | null
           seamstress_id: string
@@ -207,6 +209,7 @@ export type Database = {
           conversation?: Json
           created_at?: string | null
           customer_name?: string
+          delivered_at?: string | null
           id?: string
           measurements?: string | null
           seamstress_id?: string
@@ -294,6 +297,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      seamstress_reviews: {
+        Row: {
+          created_at: string | null
+          customer_id: string
+          customer_name: string
+          id: string
+          order_id: string
+          photo_url: string | null
+          rating: number
+          review_text: string
+          seamstress_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          customer_id: string
+          customer_name: string
+          id?: string
+          order_id: string
+          photo_url?: string | null
+          rating: number
+          review_text: string
+          seamstress_id: string
+        }
+        Update: {
+          created_at?: string | null
+          customer_id?: string
+          customer_name?: string
+          id?: string
+          order_id?: string
+          photo_url?: string | null
+          rating?: number
+          review_text?: string
+          seamstress_id?: string
+        }
+        Relationships: []
       }
       waitlist: {
         Row: {
