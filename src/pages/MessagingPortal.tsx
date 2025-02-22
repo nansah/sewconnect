@@ -1,21 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { CalendarIcon, Paperclip, Image, Ruler, Send, BookOpen } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
+import { ChatHeader } from "@/components/messaging/ChatHeader";
+import { ChatMessages } from "@/components/messaging/ChatMessages";
+import { ChatInput } from "@/components/messaging/ChatInput";
 import {
   Message,
   Seamstress,
@@ -228,10 +225,6 @@ const MessagingPortal = () => {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInput(e.target.value);
-  };
-
   const handleSendMessage = async () => {
     if (!input.trim()) return;
 
@@ -372,6 +365,10 @@ const MessagingPortal = () => {
     // Add your order submission logic here
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInput(e.target.value);
+  };
+
   if (isLoading) {
     return <div className="flex justify-center items-center h-screen">Loading chat...</div>;
   }
@@ -379,103 +376,21 @@ const MessagingPortal = () => {
   return (
     <div className="min-h-screen bg-[#EBE2D3] py-6">
       <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
-        {/* Header Section */}
-        <div className="bg-accent p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Avatar>
-                <AvatarFallback>{seamstress.name[0]}</AvatarFallback>
-              </Avatar>
-              <div>
-                <h2 className="text-lg font-semibold text-white">{seamstress.name}</h2>
-                <p className="text-sm text-gray-200">Online</p>
-              </div>
-            </div>
-            <Button 
-              onClick={handleBookOrder}
-              className="bg-primary hover:bg-primary/90 text-white"
-            >
-              <BookOpen className="h-5 w-5 mr-2" />
-              Submit Order
-            </Button>
-          </div>
-        </div>
+        <ChatHeader seamstress={seamstress} />
+        
+        <ChatMessages 
+          messages={messages}
+          designToShare={designToShare}
+          containerRef={chatContainerRef}
+        />
 
-        {/* Chat Messages Section */}
-        <div ref={chatContainerRef} className="p-4 h-[500px] overflow-y-auto space-y-4">
-          {messages.map((message, index) => (
-            <div key={index} className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`rounded-xl px-4 py-2 ${message.sender === 'user' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-800'}`}>
-                {message.text}
-                {message.type === 'image' && designToShare?.imageUrl && (
-                  <img src={designToShare.imageUrl} alt="Shared Design" className="mt-2 max-w-full h-auto rounded-md" />
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Input and Actions Section */}
-        <div className="p-4 border-t border-gray-200">
-          <div className="flex items-center space-x-2">
-            <div className="flex space-x-2">
-              {/* Measurements Button */}
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={() => setIsMeasurementsOpen(true)}
-              >
-                <Ruler className="h-5 w-5" />
-              </Button>
-
-              {/* Delivery Timeframe Button */}
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={() => setIsDeliveryTimeframeOpen(true)}
-              >
-                <CalendarIcon className="h-5 w-5" />
-              </Button>
-
-              {/* Photo Upload Button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => document.getElementById('photo-upload')?.click()}
-              >
-                <Image className="h-5 w-5" />
-                <input
-                  id="photo-upload"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    if (e.target.files && e.target.files[0]) {
-                      // Handle photo upload
-                      const file = e.target.files[0];
-                      // You can implement the photo upload logic here
-                      toast({
-                        title: "Photo Upload",
-                        description: "Photo upload functionality will be implemented soon.",
-                      });
-                    }
-                  }}
-                />
-              </Button>
-            </div>
-
-            <Input
-              type="text"
-              placeholder="Type your message here..."
-              value={input}
-              onChange={handleInputChange}
-              className="flex-grow rounded-full py-2 px-4 border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-            <Button onClick={handleSendMessage} variant="ghost" size="icon">
-              <Send className="h-5 w-5" />
-            </Button>
-          </div>
-        </div>
+        <ChatInput 
+          input={input}
+          onInputChange={handleInputChange}
+          onSendMessage={handleSendMessage}
+          onMeasurementsClick={() => setIsMeasurementsOpen(true)}
+          onDeliveryTimeframeClick={() => setIsDeliveryTimeframeOpen(true)}
+        />
 
         {/* Measurements Modal */}
         <Popover open={isMeasurementsOpen} onOpenChange={setIsMeasurementsOpen}>
