@@ -1,13 +1,13 @@
-
 import { Card } from "../components/ui/card";
 import { Progress } from "../components/ui/progress";
 import { 
-  BarChart, 
+  BarChart as BarChartIcon, 
   Users, 
   ListChecks, 
   Clock,
   ChevronRight,
-  Edit
+  Edit,
+  Calendar
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -15,6 +15,26 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { format, subMonths, startOfYear, endOfYear, parseISO } from "date-fns";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer
+} from 'recharts';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const SeamstressDashboard = () => {
   const navigate = useNavigate();
@@ -29,12 +49,85 @@ const SeamstressDashboard = () => {
   });
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [dateFilter, setDateFilter] = useState('month'); // 'year', 'month', 'week'
+  const [salesData, setSalesData] = useState([]);
 
   useEffect(() => {
     checkAuth();
     fetchProfile();
     fetchOrders();
   }, []);
+
+  useEffect(() => {
+    if (orders.length > 0) {
+      processOrdersData();
+    }
+  }, [orders, dateFilter]);
+
+  const processOrdersData = () => {
+    let filteredOrders = [...orders];
+    let data = [];
+
+    switch (dateFilter) {
+      case 'year':
+        // Group by month for the current year
+        const startDate = startOfYear(new Date());
+        const endDate = endOfYear(new Date());
+        filteredOrders = orders.filter(order => {
+          const orderDate = parseISO(order.created_at);
+          return orderDate >= startDate && orderDate <= endDate;
+        });
+
+        // Create monthly data points
+        for (let i = 0; i < 12; i++) {
+          const monthOrders = filteredOrders.filter(order => 
+            parseISO(order.created_at).getMonth() === i
+          );
+          const totalSales = monthOrders.reduce((sum, order) => {
+            const price = order.conversation?.orderDetails?.price || "0";
+            return sum + parseInt(price.replace(/\D/g, ''));
+          }, 0);
+
+          data.push({
+            name: format(new Date(2024, i), 'MMM'),
+            sales: totalSales
+          });
+        }
+        break;
+
+      case 'month':
+        // Group by week for the current month
+        const lastMonth = subMonths(new Date(), 1);
+        filteredOrders = orders.filter(order => 
+          parseISO(order.created_at) >= lastMonth
+        );
+
+        // Create weekly data points
+        for (let i = 0; i < 4; i++) {
+          const weekOrders = filteredOrders.filter(order => {
+            const orderDate = parseISO(order.created_at);
+            const weekOfMonth = Math.floor((orderDate.getDate() - 1) / 7);
+            return weekOfMonth === i;
+          });
+
+          const totalSales = weekOrders.reduce((sum, order) => {
+            const price = order.conversation?.orderDetails?.price || "0";
+            return sum + parseInt(price.replace(/\D/g, ''));
+          }, 0);
+
+          data.push({
+            name: `Week ${i + 1}`,
+            sales: totalSales
+          });
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    setSalesData(data);
+  };
 
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -154,6 +247,11 @@ const SeamstressDashboard = () => {
     </div>;
   }
 
+  const totalSales = orders.reduce((sum, order) => {
+    const price = order.conversation?.orderDetails?.price || "0";
+    return sum + parseInt(price.replace(/\D/g, ''));
+  }, 0);
+
   const queueOrders = orders.filter(order => order.status === 'queued');
   const progressOrders = orders.filter(order => order.status === 'in_progress');
   const totalOrders = orders.length;
@@ -161,26 +259,32 @@ const SeamstressDashboard = () => {
   const queuePercentage = totalOrders ? (queueOrders.length / totalOrders) * 100 : 0;
   const progressPercentage = totalOrders ? (progressOrders.length / totalOrders) * 100 : 0;
 
-  // Calculate total progress for orders in progress
-  const totalProgress = progressOrders.length > 0 
-    ? progressOrders.reduce((sum, order) => {
-        const conversation = order.conversation || {};
-        return sum + (conversation.progress || 0);
-      }, 0) / progressOrders.length 
-    : 0;
-
   return (
     <div className="min-h-screen bg-[#EBE2D3] p-8">
       <div className="max-w-7xl mx-auto space-y-8">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold text-gray-800">Seamstress Dashboard</h1>
-          <Button 
-            onClick={() => setIsEditing(!isEditing)}
-            className="bg-accent hover:bg-accent/90 text-white"
-          >
-            <Edit className="w-4 h-4 mr-2" />
-            {isEditing ? "Cancel Editing" : "Edit Profile"}
-          </Button>
+          <div className="flex gap-4">
+            <Select value={dateFilter} onValueChange={setDateFilter}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select time period" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Time Period</SelectLabel>
+                  <SelectItem value="year">This Year</SelectItem>
+                  <SelectItem value="month">Last Month</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            <Button 
+              onClick={() => setIsEditing(!isEditing)}
+              className="bg-accent hover:bg-accent/90 text-white"
+            >
+              <Edit className="w-4 h-4 mr-2" />
+              {isEditing ? "Cancel Editing" : "Edit Profile"}
+            </Button>
+          </div>
         </div>
 
         {/* Profile Edit Form */}
@@ -226,16 +330,11 @@ const SeamstressDashboard = () => {
           <Card className="p-6 hover:shadow-xl transition-all duration-200 bg-white border-none">
             <div className="flex items-center gap-4">
               <div className="bg-primary/10 p-4 rounded-xl">
-                <BarChart className="w-7 h-7 text-primary" />
+                <BarChartIcon className="w-7 h-7 text-primary" />
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">Total Sales</p>
-                <p className="text-3xl font-bold text-gray-800">
-                  ${orders.reduce((sum, order) => {
-                    const price = order.conversation?.orderDetails?.price || "0";
-                    return sum + parseInt(price.replace(/\D/g, ''));
-                  }, 0)}
-                </p>
+                <p className="text-3xl font-bold text-gray-800">${totalSales}</p>
               </div>
             </div>
           </Card>
@@ -287,6 +386,22 @@ const SeamstressDashboard = () => {
           </Card>
         </div>
 
+        {/* Sales Chart */}
+        <Card className="p-6 bg-white border-none shadow-lg">
+          <h2 className="text-xl font-semibold mb-6">Sales Overview</h2>
+          <div className="h-[400px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={salesData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="sales" fill="#2563eb" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+
         {/* Orders Tables */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Queue Table */}
@@ -327,9 +442,9 @@ const SeamstressDashboard = () => {
               <div className="text-right">
                 <div className="mb-2">
                   <span className="text-sm font-medium text-gray-600">Total Progress</span>
-                  <span className="ml-2 text-lg font-bold text-primary">{totalProgress.toFixed(0)}%</span>
+                  <span className="ml-2 text-lg font-bold text-primary">{0}%</span>
                 </div>
-                <Progress value={totalProgress} className="w-32 h-2" />
+                <Progress value={0} className="w-32 h-2" />
               </div>
             </div>
             <div className="space-y-4">
