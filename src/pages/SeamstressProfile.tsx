@@ -20,10 +20,34 @@ interface LocationState {
   };
 }
 
+const DEMO_REVIEWS: Review[] = [
+  {
+    id: "1",
+    customer_name: "Emily Watson",
+    rating: 5,
+    review_text: "Amazing work on my wedding dress alterations! Professional, timely, and exceeded my expectations.",
+    created_at: "2024-02-15T10:00:00Z"
+  },
+  {
+    id: "2",
+    customer_name: "Sarah Chen",
+    rating: 5,
+    review_text: "Incredible attention to detail. Made my dream dress come true!",
+    created_at: "2024-02-10T15:30:00Z"
+  },
+  {
+    id: "3",
+    customer_name: "Maria Garcia",
+    rating: 4,
+    review_text: "Very professional and skilled. Would definitely recommend!",
+    created_at: "2024-02-05T09:15:00Z"
+  }
+];
+
 const SeamstressProfile = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviews, setReviews] = useState<Review[]>(DEMO_REVIEWS);
   const { seamstress } = (location.state as LocationState) || {
     seamstress: {
       id: "",
@@ -41,26 +65,17 @@ const SeamstressProfile = () => {
   }, [seamstress.id]);
 
   const fetchReviews = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
+    try {
+      const { data, error } = await supabase
+        .from('seamstress_reviews')
+        .select('*')
+        .eq('seamstress_id', seamstress.id);
 
-    const { data, error } = await supabase
-      .from('seamstress_profiles')
-      .select(`
-        id,
-        reviews:seamstress_reviews(
-          id,
-          customer_name,
-          rating,
-          review_text,
-          created_at
-        )
-      `)
-      .eq('id', seamstress.id)
-      .single();
-
-    if (!error && data?.reviews) {
-      setReviews(data.reviews as Review[]);
+      if (!error && data && data.length > 0) {
+        setReviews(data as Review[]);
+      }
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
     }
   };
 

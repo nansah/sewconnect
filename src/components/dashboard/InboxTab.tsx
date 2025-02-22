@@ -9,8 +9,41 @@ import { MessageCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { ConversationMessage } from "@/types/messaging";
 
+const DEMO_CONVERSATIONS: ConversationMessage[] = [
+  {
+    conversation_id: "demo-1",
+    messages: [
+      {
+        text: "Hi, I'm interested in getting a dress made for a wedding.",
+        sender: "user",
+        created_at: new Date(Date.now() - 3600000).toISOString(),
+        type: "text"
+      }
+    ],
+    created_at: new Date(Date.now() - 3600000).toISOString(),
+    updated_at: new Date(Date.now() - 3600000).toISOString(),
+    status: "active",
+    customer_name: "Emily Watson"
+  },
+  {
+    conversation_id: "demo-2",
+    messages: [
+      {
+        text: "Could you help me with alterations for my prom dress?",
+        sender: "user",
+        created_at: new Date(Date.now() - 7200000).toISOString(),
+        type: "text"
+      }
+    ],
+    created_at: new Date(Date.now() - 7200000).toISOString(),
+    updated_at: new Date(Date.now() - 7200000).toISOString(),
+    status: "active",
+    customer_name: "Sarah Chen"
+  }
+];
+
 export const InboxTab = () => {
-  const [conversations, setConversations] = useState<ConversationMessage[]>([]);
+  const [conversations, setConversations] = useState<ConversationMessage[]>(DEMO_CONVERSATIONS);
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -24,22 +57,18 @@ export const InboxTab = () => {
 
     const { data, error } = await supabase
       .from('conversations')
-      .select(`
-        id as conversation_id,
-        messages,
-        created_at,
-        updated_at,
-        status,
-        user_id,
-        profiles!inner(first_name, last_name)
-      `)
+      .select('*, profiles:profiles(*)')
       .eq('seamstress_id', session.user.id);
 
     if (!error && data) {
-      const formattedConversations = data.map(conv => ({
-        ...conv,
-        customer_name: `${conv.profiles.first_name} ${conv.profiles.last_name}`,
-      })) as ConversationMessage[];
+      const formattedConversations: ConversationMessage[] = data.map(conv => ({
+        conversation_id: conv.id,
+        messages: conv.messages || [],
+        created_at: conv.created_at,
+        updated_at: conv.updated_at,
+        status: conv.status,
+        customer_name: `${conv.profiles.first_name} ${conv.profiles.last_name}`
+      }));
       
       setConversations(formattedConversations);
     }

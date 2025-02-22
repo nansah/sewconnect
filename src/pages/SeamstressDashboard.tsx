@@ -1,5 +1,5 @@
 import { Card } from "../components/ui/card";
-import { Edit } from "lucide-react";
+import { Edit, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -329,6 +329,14 @@ const SeamstressDashboard = () => {
             >
               <Edit className="w-4 h-4 mr-2" />
               {isEditing ? "Cancel Editing" : "Edit Profile"}
+            </Button>
+            <Button 
+              onClick={() => document.querySelector('[value="inbox"]')?.click()}
+              className="bg-primary hover:bg-primary/90"
+              variant="default"
+            >
+              <MessageCircle className="w-4 h-4 mr-2" />
+              Inbox
             </Button>
           </div>
         </div>
