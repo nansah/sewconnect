@@ -36,6 +36,59 @@ import {
 } from 'recharts';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+const DEMO_ORDERS = [
+  {
+    id: 'demo-1',
+    customer_name: 'Sarah Johnson',
+    status: 'queued',
+    created_at: '2024-03-15T10:00:00.000Z',
+    conversation: {
+      orderDetails: { price: '$250' },
+      progress: 0
+    }
+  },
+  {
+    id: 'demo-2',
+    customer_name: 'Emily Davis',
+    status: 'in_progress',
+    created_at: '2024-03-10T15:30:00.000Z',
+    conversation: {
+      orderDetails: { price: '$350' },
+      progress: 45
+    }
+  },
+  {
+    id: 'demo-3',
+    customer_name: 'Maria Garcia',
+    status: 'queued',
+    created_at: '2024-03-08T09:15:00.000Z',
+    conversation: {
+      orderDetails: { price: '$180' },
+      progress: 0
+    }
+  },
+  {
+    id: 'demo-4',
+    customer_name: 'Jessica Taylor',
+    status: 'in_progress',
+    created_at: '2024-02-28T14:20:00.000Z',
+    conversation: {
+      orderDetails: { price: '$420' },
+      progress: 75
+    }
+  },
+  {
+    id: 'demo-5',
+    customer_name: 'Linda Wilson',
+    status: 'in_progress',
+    created_at: '2024-02-25T11:45:00.000Z',
+    conversation: {
+      orderDetails: { price: '$290' },
+      progress: 90
+    }
+  }
+];
+
 const SeamstressDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -204,7 +257,8 @@ const SeamstressDashboard = () => {
       return;
     }
 
-    setOrders(data || []);
+    // Use demo data if no orders are found
+    setOrders(data?.length ? data : DEMO_ORDERS);
     setLoading(false);
   };
 
