@@ -18,10 +18,22 @@ const DEMO_CONVERSATIONS: ConversationMessage[] = [
         sender: "user",
         created_at: new Date(Date.now() - 3600000).toISOString(),
         type: "text"
+      },
+      {
+        text: "Hello! I'd be happy to help you with your wedding dress. What style are you looking for?",
+        sender: "seamstress",
+        created_at: new Date(Date.now() - 3500000).toISOString(),
+        type: "text"
+      },
+      {
+        text: "I'm looking for an A-line dress with lace details.",
+        sender: "user",
+        created_at: new Date(Date.now() - 3400000).toISOString(),
+        type: "text"
       }
     ],
     created_at: new Date(Date.now() - 3600000).toISOString(),
-    updated_at: new Date(Date.now() - 3600000).toISOString(),
+    updated_at: new Date(Date.now() - 3400000).toISOString(),
     status: "active",
     customer_name: "Emily Watson"
   },
@@ -33,10 +45,22 @@ const DEMO_CONVERSATIONS: ConversationMessage[] = [
         sender: "user",
         created_at: new Date(Date.now() - 7200000).toISOString(),
         type: "text"
+      },
+      {
+        text: "Of course! What kind of alterations do you need?",
+        sender: "seamstress",
+        created_at: new Date(Date.now() - 7100000).toISOString(),
+        type: "text"
+      },
+      {
+        text: "The dress is a bit long and needs to be taken in at the waist.",
+        sender: "user",
+        created_at: new Date(Date.now() - 7000000).toISOString(),
+        type: "text"
       }
     ],
     created_at: new Date(Date.now() - 7200000).toISOString(),
-    updated_at: new Date(Date.now() - 7200000).toISOString(),
+    updated_at: new Date(Date.now() - 7000000).toISOString(),
     status: "active",
     customer_name: "Sarah Chen"
   }
@@ -85,7 +109,12 @@ export const MessagesDialog = ({ open, onOpenChange }: MessagesDialogProps) => {
 
           return {
             conversation_id: conv.id,
-            messages: (conv.messages || []) as Message[],
+            messages: (conv.messages as any[] || []).map(msg => ({
+              text: msg.text || '',
+              sender: msg.sender || 'user',
+              type: msg.type || 'text',
+              created_at: msg.created_at || new Date().toISOString()
+            })),
             created_at: conv.created_at,
             updated_at: conv.updated_at,
             status: conv.status,
