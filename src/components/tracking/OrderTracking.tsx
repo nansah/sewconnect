@@ -20,6 +20,9 @@ interface StatusUpdate {
 
 interface OrderWithSeamstress extends Order {
   seamstress_name?: string;
+  seamstress?: {
+    name: string;
+  };
 }
 
 export const OrderTracking = () => {
@@ -55,7 +58,7 @@ export const OrderTracking = () => {
         updated_at,
         customer_name,
         measurements,
-        seamstress_profile:seamstress_profiles(name)
+        seamstress:seamstress_profiles(name)
       `)
       .eq('id', orderId)
       .single();
@@ -63,7 +66,7 @@ export const OrderTracking = () => {
     if (!error && data) {
       setOrder({
         ...data,
-        seamstress_name: data.seamstress_profile?.name
+        seamstress_name: data.seamstress?.name
       });
       if (data.delivered_at) {
         const reviewDate = addDays(new Date(data.delivered_at), 3);

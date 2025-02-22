@@ -3,27 +3,18 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Calendar } from "@/components/ui/calendar"
+import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
-import { CalendarIcon, Paperclip, CheckCircle, Send } from "lucide-react";
+} from "@/components/ui/popover";
+import { CalendarIcon, Paperclip, Image, Ruler, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardHeader, CardContent } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { useToast } from "@/components/ui/use-toast"
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Message,
@@ -410,127 +401,52 @@ const MessagingPortal = () => {
         {/* Input and Actions Section */}
         <div className="p-4 border-t border-gray-200">
           <div className="flex items-center space-x-2">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Paperclip className="h-5 w-5 rotate-45" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-80">
-                <Accordion type="single" collapsible>
-                  <AccordionItem value="measurements">
-                    <AccordionTrigger>Measurements</AccordionTrigger>
-                    <AccordionContent>
-                      <Card>
-                        <CardHeader>
-                          <h4 className="text-sm font-medium">Enter Measurements</h4>
-                        </CardHeader>
-                        <CardContent className="grid gap-4">
-                          <div className="flex flex-col space-y-1.5">
-                            <label htmlFor="bust">Bust</label>
-                            <Input id="bust" placeholder="Enter bust size" value={measurements.bust} onChange={(e) => setMeasurements({ ...measurements, bust: e.target.value })} />
-                          </div>
-                          <div className="flex flex-col space-y-1.5">
-                            <label htmlFor="waist">Waist</label>
-                            <Input id="waist" placeholder="Enter waist size" value={measurements.waist} onChange={(e) => setMeasurements({ ...measurements, waist: e.target.value })} />
-                          </div>
-                          <div className="flex flex-col space-y-1.5">
-                            <label htmlFor="hips">Hips</label>
-                            <Input id="hips" placeholder="Enter hips size" value={measurements.hips} onChange={(e) => setMeasurements({ ...measurements, hips: e.target.value })} />
-                          </div>
-                          <div className="flex flex-col space-y-1.5">
-                            <label htmlFor="height">Height</label>
-                            <Input id="height" placeholder="Enter height" value={measurements.height} onChange={(e) => setMeasurements({ ...measurements, height: e.target.value })} />
-                          </div>
-                          <div className="flex flex-col space-y-1.5">
-                            <label htmlFor="shoulderToWaist">Shoulder to Waist</label>
-                            <Input id="shoulderToWaist" placeholder="Enter shoulder to waist" value={measurements.shoulderToWaist} onChange={(e) => setMeasurements({ ...measurements, shoulderToWaist: e.target.value })} />
-                          </div>
-                          <div className="flex flex-col space-y-1.5">
-                            <label htmlFor="waistToKnee">Waist to Knee</label>
-                            <Input id="waistToKnee" placeholder="Enter waist to knee" value={measurements.waistToKnee} onChange={(e) => setMeasurements({ ...measurements, waistToKnee: e.target.value })} />
-                          </div>
-                          <Button onClick={handleMeasurementsSubmit}>Submit Measurements</Button>
-                        </CardContent>
-                      </Card>
-                    </AccordionContent>
-                  </AccordionItem>
-                  <AccordionItem value="delivery">
-                    <AccordionTrigger>Delivery Timeframe</AccordionTrigger>
-                    <AccordionContent>
-                      <Card>
-                        <CardHeader>
-                          <h4 className="text-sm font-medium">Select Delivery Timeframe</h4>
-                        </CardHeader>
-                        <CardContent className="grid gap-4">
-                          <div className="flex flex-col space-y-1.5">
-                            <label htmlFor="deliveryDate">Delivery Date</label>
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <Button
-                                  variant={"outline"}
-                                  className={cn(
-                                    "w-[240px] justify-start text-left font-normal",
-                                    !deliveryTimeframe.date && "text-muted-foreground"
-                                  )}
-                                >
-                                  <CalendarIcon className="mr-2 h-4 w-4" />
-                                  {deliveryTimeframe.date ? format(deliveryTimeframe.date, "PPP") : <span>Pick a date</span>}
-                                </Button>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-auto p-0" align="center">
-                                <Calendar
-                                  mode="single"
-                                  selected={deliveryTimeframe.date}
-                                  onSelect={(date) => setDeliveryTimeframe({ ...deliveryTimeframe, date: date || new Date() })}
-                                  disabled={(date) =>
-                                    date < new Date()
-                                  }
-                                  className="rounded-md border"
-                                />
-                              </PopoverContent>
-                            </Popover>
-                          </div>
-                          <div className="flex flex-col space-y-1.5">
-                            <label htmlFor="urgency">Urgency</label>
-                            <select
-                              id="urgency"
-                              className="w-full rounded-md border border-gray-200 px-3 py-2 shadow-sm focus:border-primary focus:ring-primary focus:ring-offset-1"
-                              value={deliveryTimeframe.urgency}
-                              onChange={(e) => setDeliveryTimeframe({ ...deliveryTimeframe, urgency: e.target.value as "standard" | "rush" | "express" })}
-                            >
-                              <option value="standard">Standard</option>
-                              <option value="rush">Rush</option>
-                              <option value="express">Express</option>
-                            </select>
-                          </div>
-                          <Button onClick={handleDeliveryTimeframeSubmit}>Submit Delivery Timeframe</Button>
-                        </CardContent>
-                      </Card>
-                    </AccordionContent>
-                  </AccordionItem>
-                  {designToShare && (
-                    <AccordionItem value="design">
-                      <AccordionTrigger>Share Design</AccordionTrigger>
-                      <AccordionContent>
-                        <Card>
-                          <CardHeader>
-                            <h4 className="text-sm font-medium">Share Design Details</h4>
-                          </CardHeader>
-                          <CardContent className="grid gap-4">
-                            <div className="flex flex-col space-y-1.5">
-                              <img src={designToShare.imageUrl} alt="Design Preview" className="max-w-full h-auto rounded-md" />
-                              <p className="text-sm">{designToShare.description}</p>
-                            </div>
-                            <Button onClick={handleShareDesign}>Share Design</Button>
-                          </CardContent>
-                        </Card>
-                      </AccordionContent>
-                    </AccordionItem>
-                  )}
-                </Accordion>
-              </PopoverContent>
-            </Popover>
+            <div className="flex space-x-2">
+              {/* Measurements Button */}
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => setIsMeasurementsOpen(true)}
+              >
+                <Ruler className="h-5 w-5" />
+              </Button>
+
+              {/* Delivery Timeframe Button */}
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => setIsDeliveryTimeframeOpen(true)}
+              >
+                <CalendarIcon className="h-5 w-5" />
+              </Button>
+
+              {/* Photo Upload Button */}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => document.getElementById('photo-upload')?.click()}
+              >
+                <Image className="h-5 w-5" />
+                <input
+                  id="photo-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      // Handle photo upload
+                      const file = e.target.files[0];
+                      // You can implement the photo upload logic here
+                      toast({
+                        title: "Photo Upload",
+                        description: "Photo upload functionality will be implemented soon.",
+                      });
+                    }
+                  }}
+                />
+              </Button>
+            </div>
+
             <Input
               type="text"
               placeholder="Type your message here..."
@@ -543,6 +459,81 @@ const MessagingPortal = () => {
             </Button>
           </div>
         </div>
+
+        {/* Measurements Modal */}
+        <Popover open={isMeasurementsOpen} onOpenChange={setIsMeasurementsOpen}>
+          <PopoverContent className="w-80">
+            <Card>
+              <CardHeader>
+                <h4 className="text-sm font-medium">Enter Measurements</h4>
+              </CardHeader>
+              <CardContent className="grid gap-4">
+                <div className="flex flex-col space-y-1.5">
+                  <label htmlFor="bust">Bust</label>
+                  <Input id="bust" placeholder="Enter bust size" value={measurements.bust} onChange={(e) => setMeasurements({ ...measurements, bust: e.target.value })} />
+                </div>
+                <div className="flex flex-col space-y-1.5">
+                  <label htmlFor="waist">Waist</label>
+                  <Input id="waist" placeholder="Enter waist size" value={measurements.waist} onChange={(e) => setMeasurements({ ...measurements, waist: e.target.value })} />
+                </div>
+                <div className="flex flex-col space-y-1.5">
+                  <label htmlFor="hips">Hips</label>
+                  <Input id="hips" placeholder="Enter hips size" value={measurements.hips} onChange={(e) => setMeasurements({ ...measurements, hips: e.target.value })} />
+                </div>
+                <div className="flex flex-col space-y-1.5">
+                  <label htmlFor="height">Height</label>
+                  <Input id="height" placeholder="Enter height" value={measurements.height} onChange={(e) => setMeasurements({ ...measurements, height: e.target.value })} />
+                </div>
+                <div className="flex flex-col space-y-1.5">
+                  <label htmlFor="shoulderToWaist">Shoulder to Waist</label>
+                  <Input id="shoulderToWaist" placeholder="Enter shoulder to waist" value={measurements.shoulderToWaist} onChange={(e) => setMeasurements({ ...measurements, shoulderToWaist: e.target.value })} />
+                </div>
+                <div className="flex flex-col space-y-1.5">
+                  <label htmlFor="waistToKnee">Waist to Knee</label>
+                  <Input id="waistToKnee" placeholder="Enter waist to knee" value={measurements.waistToKnee} onChange={(e) => setMeasurements({ ...measurements, waistToKnee: e.target.value })} />
+                </div>
+                <Button onClick={handleMeasurementsSubmit}>Submit Measurements</Button>
+              </CardContent>
+            </Card>
+          </PopoverContent>
+        </Popover>
+
+        {/* Delivery Timeframe Modal */}
+        <Popover open={isDeliveryTimeframeOpen} onOpenChange={setIsDeliveryTimeframeOpen}>
+          <PopoverContent className="w-80">
+            <Card>
+              <CardHeader>
+                <h4 className="text-sm font-medium">Select Delivery Timeframe</h4>
+              </CardHeader>
+              <CardContent className="grid gap-4">
+                <div className="flex flex-col space-y-1.5">
+                  <label>Delivery Date</label>
+                  <Calendar
+                    mode="single"
+                    selected={deliveryTimeframe.date}
+                    onSelect={(date) => setDeliveryTimeframe({ ...deliveryTimeframe, date: date || new Date() })}
+                    disabled={(date) => date < new Date()}
+                    className="rounded-md border"
+                  />
+                </div>
+                <div className="flex flex-col space-y-1.5">
+                  <label htmlFor="urgency">Urgency</label>
+                  <select
+                    id="urgency"
+                    className="w-full rounded-md border border-gray-200 px-3 py-2"
+                    value={deliveryTimeframe.urgency}
+                    onChange={(e) => setDeliveryTimeframe({ ...deliveryTimeframe, urgency: e.target.value as "standard" | "rush" | "express" })}
+                  >
+                    <option value="standard">Standard</option>
+                    <option value="rush">Rush</option>
+                    <option value="express">Express</option>
+                  </select>
+                </div>
+                <Button onClick={handleDeliveryTimeframeSubmit}>Submit Timeframe</Button>
+              </CardContent>
+            </Card>
+          </PopoverContent>
+        </Popover>
       </div>
     </div>
   );
