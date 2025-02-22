@@ -367,9 +367,9 @@ const MessagingPortal = () => {
   const handleBookOrder = () => {
     toast({
       title: "Order Confirmation",
-      description: "Your order has been booked successfully!",
+      description: "Your order has been submitted successfully!",
     });
-    // Add your order booking logic here
+    // Add your order submission logic here
   };
 
   if (isLoading) {
@@ -396,7 +396,7 @@ const MessagingPortal = () => {
               className="bg-primary hover:bg-primary/90 text-white"
             >
               <BookOpen className="h-5 w-5 mr-2" />
-              Book Order
+              Submit Order
             </Button>
           </div>
         </div>
