@@ -2,9 +2,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Star } from "lucide-react";
+import { Star, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { Input } from "@/components/ui/input";
 
 interface ReviewFormProps {
   orderId: string;
@@ -16,8 +17,38 @@ interface ReviewFormProps {
 export const ReviewForm = ({ orderId, seamstressId, seamstressName, onReviewSubmitted }: ReviewFormProps) => {
   const [rating, setRating] = useState(5);
   const [reviewText, setReviewText] = useState("");
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setPhoto(file);
+      setPhotoPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const uploadPhoto = async (file: File): Promise<string> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random()}.${fileExt}`;
+    const filePath = `review-photos/${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('review-photos')
+      .upload(filePath, file);
+
+    if (uploadError) {
+      throw uploadError;
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('review-photos')
+      .getPublicUrl(filePath);
+
+    return publicUrl;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,6 +67,11 @@ export const ReviewForm = ({ orderId, seamstressId, seamstressName, onReviewSubm
       if (profileError) throw profileError;
 
       const customerName = `${profileData.first_name} ${profileData.last_name}`;
+      let photoUrl = null;
+
+      if (photo) {
+        photoUrl = await uploadPhoto(photo);
+      }
 
       const { error } = await supabase
         .from('seamstress_reviews')
@@ -45,7 +81,8 @@ export const ReviewForm = ({ orderId, seamstressId, seamstressName, onReviewSubm
           customer_name: customerName,
           order_id: orderId,
           rating,
-          review_text: reviewText
+          review_text: reviewText,
+          photo_url: photoUrl
         });
 
       if (error) throw error;
@@ -103,6 +140,27 @@ export const ReviewForm = ({ orderId, seamstressId, seamstressName, onReviewSubm
           required
           className="h-32"
         />
+      </div>
+
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">
+          Add a Photo (Optional)
+        </label>
+        <Input
+          type="file"
+          accept="image/*"
+          onChange={handlePhotoChange}
+          className="w-full"
+        />
+        {photoPreview && (
+          <div className="mt-2">
+            <img
+              src={photoPreview}
+              alt="Review photo preview"
+              className="max-w-xs rounded-lg"
+            />
+          </div>
+        )}
       </div>
 
       <Button 

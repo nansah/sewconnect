@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -5,6 +6,7 @@ import { Package, Truck, Clock, CheckCircle, AlertCircle } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { ReviewForm } from "@/components/reviews/ReviewForm";
+import { addDays, isPast } from "date-fns";
 
 interface StatusUpdate {
   id: string;
@@ -20,6 +22,7 @@ interface Order {
   id: string;
   status: string;
   seamstress_id: string;
+  delivered_at: string | null;
   seamstress_profile?: {
     name: string;
   }
@@ -30,6 +33,7 @@ export const OrderTracking = () => {
   const [statusUpdates, setStatusUpdates] = useState<StatusUpdate[]>([]);
   const [order, setOrder] = useState<Order | null>(null);
   const [hasReviewed, setHasReviewed] = useState(false);
+  const [canReview, setCanReview] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -48,7 +52,10 @@ export const OrderTracking = () => {
     const { data, error } = await supabase
       .from('orders')
       .select(`
-        *,
+        id,
+        status,
+        seamstress_id,
+        delivered_at,
         seamstress_profile:seamstress_profiles(name)
       `)
       .eq('id', orderId)
@@ -56,6 +63,11 @@ export const OrderTracking = () => {
 
     if (!error && data) {
       setOrder(data);
+      // Check if 3 days have passed since delivery
+      if (data.delivered_at) {
+        const reviewDate = addDays(new Date(data.delivered_at), 3);
+        setCanReview(isPast(reviewDate));
+      }
     }
 
     // For demo purposes, we'll create sample status updates
@@ -107,26 +119,11 @@ export const OrderTracking = () => {
     }
   };
 
-  const renderStatusIcon = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return <CheckCircle className="w-6 h-6 text-green-500" />;
-      case 'in_production':
-        return <Package className="w-6 h-6 text-blue-500" />;
-      case 'in_transit':
-        return <Truck className="w-6 h-6 text-purple-500" />;
-      case 'delayed':
-        return <AlertCircle className="w-6 h-6 text-red-500" />;
-      default:
-        return <Clock className="w-6 h-6 text-gray-500" />;
-    }
-  };
-
   if (loading) {
     return <div>Loading...</div>;
   }
 
-  const isCompleted = order?.status === 'completed';
+  const isDelivered = order?.delivered_at && isPast(new Date(order.delivered_at));
 
   return (
     <div className="max-w-4xl mx-auto py-8 px-4">
@@ -162,7 +159,7 @@ export const OrderTracking = () => {
           ))}
         </div>
 
-        {isCompleted && !hasReviewed && order && (
+        {isDelivered && canReview && !hasReviewed && order && (
           <div className="mt-8 border-t pt-8">
             <h3 className="text-xl font-semibold mb-4">Leave a Review</h3>
             <ReviewForm
@@ -174,7 +171,15 @@ export const OrderTracking = () => {
           </div>
         )}
 
-        {isCompleted && hasReviewed && (
+        {isDelivered && !canReview && !hasReviewed && (
+          <div className="mt-8 border-t pt-8">
+            <p className="text-gray-600">
+              You will be able to leave a review 3 days after delivery. This helps ensure fair and thoughtful reviews.
+            </p>
+          </div>
+        )}
+
+        {hasReviewed && (
           <div className="mt-8 border-t pt-8">
             <p className="text-green-600 font-medium">
               Thank you for your review!
@@ -185,3 +190,19 @@ export const OrderTracking = () => {
     </div>
   );
 };
+
+const renderStatusIcon = (status: string) => {
+  switch (status) {
+    case 'completed':
+      return <CheckCircle className="w-6 h-6 text-green-500" />;
+    case 'in_production':
+      return <Package className="w-6 h-6 text-blue-500" />;
+    case 'in_transit':
+      return <Truck className="w-6 h-6 text-purple-500" />;
+    case 'delayed':
+      return <AlertCircle className="w-6 h-6 text-red-500" />;
+    default:
+      return <Clock className="w-6 h-6 text-gray-500" />;
+  }
+};
+
