@@ -213,8 +213,6 @@ const Forum = () => {
 
   return (
     <div className="min-h-screen bg-[#EBE2D3]">
-      <Header />
-      
       <GroupBanner 
         name={groupInfo.name}
         members={groupInfo.members}
