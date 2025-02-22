@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 
 interface Seamstress {
@@ -99,10 +98,10 @@ export const FilterSection = ({ onFilterChange, seamstresses }: FilterSectionPro
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex gap-6 flex-wrap items-center">
+    <div className="space-y-4 w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
         <select
-          className="px-4 py-2 rounded-md border-2 border-primary/30 focus:outline-none focus:border-primary bg-secondary/10 min-w-[160px] shadow-sm hover:border-primary/50 transition-colors"
+          className="px-4 py-2 rounded-md border-2 border-primary/30 focus:outline-none focus:border-primary bg-secondary/10 w-full shadow-sm hover:border-primary/50 transition-colors"
           value={priceRange}
           onChange={(e) => handleFilterChange("priceRange", e.target.value)}
         >
@@ -113,7 +112,7 @@ export const FilterSection = ({ onFilterChange, seamstresses }: FilterSectionPro
         </select>
         
         <select
-          className="px-4 py-2 rounded-md border-2 border-primary/30 focus:outline-none focus:border-primary bg-secondary/10 min-w-[200px] shadow-sm hover:border-primary/50 transition-colors"
+          className="px-4 py-2 rounded-md border-2 border-primary/30 focus:outline-none focus:border-primary bg-secondary/10 w-full shadow-sm hover:border-primary/50 transition-colors"
           value={specialty}
           onChange={(e) => handleFilterChange("specialty", e.target.value)}
         >
@@ -126,7 +125,7 @@ export const FilterSection = ({ onFilterChange, seamstresses }: FilterSectionPro
         </select>
         
         <select
-          className="px-4 py-2 rounded-md border-2 border-primary/30 focus:outline-none focus:border-primary bg-secondary/10 min-w-[180px] shadow-sm hover:border-primary/50 transition-colors"
+          className="px-4 py-2 rounded-md border-2 border-primary/30 focus:outline-none focus:border-primary bg-secondary/10 w-full shadow-sm hover:border-primary/50 transition-colors"
           value={location}
           onChange={(e) => handleFilterChange("location", e.target.value)}
         >
