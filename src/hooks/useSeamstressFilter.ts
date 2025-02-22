@@ -18,6 +18,7 @@ export const useSeamstressFilter = (initialSeamstresses: Seamstress[] = []) => {
   const [seamstresses, setSeamstresses] = useState<Seamstress[]>(initialSeamstresses);
   const [filteredSeamstresses, setFilteredSeamstresses] = useState<Seamstress[]>(initialSeamstresses);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     if (initialSeamstresses.length > 0) {
@@ -37,14 +38,12 @@ export const useSeamstressFilter = (initialSeamstresses: Seamstress[] = []) => {
 
       if (seamstressError) throw seamstressError;
 
-      // Fetch active orders for each seamstress
       const { data: ordersData, error: ordersError } = await supabase
         .from('seamstress_active_orders')
         .select('*');
 
       if (ordersError) throw ordersError;
 
-      // Map the database fields to our Seamstress interface
       const combinedData: Seamstress[] = seamstressData.map(seamstress => ({
         id: seamstress.id,
         name: seamstress.name,
@@ -73,6 +72,16 @@ export const useSeamstressFilter = (initialSeamstresses: Seamstress[] = []) => {
   }) => {
     let filtered = [...seamstresses];
 
+    // Apply search term filter first
+    if (searchTerm) {
+      filtered = filtered.filter((seamstress) =>
+        seamstress.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        seamstress.specialty.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        seamstress.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Then apply other filters
     if (filters.priceRange) {
       filtered = filtered.filter((seamstress) => {
         const price = parseInt(seamstress.price.replace(/\D/g, ""));
@@ -99,10 +108,26 @@ export const useSeamstressFilter = (initialSeamstresses: Seamstress[] = []) => {
     setFilteredSeamstresses(filtered);
   };
 
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    let filtered = [...seamstresses];
+    
+    if (term) {
+      filtered = filtered.filter((seamstress) =>
+        seamstress.location.toLowerCase().includes(term.toLowerCase()) ||
+        seamstress.specialty.toLowerCase().includes(term.toLowerCase()) ||
+        seamstress.name.toLowerCase().includes(term.toLowerCase())
+      );
+    }
+    
+    setFilteredSeamstresses(filtered);
+  };
+
   return {
     seamstresses,
     filteredSeamstresses,
     loading,
     handleFilterChange,
+    handleSearch
   };
 };
