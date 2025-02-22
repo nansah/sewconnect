@@ -280,6 +280,117 @@ const MessagingPortal = () => {
     }
   };
 
+  const initializeConversation = async () => {
+    console.log("Initializing conversation with seamstress:", seamstress);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      console.log("No active session found");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      // For demo purposes, create a conversation with demo data
+      const isDemoSeamstress = seamstress.id === 'demo-seamstress-123';
+      
+      console.log("Fetching existing conversation...");
+      let existingConv;
+      
+      if (!isDemoSeamstress) {
+        const { data: convData, error: fetchError } = await supabase
+          .from('conversations')
+          .select('*')
+          .eq('user_id', session.user.id)
+          .eq('seamstress_id', seamstress.id)
+          .single();
+          
+        if (fetchError && fetchError.code !== 'PGRST116') {
+          throw fetchError;
+        }
+        existingConv = convData;
+      }
+
+      if (existingConv) {
+        console.log("Found existing conversation:", existingConv);
+        setConversationId(existingConv.id);
+        const convertedMessages = (existingConv.messages || []).map((msg: any) => ({
+          text: msg.text,
+          sender: msg.sender,
+          type: msg.type || 'text',
+          created_at: msg.created_at
+        }));
+        setMessages(convertedMessages);
+      } else {
+        console.log("Creating new conversation...");
+        const initialMessage = {
+          text: `Hello! I'm ${seamstress.name}. How can I help you today?`,
+          sender: "seamstress",
+          created_at: new Date().toISOString()
+        };
+
+        if (isDemoSeamstress) {
+          // For demo seamstress, just set the message without database interaction
+          setConversationId('demo-conversation');
+          setMessages([initialMessage]);
+        } else {
+          const { data: newConv, error: createError } = await supabase
+            .from('conversations')
+            .insert({
+              user_id: session.user.id,
+              seamstress_id: seamstress.id,
+              messages: [initialMessage]
+            })
+            .select()
+            .single();
+
+          if (createError) throw createError;
+
+          console.log("New conversation created:", newConv);
+          setConversationId(newConv.id);
+          setMessages([initialMessage]);
+        }
+      }
+
+      // Set up real-time updates for non-demo conversations
+      if (!isDemoSeamstress && existingConv?.id) {
+        const channel = supabase
+          .channel(`conversation-${existingConv.id}`)
+          .on(
+            'postgres_changes',
+            {
+              event: 'UPDATE',
+              schema: 'public',
+              table: 'conversations',
+              filter: `id=eq.${existingConv.id}`
+            },
+            (payload: any) => {
+              console.log("Received real-time update:", payload);
+              if (payload.new.messages) {
+                const convertedMessages = payload.new.messages.map((msg: any) => ({
+                  text: msg.text,
+                  sender: msg.sender,
+                  type: msg.type || 'text',
+                  created_at: msg.created_at
+                }));
+                setMessages(convertedMessages);
+              }
+            }
+          )
+          .subscribe();
+      }
+
+    } catch (error: any) {
+      console.error("Error in initializeConversation:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to initialize conversation: " + error.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (loading) {
     return <div className="flex justify-center items-center h-screen">Loading messages...</div>;
   }
