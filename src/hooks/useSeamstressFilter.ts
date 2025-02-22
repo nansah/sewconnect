@@ -37,14 +37,12 @@ export const useSeamstressFilter = (initialSeamstresses: Seamstress[] = []) => {
 
       if (seamstressError) throw seamstressError;
 
-      // Fetch active orders for each seamstress
       const { data: ordersData, error: ordersError } = await supabase
         .from('seamstress_active_orders')
         .select('*');
 
       if (ordersError) throw ordersError;
 
-      // Map the database fields to our Seamstress interface
       const combinedData: Seamstress[] = seamstressData.map(seamstress => ({
         id: seamstress.id,
         name: seamstress.name,
@@ -73,6 +71,17 @@ export const useSeamstressFilter = (initialSeamstresses: Seamstress[] = []) => {
   }) => {
     let filtered = [...seamstresses];
 
+    // If there's a specialty search term, search across multiple fields
+    if (filters.specialty) {
+      const searchTerm = filters.specialty.toLowerCase();
+      filtered = filtered.filter((seamstress) => 
+        seamstress.location.toLowerCase().includes(searchTerm) ||
+        seamstress.specialty.toLowerCase().includes(searchTerm) ||
+        seamstress.name.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    // Apply price range filter
     if (filters.priceRange) {
       filtered = filtered.filter((seamstress) => {
         const price = parseInt(seamstress.price.replace(/\D/g, ""));
@@ -84,13 +93,8 @@ export const useSeamstressFilter = (initialSeamstresses: Seamstress[] = []) => {
       });
     }
 
-    if (filters.specialty) {
-      filtered = filtered.filter((seamstress) =>
-        seamstress.specialty.toLowerCase().includes(filters.specialty.toLowerCase())
-      );
-    }
-
-    if (filters.location) {
+    // Apply location filter if it's different from the search term
+    if (filters.location && (!filters.specialty || !filters.specialty.toLowerCase().includes(filters.location.toLowerCase()))) {
       filtered = filtered.filter((seamstress) =>
         seamstress.location.toLowerCase().includes(filters.location.toLowerCase())
       );
