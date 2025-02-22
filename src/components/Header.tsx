@@ -12,7 +12,7 @@ export const Header = ({ onSearch }: HeaderProps) => {
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <div className="container flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center space-x-2">
-          <span className="text-xl font-bold text-primary">AfriStitch</span>
+          <span className="text-xl font-bold text-primary">SewConnect</span>
         </Link>
         <div className="flex-1 mx-8">
           {onSearch && <SearchBar onSearch={onSearch} />}
