@@ -20,7 +20,8 @@ export const CreatePost = ({ newPost, onPostChange, onPostSubmit }: CreatePostPr
       />
       <Button 
         onClick={onPostSubmit} 
-        className="bg-[#8B5CF6] hover:bg-[#7C3AED] text-white"
+        variant="default"
+        className="bg-accent hover:bg-accent/90 text-accent-foreground"
       >
         Post
       </Button>
