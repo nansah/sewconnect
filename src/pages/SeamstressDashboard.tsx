@@ -316,6 +316,11 @@ const SeamstressDashboard = () => {
   const queuePercentage = totalOrders ? (queueOrders.length / totalOrders) * 100 : 0;
   const progressPercentage = totalOrders ? (progressOrders.length / totalOrders) * 100 : 0;
 
+  // Calculate average progress of in-progress orders
+  const totalProgressPercentage = progressOrders.length > 0
+    ? progressOrders.reduce((sum, order) => sum + (order.conversation?.progress || 0), 0) / progressOrders.length
+    : 0;
+
   return (
     <div className="min-h-screen bg-[#EBE2D3] p-8">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -499,9 +504,9 @@ const SeamstressDashboard = () => {
               <div className="text-right">
                 <div className="mb-2">
                   <span className="text-sm font-medium text-gray-600">Total Progress</span>
-                  <span className="ml-2 text-lg font-bold text-primary">{0}%</span>
+                  <span className="ml-2 text-lg font-bold text-primary">{totalProgressPercentage.toFixed(0)}%</span>
                 </div>
-                <Progress value={0} className="w-32 h-2" />
+                <Progress value={totalProgressPercentage} className="w-32 h-2" />
               </div>
             </div>
             <div className="space-y-4">
