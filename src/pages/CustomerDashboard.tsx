@@ -5,7 +5,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { OrdersTables } from "@/components/dashboard/OrdersTables";
 import { Progress } from "@/components/ui/progress";
-import { Package, Truck, Clock } from "lucide-react";
+import { Package, Truck, Clock, Bookmark } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 interface Order {
   id: string;
@@ -24,9 +26,18 @@ interface Order {
   };
 }
 
+interface BookmarkedDesign {
+  id: string;
+  image_url: string;
+  description: string | null;
+  created_at: string;
+}
+
 const CustomerDashboard = () => {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [bookmarkedDesigns, setBookmarkedDesigns] = useState<BookmarkedDesign[]>([]);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // For demo purposes, we'll create some sample orders
@@ -70,7 +81,33 @@ const CustomerDashboard = () => {
     ];
 
     setOrders(demoOrders);
+    fetchBookmarkedDesigns();
   }, []);
+
+  const fetchBookmarkedDesigns = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+
+    const { data, error } = await supabase
+      .from('bookmarked_designs')
+      .select('*')
+      .eq('user_id', session.user.id)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching bookmarked designs:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load your saved designs.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (data) {
+      setBookmarkedDesigns(data);
+    }
+  };
 
   const calculateProgress = (status: string) => {
     const statusWeights: Record<string, number> = {
@@ -128,6 +165,57 @@ const CustomerDashboard = () => {
           progressOrders={activeOrders}
           totalProgressPercentage={totalProgressPercentage}
         />
+
+        {/* Saved Designs Section */}
+        <div className="mt-12">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold text-gray-800">Saved Designs</h2>
+            <Button 
+              variant="outline"
+              onClick={() => navigate('/design-inspiration')}
+            >
+              Browse More Designs
+            </Button>
+          </div>
+          
+          {bookmarkedDesigns.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {bookmarkedDesigns.map((design) => (
+                <Card key={design.id} className="overflow-hidden group relative">
+                  <div className="relative aspect-[3/4]">
+                    <img 
+                      src={design.image_url} 
+                      alt={design.description || "Saved design"}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                        <p className="mb-2">{design.description || "No description provided"}</p>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm">
+                            Saved {new Date(design.created_at).toLocaleDateString()}
+                          </span>
+                          <Bookmark className="w-5 h-5 fill-current" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card className="p-8 text-center">
+              <h3 className="text-lg font-medium text-gray-800 mb-2">No saved designs yet</h3>
+              <p className="text-gray-600 mb-4">Start saving designs you like for inspiration!</p>
+              <Button 
+                variant="default"
+                onClick={() => navigate('/design-inspiration')}
+              >
+                Explore Designs
+              </Button>
+            </Card>
+          )}
+        </div>
 
         {completedOrders.length > 0 && (
           <div className="mt-12">
