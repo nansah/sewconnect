@@ -14,12 +14,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { format, subMonths, startOfYear, endOfYear, parseISO } from "date-fns";
+import { format, subMonths, startOfYear, endOfYear, parseISO } from 'date-fns';
 import { ProfileEditForm } from "@/components/dashboard/ProfileEditForm";
 import { AnalyticsCards } from "@/components/dashboard/AnalyticsCards";
 import { SalesChart } from "@/components/dashboard/SalesChart";
 import { OrdersTables } from "@/components/dashboard/OrdersTables";
-import { InboxTab } from "@/components/dashboard/InboxTab";
+import { MessagesDialog } from "@/components/dashboard/MessagesDialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const DEMO_ORDERS = [
@@ -90,6 +90,7 @@ const SeamstressDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [dateFilter, setDateFilter] = useState('month');
   const [salesData, setSalesData] = useState([]);
+  const [isMessagesOpen, setIsMessagesOpen] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -331,17 +332,16 @@ const SeamstressDashboard = () => {
               {isEditing ? "Cancel Editing" : "Edit Profile"}
             </Button>
             <Button 
-              onClick={() => document.querySelector('[value="inbox"]')?.click()}
+              onClick={() => setIsMessagesOpen(true)}
               className="bg-primary hover:bg-primary/90"
               variant="default"
             >
               <MessageCircle className="w-4 h-4 mr-2" />
-              Inbox
+              Messages
             </Button>
           </div>
         </div>
 
-        {/* Profile Edit Form */}
         {isEditing && (
           <ProfileEditForm
             editForm={editForm}
@@ -364,7 +364,6 @@ const SeamstressDashboard = () => {
         <Tabs defaultValue="overview" className="w-full">
           <TabsList className="mb-8">
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="inbox">Inbox</TabsTrigger>
             <TabsTrigger value="orders">Orders</TabsTrigger>
           </TabsList>
 
@@ -382,10 +381,6 @@ const SeamstressDashboard = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="inbox">
-            <InboxTab />
-          </TabsContent>
-
           <TabsContent value="orders">
             <OrdersTables
               queueOrders={queueOrders}
@@ -394,6 +389,11 @@ const SeamstressDashboard = () => {
             />
           </TabsContent>
         </Tabs>
+
+        <MessagesDialog 
+          open={isMessagesOpen} 
+          onOpenChange={setIsMessagesOpen} 
+        />
       </div>
     </div>
   );
